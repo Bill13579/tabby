@@ -1,0 +1,31 @@
+{
+
+    "manifest_version": 2,
+    "name": "Tabby - Tab Manager and Tab Customizer",
+    "version": "1.0",
+
+    "description": "Manage a lot of tabs at ease, and customize tabs to fit your flavor.",
+    "icons": {
+        "48": "icons/tabby-48.png",
+        "96": "icons/tabby-96.png"
+    },
+
+    "permissions": [
+        "tabs"
+    ],
+    "applications": {
+        "gecko": {
+            "id": "tabby@whatsyouridea.com"
+        }
+    },
+
+    "browser_action": {
+        "default_icon": "icons/tabby-32.png",
+        "default_title": "Tabby",
+        "default_popup": "popup/index.html"
+    },
+    "background": {
+        "scripts": ["background.js"]
+    }
+
+}

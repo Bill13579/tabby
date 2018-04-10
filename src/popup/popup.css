@@ -1,0 +1,102 @@
+.current-tab {
+    background-color: #b7e7ff !important;
+}
+.current-window > span {
+    background-color: #3592fc !important;
+}
+.categories-list > li > span {
+    display: block;
+    width: inherit;
+    background-color: #5e5e5e;
+    font-size: 16.2px;
+    color: white;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: center;
+}
+.categories-list > li > ul > li {
+    background-color: #f2f2f2;
+    font-size: 18.1px;
+    color: black;
+    padding-left: 15.5px;
+    padding-right: 15.5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+}
+span a, span a:visited, span a:active {
+    color: inherit;
+    text-decoration: none;
+}
+#tabs, #tabs-list {
+    display: block;
+    border-radius: 3.6px;
+}
+.window-entry {
+    padding-top: 4px;
+}
+.window-entry > span {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+.tab-entry > img {
+    vertical-align: middle;
+    padding-right: 5px;
+    width: 4vw;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+.tab-entry > div {
+    width: 20vw;
+}
+.tab-entry > span {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+.tab-entry:hover, .tab-entry:active {
+    background-color: #a3c6ff;
+}
+.tab-entry.current-tab:hover, .tab-entry.current-tab:active {
+    background-color: #a3c6ff;
+}
+.tab-details {
+    font-size: 15px;
+    padding-left: 6px;
+}
+#details, #tabs-container {
+    display: inline-block;
+}
+#tabs, #details {
+    display: none;
+}
+#tabs-list, #tabs-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+input[type="text"] {
+    width: 100%;
+    padding: 7px 6.5px;
+    margin: 6px 0;
+    display: inline-block;
+    border: 0.6px solid #dadada;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 10px #9ecaed;
+}
