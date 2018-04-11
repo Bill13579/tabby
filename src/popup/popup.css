@@ -55,6 +55,9 @@ html, body {
 #search-area {
     margin-bottom: 5px;
 }
+#search {
+    font-size: 15px;
+}
 .window-entry {
     padding-top: 4px;
     white-space: nowrap;
@@ -104,7 +107,11 @@ html, body {
     font-size: 15px;
     padding-left: 6px;
 }
+#details, #tabs-container {
+    display: inline-block;
+}
 #details {
+    display: inline-table;
     height: inherit;
     width: 55%;
     float: left;
@@ -113,17 +120,19 @@ html, body {
     height: inherit;
     width: 45%;
 }
-#details, #tabs-container {
-    display: inline-block;
-}
 #tabs, #details *:not(#details-placeholder) {
     display: none;
 }
 #details #details-placeholder {
-    display: inline-block;
-    width: 100%;
+    display: table-cell;
+    font-size: 26.5px;
+    font-weight: bolder;
+    letter-spacing: -1.3px;
+    color: #aaaaaa;
     text-align: center;
     vertical-align: middle;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 #tabs-list, #tabs-list ul {
     list-style: none;
@@ -141,4 +150,12 @@ input[type="text"] {
 input[type="text"]:focus {
     outline: none;
     box-shadow: 0 0 10px #9ecaed;
+}
+input[type="checkbox"] + label {
+    padding-left: 3.5px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
 }
