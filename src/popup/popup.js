@@ -1,4 +1,4 @@
-var tabs_list = document.getElementById("tabs-list");
+var tabs_list = document.querySelector("#tabs-list");
 
 function stripHTML(str) {
     var map = {
@@ -11,6 +11,7 @@ function stripHTML(str) {
 }
 
 document.addEventListener("DOMContentLoaded", addTabs);
+document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
 browser.runtime.onMessage.addListener(
     function (request, sender, sendResponse){
@@ -34,6 +35,20 @@ browser.runtime.onMessage.addListener(
         }
     }
 );
+
+function extendTabsList() {
+    let searchArea = document.querySelector("#search-area");
+    let searchAreaHeight = getActualHeight(searchArea);
+    let tabs = document.querySelector("#tabs");
+    tabs.style.height = "calc(100% - " + searchAreaHeight + "px)";
+}
+
+function getActualHeight(element) {
+    var styles = window.getComputedStyle(element);
+    var margin = parseFloat(styles['marginTop']) +
+               parseFloat(styles['marginBottom']);
+    return element.offsetHeight + margin;
+}
 
 function getFavIconFromTabEntry(entry) {
     return entry.querySelector("img");
@@ -61,6 +76,10 @@ function getTabEntry(window, tabId) {
 function getActiveTab(windowId) {
     let window = getWindowEntry(windowId);
     return window.querySelector(".current-tab");
+}
+
+function getCurrentWindow() {
+    return browser.tabs.query({currentWindow: true});
 }
 
 function setActiveTab(windowId, tabId) {
@@ -92,6 +111,7 @@ function updateTabs(windows) {
             if (tab.id !== browser.tabs.TAB_ID_NONE) {
                 let tabEntry = document.createElement("li");
                 tabEntry.classList.add("tab-entry");
+                tabEntry.classList.add("button");
 
                 let favicon = document.createElement("img");
                 span = document.createElement("span");
@@ -129,7 +149,7 @@ function updateTabs(windows) {
         windowEntry.appendChild(tabs_list_html);
         tabs_list.appendChild(windowEntry);
     }
-    document.getElementById("tabs").style.display = "block";
+    document.querySelector("#tabs").style.display = "block";
     currentWindowEntry.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -155,6 +175,13 @@ function documentDblClicked(e) {
                         break;
                     }
                 }
+                getCurrentWindow().then(function (cw) {
+                    if (w !== cw) {
+                        browser.windows.update(w.id, {
+                            focused: true
+                        });
+                    }
+                });
             });
         } else if (e.target.parentElement.classList.contains("window-entry")) {
             let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
