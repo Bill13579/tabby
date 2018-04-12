@@ -13,6 +13,7 @@ function stripHTML(str) {
 document.addEventListener("DOMContentLoaded", addTabs);
 document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
+document.addEventListener("click", documentClicked);
 browser.runtime.onMessage.addListener(
     function (request, sender, sendResponse){
         switch (request.msg) {
@@ -202,4 +203,8 @@ function documentDblClicked(e) {
         }
     }
     e.preventDefault();
+}
+
+function documentClicked(e) {
+    
 }
