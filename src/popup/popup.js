@@ -15,23 +15,33 @@ document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
 browser.runtime.onMessage.addListener(
     function (request, sender, sendResponse){
-        if (request.msg === "ACTIVE_TAB_CHANGED") {
-            setActiveTab(request.details.windowId, request.details.tabId);
-        } else if (request.msg === "TAB_FAV_ICON_CHANGED") {
-            getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
-        } else if (request.msg === "TAB_PINNED_STATUS_CHANGED") {
-            let tabDetails = findTabEntryById(request.details.tabId).querySelector(".tab-details");
-            if (request.details.pinned) {
-                if (tabDetails.textContent !== "") {
-                    tabDetails.textContent += ", Pinned";
+        switch (request.msg) {
+            case "ACTIVE_TAB_CHANGED":
+                setActiveTab(request.details.windowId, request.details.tabId);
+                break;
+            case "TAB_FAV_ICON_CHANGED":
+                getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
+                break;
+            case "TAB_PINNED_STATUS_CHANGED":
+                let tabDetails = findTabEntryById(request.details.tabId).querySelector(".tab-details");
+                if (request.details.pinned) {
+                    if (tabDetails.textContent !== "") {
+                        tabDetails.textContent += ", Pinned";
+                    } else {
+                        tabDetails.textContent = "Pinned";
+                    }
                 } else {
-                    tabDetails.textContent = "Pinned";
+                    tabDetails.textContent = tabDetails.textContent.replace(/(, Pinned|Pinned)/, "Pinned");
                 }
-            } else {
-                tabDetails.textContent = tabDetails.textContent.replace(/(, Pinned|Pinned)/, "Pinned");
-            }
-        } else if (request.msg === "TAB_TITLE_CHANGED") {
-            findTabEntryById(request.details.tabId).querySelector("span:not(.tab-details)").textContent = request.details.title;
+                break;
+            case "TAB_TITLE_CHANGED":
+                findTabEntryById(request.details.tabId).querySelector("span:not(.tab-details)").textContent = request.details.title;
+                break;
+            case "TAB_REMOVED":
+                let deletedTabEntry = findTabEntryById(request.details.tabId);
+                deletedTabEntry.parentElement.remove(deletedTabEntry);
+                delete deletedTabEntry;
+                break;
         }
     }
 );

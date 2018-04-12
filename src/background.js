@@ -1,5 +1,6 @@
 browser.tabs.onUpdated.addListener(tabUpdated);
 browser.tabs.onActivated.addListener(tabActivated);
+browser.tabs.onRemoved.addListener(tabRemoved);
 
 function sendMessage(msg, details) {
     browser.runtime.sendMessage({
@@ -34,4 +35,10 @@ function tabUpdated(tabId, changeInfo, tab) {
             title: changeInfo.title
         });
     }
+}
+
+function tabRemoved(tabId, removeInfo) {
+    sendMessage("TAB_REMOVED", {
+        tabId: tabId
+    });
 }

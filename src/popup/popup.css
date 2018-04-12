@@ -134,6 +134,9 @@ html, body {
     padding-left: 6px;
     padding-right: 6px;
 }
+#details-img {
+    width: inherit;
+}
 #tabs-list, #tabs-list ul {
     list-style: none;
     padding-left: 0;
