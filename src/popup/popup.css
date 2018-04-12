@@ -10,13 +10,21 @@ html, body {
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
-.current-tab {
-    background-color: #b7e7ff !important;
+.darker-button:hover, .darker-button:active {
+    background-color: #0062ff;
 }
-.current-window > span {
-    background-color: #3592fc !important;
+.inline-button {
+    width: 40px;
+    height: 21px;
+    font-weight: normal;
+    font-size: 15px;
+    display: inline-block;
+    background-color: rgb(0, 153, 255);
+    border-radius: 3px;
+    color: white;
+    vertical-align: middle;
 }
-.categories-list > li > span {
+.category > span {
     display: block;
     width: inherit;
     background-color: #5e5e5e;
@@ -27,7 +35,7 @@ html, body {
     padding-top: 3.5px;
     padding-bottom: 3.5px;
 }
-.categories-list > li > ul > li {
+.category-list > li {
     background-color: #f2f2f2;
     font-size: 17.1px;
     color: black;
@@ -43,6 +51,12 @@ html, body {
     padding-bottom: 6.5px;
     padding-left: 11.5px;
     padding-right: 11.5px;
+}
+.current-tab {
+    background-color: #b7e7ff !important;
+}
+.current-window > span {
+    background-color: #3592fc;
 }
 #tabs {
     overflow-y: scroll;
@@ -97,9 +111,6 @@ html, body {
     -moz-user-select: none;
     -khtml-user-select: none;
     -ms-user-select: none;
-}
-.tab-entry.current-tab:hover, .tab-entry.current-tab:active {
-    background-color: #a3c6ff;
 }
 .tab-details {
     font-size: 15px;

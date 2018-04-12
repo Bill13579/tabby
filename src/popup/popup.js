@@ -108,6 +108,7 @@ function updateTabs(windows) {
         let w = windows[i];
         windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
+        windowEntry.classList.add("category");
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
         span.textContent += "Window " + (i+1);
@@ -116,8 +117,10 @@ function updateTabs(windows) {
             windowEntry.classList.add("current-window");
             span.textContent += " - Current Window";
         }
+        span.classList.add("darker-button");
         windowEntry.appendChild(span);
         let tabs_list_html = document.createElement("ul");
+        tabs_list_html.classList.add("category-list");
         for (let tab of w.tabs) {
             if (tab.id !== browser.tabs.TAB_ID_NONE) {
                 let tabEntry = document.createElement("li");
@@ -216,6 +219,9 @@ function documentClicked(e) {
                     document.querySelector("#tab-details").style.display = "table-cell";
                 });
             });
+        } else if (e.target.classList.contains("copy-title-btn")) {
+            document.querySelector("#details-title").select();
+            document.execCommand("copy");
         }
     }
     e.preventDefault();
