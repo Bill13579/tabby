@@ -175,17 +175,12 @@ function documentDblClicked(e) {
         if (e.target.classList.contains("tab-entry")) {
             let tabId = parseInt(e.target.getAttribute("data-tab_id"));
             let parentWindowId = parseInt(e.target.parentElement.parentElement.getAttribute("data-window_id"));
+            browser.tabs.update(tabId, {
+                active: true
+            });
             browser.windows.get(parentWindowId, {
                 populate: true
             }).then(function (w){
-                for (let tab of w.tabs) {
-                    if (tab.id == tabId) {
-                        browser.tabs.update(tabId, {
-                            active: true
-                        });
-                        break;
-                    }
-                }
                 getCurrentWindow().then(function (cw) {
                     if (w !== cw) {
                         browser.windows.update(w.id, {
@@ -206,5 +201,22 @@ function documentDblClicked(e) {
 }
 
 function documentClicked(e) {
-    
+    if (e.button === 0) {
+        if (e.target.classList.contains("tab-entry")) {
+            let tabId = parseInt(e.target.getAttribute("data-tab_id"));
+            browser.tabs.captureTab(tabId).then(function (imageUri){
+                let detailsImage = document.querySelector("#details-img");
+                detailsImage.src = imageUri;
+                let detailsTitle = document.querySelector("#details-title");
+                let detailsURL = document.querySelector("#details-url");
+                browser.tabs.get(tabId).then(function (tab) {
+                    detailsTitle.textContent = tab.title;
+                    detailsURL.textContent = tab.url;
+                    document.querySelector("#details-placeholder").style.display = "none";
+                    document.querySelector("#tab-details").style.display = "table-cell";
+                });
+            });
+        }
+    }
+    e.preventDefault();
 }

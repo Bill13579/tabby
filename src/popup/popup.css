@@ -35,7 +35,6 @@ html, body {
     padding-right: 15px;
     padding-top: 5px;
     padding-bottom: 5px;
-    cursor: pointer;
 }
 #container {
     width: calc(100% - 23px);
@@ -65,7 +64,6 @@ html, body {
     text-overflow: ellipsis;
 }
 .window-entry > span {
-    cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -105,37 +103,61 @@ html, body {
 }
 .tab-details {
     font-size: 15px;
-    padding-left: 6px;
+}
+.space {
+    height: 6px;
+    width: 100%;
 }
 #details, #tabs-container {
     display: inline-block;
 }
 #details {
-    display: inline-table;
-    height: inherit;
+    height: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     width: 55%;
     float: left;
+    text-align: center;
 }
 #tabs-container {
     height: inherit;
     width: 45%;
 }
-#tabs, #details *:not(#details-placeholder) {
+#tabs, #tab-details {
     display: none;
 }
 #details #details-placeholder {
-    display: table-cell;
     font-size: 26.5px;
     font-weight: bolder;
     letter-spacing: -1.3px;
     color: #aaaaaa;
-    text-align: center;
-    vertical-align: middle;
     padding-left: 6px;
     padding-right: 6px;
 }
+#tab-details {
+    height: 100%;
+    padding-left: 7px;
+    padding-right: 18px;
+    margin-right: 7px;
+    overflow-y: auto;
+}
 #details-img {
-    width: inherit;
+    width: 100%;
+    margin-bottom: 7.5px;
+    border: 0.2px solid black;
+    border-radius: 2px;
+}
+#details-title, #details-url, label[for="details-title"], label[for="details-url"] {
+    font-size: 16.6px;
+}
+label[for="details-title"], label[for="details-url"] {
+    font-weight: bold;
+}
+#details-title, #details-url {
+    display: block;
+    word-wrap: normal;
+    overflow: hidden;
 }
 #tabs-list, #tabs-list ul {
     list-style: none;
