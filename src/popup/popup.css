@@ -57,7 +57,7 @@ html, body {
 .red-button {
     background-color: red;
 }
-.red-button:hover {
+.red-button:hover, .red-button:active {
     background-color: darkred;
 }
 .category > span {
