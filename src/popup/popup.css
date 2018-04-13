@@ -13,9 +13,28 @@ html, body {
 .darker-button:hover, .darker-button:active {
     background-color: #0062ff;
 }
+.round-inline-button {
+    width: 16px;
+    height: 16px;
+    font-weight: normal;
+    font-size: 10px;
+    display: inline-block;
+    background-color: rgb(0, 153, 255);
+    border-radius: 50%;
+    color: white;
+    vertical-align: middle;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+.round-inline-button:hover, .round-inline-button:active {
+    background-color: #0062ff;
+}
 .inline-button {
-    width: 40px;
-    height: 21px;
+    width: 25px;
+    height: 25px;
     font-weight: normal;
     font-size: 15px;
     display: inline-block;
@@ -23,6 +42,23 @@ html, body {
     border-radius: 3px;
     color: white;
     vertical-align: middle;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+}
+.inline-button:hover, .inline-button:active {
+    background-color: #0062ff;
+}
+.img-button img {
+    pointer-events: none;
+}
+.red-button {
+    background-color: red;
+}
+.red-button:hover {
+    background-color: darkred;
 }
 .category > span {
     display: block;
@@ -57,6 +93,12 @@ html, body {
 }
 .current-window > span {
     background-color: #3592fc;
+}
+#details-pinned, #details-hidden {
+    display: none;
+}
+#details-close img {
+    width: 100%;
 }
 #tabs {
     overflow-y: scroll;
@@ -100,17 +142,27 @@ html, body {
     -moz-user-select: none;
     -khtml-user-select: none;
     -ms-user-select: none;
+    vertical-align: middle;
 }
 .tab-entry > div {
-    width: 20vw;
+    width: 17vw;
 }
-.tab-entry > span {
+.tab-entry > span:not(.round-inline-button) {
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
     -ms-user-select: none;
+    vertical-align: middle;
+}
+.tab-entry-remove-btn {
+    background-color: #aaaaaa;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.tab-entry-remove-btn:hover, .tab-entry-remove-btn:active {
+    background-color: #5e5e5e;
 }
 .tab-details {
     font-size: 15px;
@@ -118,6 +170,17 @@ html, body {
 .space {
     height: 6px;
     width: 100%;
+}
+#details-header {
+    margin-bottom: 4px;
+}
+#details-status {
+    float: left;
+    margin-bottom: inherit;
+}
+#details-actions {
+    float: right;
+    margin-bottom: inherit;
 }
 #details, #tabs-container {
     display: inline-block;

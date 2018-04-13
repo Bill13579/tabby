@@ -39,6 +39,7 @@ function tabUpdated(tabId, changeInfo, tab) {
 
 function tabRemoved(tabId, removeInfo) {
     sendMessage("TAB_REMOVED", {
-        tabId: tabId
+        tabId: tabId, 
+        windowId: removeInfo.windowId
     });
 }

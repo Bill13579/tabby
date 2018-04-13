@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", addTabs);
 document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
 document.addEventListener("click", documentClicked);
+document.querySelector("#search").addEventListener("keyup", searchTextChanged);
 browser.runtime.onMessage.addListener(
     function (request, sender, sendResponse){
         switch (request.msg) {
@@ -39,13 +40,31 @@ browser.runtime.onMessage.addListener(
                 findTabEntryById(request.details.tabId).querySelector("span:not(.tab-details)").textContent = request.details.title;
                 break;
             case "TAB_REMOVED":
-                let deletedTabEntry = findTabEntryById(request.details.tabId);
-                deletedTabEntry.parentElement.remove(deletedTabEntry);
-                delete deletedTabEntry;
+                removeTab(request.details.tabId, request.details.windowId);
                 break;
         }
     }
 );
+
+function searchTextChanged(e) {
+    let input, filter, tabEntries;
+    input = document.querySelector("#search");
+    filter = input.value.toUpperCase();
+    tabEntries = document.querySelectorAll(".tab-entry");
+    if (filter !== "") {
+        for (let tabEntry of tabEntries) {
+            if (!tabEntry.querySelector(".tab-title").textContent.toUpperCase().includes(filter)) {
+                tabEntry.style.display = "none";
+            } else {
+                tabEntry.style.display = "block";
+            }
+        }
+    } else {
+        for (let tabEntry of tabEntries) {
+            tabEntry.style.display = "block";
+        }
+    }
+}
 
 function extendTabsList() {
     let searchArea = document.querySelector("#search-area");
@@ -76,7 +95,7 @@ function getWindows() {
     });
 }
 
-function getWindowEntry(windowId) {
+function findWindowEntryById(windowId) {
     return tabs_list.querySelector("li[data-window_id=\"" + windowId + "\"]");
 }
 
@@ -85,7 +104,7 @@ function getTabEntry(window, tabId) {
 }
 
 function getActiveTab(windowId) {
-    let window = getWindowEntry(windowId);
+    let window = findWindowEntryById(windowId);
     return window.querySelector(".current-tab");
 }
 
@@ -94,7 +113,7 @@ function getCurrentWindow() {
 }
 
 function setActiveTab(windowId, tabId) {
-    let window = getWindowEntry(windowId);
+    let window = findWindowEntryById(windowId);
     let tab = getTabEntry(window, tabId);
     getActiveTab(windowId).classList.remove("current-tab");
     tab.classList.add("current-tab");
@@ -127,8 +146,9 @@ function updateTabs(windows) {
                 tabEntry.classList.add("tab-entry");
                 tabEntry.classList.add("button");
 
-                let favicon = document.createElement("img");
+                let favicon = null;
                 span = document.createElement("span");
+                span.classList.add("tab-title");
                 span.textContent += stripHTML(tab.title);
 
                 let details = document.createElement("span");
@@ -137,14 +157,28 @@ function updateTabs(windows) {
                     tabEntry.classList.add("current-tab");
                 }
                 if (tab.favIconUrl) {
+                    favicon = document.createElement("img");
                     favicon.src = tab.favIconUrl;
                 }
                 if (tab.hidden) {
                     details.textContent = "Hidden: yes";
                 }
 
+                let closeBtn = document.createElement("span");
+                closeBtn.classList.add("round-inline-button");
+                closeBtn.classList.add("red-button");
+                closeBtn.classList.add("img-button");
+                closeBtn.classList.add("tab-entry-remove-btn");
+                let closeBtnImage = document.createElement("img");
+                closeBtnImage.src = "../icons/close.svg";
+                closeBtnImage.style.height = "100%";
+                closeBtn.appendChild(closeBtnImage);
+
                 tabEntry.setAttribute("data-tab_id", tab.id);
-                tabEntry.appendChild(favicon);
+                tabEntry.appendChild(closeBtn);
+                if (favicon !== null) {
+                    tabEntry.appendChild(favicon);
+                }
                 tabEntry.appendChild(span);
                 tabEntry.appendChild(details);
 
@@ -216,13 +250,54 @@ function documentClicked(e) {
                     detailsTitle.textContent = tab.title;
                     detailsURL.textContent = tab.url;
                     document.querySelector("#details-placeholder").style.display = "none";
-                    document.querySelector("#tab-details").style.display = "table-cell";
+                    document.querySelector("#tab-details").style.display = "inline-block";
+                    document.querySelector("#tab-details").setAttribute("data-tab_id", tabId);
+                    if (tab.pinned) {
+                        document.querySelector("#details-pinned").style.display = "inline";
+                    } else {
+                        document.querySelector("#details-pinned").style.display = "none";
+                    }
+                    if (tab.hidden) {
+                        document.querySelector("#details-hidden").style.display = "inline";
+                    } else {
+                        document.querySelector("#details-hidden").style.display = "none";
+                    }
+                    if (tab.pinned && tab.hidden) {
+                        document.querySelector("#details-comma").style.display = "inline";
+                    } else {
+                        document.querySelector("#details-comma").style.display = "none";
+                    }
                 });
             });
-        } else if (e.target.classList.contains("copy-title-btn")) {
-            document.querySelector("#details-title").select();
-            document.execCommand("copy");
+        } else if (e.target.id === "details-close") {
+            document.querySelector("#details-placeholder").style.display = "inline-block";
+            document.querySelector("#tab-details").style.display = "none";
+            browser.tabs.remove(parseInt(document.querySelector("#tab-details").getAttribute("data-tab_id")));
+        } else if (e.target.classList.contains("tab-entry-remove-btn")) {
+            let tabId = e.target.parentElement.getAttribute("data-tab_id");
+            let tabDetails = document.querySelector("#tab-details");
+            if (tabDetails.getAttribute("data-tab_id") === tabId) {
+                tabDetails.style.display = "none";
+                document.querySelector("#details-placeholder").style.display = "inline-block";
+            }
+            let parentWindowId = parseInt(e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id"));
+            removeTab(parseInt(tabId), parentWindowId);
         }
     }
-    e.preventDefault();
+}
+
+function removeTab(tabId, windowId) {
+    let tabEntry = findTabEntryById(tabId);
+    tabEntry.outerHTML = "";
+    browser.tabs.remove(tabId);
+    browser.windows.get(windowId, {
+        populate: true
+    }).then(function (window){
+        for (let tab of window.tabs) {
+            if (tab.active) {
+                findTabEntryById(tab.id).classList.add("current-tab");
+                break;
+            }
+        }
+    });
 }
