@@ -1,5 +1,6 @@
 var tabs_list = document.querySelector("#tabs-list");
 
+// Function for stripping HTML
 function stripHTML(str) {
     var map = {
         "&": "&amp;",
@@ -10,6 +11,7 @@ function stripHTML(str) {
     return str.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
+// Add event listeners
 document.addEventListener("DOMContentLoaded", addTabs);
 document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
@@ -46,26 +48,7 @@ browser.runtime.onMessage.addListener(
     }
 );
 
-function searchTextChanged(e) {
-    let input, filter, tabEntries;
-    input = document.querySelector("#search");
-    filter = input.value.toUpperCase();
-    tabEntries = document.querySelectorAll(".tab-entry");
-    if (filter !== "") {
-        for (let tabEntry of tabEntries) {
-            if (!tabEntry.querySelector(".tab-title").textContent.toUpperCase().includes(filter)) {
-                tabEntry.style.display = "none";
-            } else {
-                tabEntry.style.display = "block";
-            }
-        }
-    } else {
-        for (let tabEntry of tabEntries) {
-            tabEntry.style.display = "block";
-        }
-    }
-}
-
+// Set tabs list height to any available height
 function extendTabsList() {
     let searchArea = document.querySelector("#search-area");
     let searchAreaHeight = getActualHeight(searchArea);
@@ -73,6 +56,7 @@ function extendTabsList() {
     tabs.style.height = "calc(100% - " + searchAreaHeight + "px)";
 }
 
+// Get actual height of an element
 function getActualHeight(element) {
     var styles = window.getComputedStyle(element);
     var margin = parseFloat(styles['marginTop']) +
@@ -80,14 +64,22 @@ function getActualHeight(element) {
     return element.offsetHeight + margin;
 }
 
+// Get favicon from a tab entry
 function getFavIconFromTabEntry(entry) {
     return entry.querySelector("img");
 }
 
+// Find tab entry by tab id
 function findTabEntryById(tabId) {
     return document.querySelector(".tab-entry[data-tab_id=\"" + tabId + "\"]");
 }
 
+// Find window entry by tab id
+function findWindowEntryById(windowId) {
+    return tabs_list.querySelector("li[data-window_id=\"" + windowId + "\"]");
+}
+
+// Get all windows
 function getWindows() {
     return browser.windows.getAll({
         populate: true,
@@ -95,30 +87,48 @@ function getWindows() {
     });
 }
 
-function findWindowEntryById(windowId) {
-    return tabs_list.querySelector("li[data-window_id=\"" + windowId + "\"]");
+// Get current window
+function getCurrentWindow() {
+    return browser.tabs.query({currentWindow: true});
 }
 
-function getTabEntry(window, tabId) {
-    return window.querySelector("li[data-tab_id=\"" + tabId + "\"]");
+// Find tab entry inside a window entry
+function findTabEntryInWindow(windowEntry, tabId) {
+    return windowEntry.querySelector("li[data-tab_id=\"" + tabId + "\"]");
 }
 
+// Get active tab in the specified window
 function getActiveTab(windowId) {
     let window = findWindowEntryById(windowId);
     return window.querySelector(".current-tab");
 }
 
-function getCurrentWindow() {
-    return browser.tabs.query({currentWindow: true});
-}
-
+// Set active tab in the specified window
 function setActiveTab(windowId, tabId) {
     let window = findWindowEntryById(windowId);
-    let tab = getTabEntry(window, tabId);
+    let tab = findTabEntryInWindow(window, tabId);
     getActiveTab(windowId).classList.remove("current-tab");
     tab.classList.add("current-tab");
 }
 
+// Remove tab
+function removeTab(tabId, windowId) {
+    let tabEntry = findTabEntryById(tabId);
+    tabEntry.outerHTML = "";
+    browser.tabs.remove(tabId);
+    browser.windows.get(windowId, {
+        populate: true
+    }).then(function (window){
+        for (let tab of window.tabs) {
+            if (tab.active) {
+                findTabEntryById(tab.id).classList.add("current-tab");
+                break;
+            }
+        }
+    });
+}
+
+// Update tabs
 function updateTabs(windows) {
     tabs_list.innerHTML = "";
     let windowEntry;
@@ -138,6 +148,9 @@ function updateTabs(windows) {
         }
         span.classList.add("darker-button");
         windowEntry.appendChild(span);
+        windowEntry.addEventListener("dragstart", windowEntryDragStarted);
+        windowEntry.addEventListener("dragover", windowEntryDraggingOver);
+        windowEntry.addEventListener("drop", windowEntryDropped);
         let tabs_list_html = document.createElement("ul");
         tabs_list_html.classList.add("category-list");
         for (let tab of w.tabs) {
@@ -145,6 +158,7 @@ function updateTabs(windows) {
                 let tabEntry = document.createElement("li");
                 tabEntry.classList.add("tab-entry");
                 tabEntry.classList.add("button");
+                tabEntry.setAttribute("draggable", "true");
 
                 let favicon = null;
                 span = document.createElement("span");
@@ -201,10 +215,32 @@ function updateTabs(windows) {
     currentWindowEntry.scrollIntoView({ behavior: 'smooth' });
 }
 
+// Add tabs to list
 function addTabs() {
     getWindows().then(function (windows) {
         updateTabs(windows);
     });
+}
+
+// Search
+function searchTextChanged(e) {
+    let input, filter, tabEntries;
+    input = document.querySelector("#search");
+    filter = input.value.toUpperCase();
+    tabEntries = document.querySelectorAll(".tab-entry");
+    if (filter !== "") {
+        for (let tabEntry of tabEntries) {
+            if (!tabEntry.querySelector(".tab-title").textContent.toUpperCase().includes(filter)) {
+                tabEntry.style.display = "none";
+            } else {
+                tabEntry.style.display = "block";
+            }
+        }
+    } else {
+        for (let tabEntry of tabEntries) {
+            tabEntry.style.display = "block";
+        }
+    }
 }
 
 function documentDblClicked(e) {
@@ -286,18 +322,53 @@ function documentClicked(e) {
     }
 }
 
-function removeTab(tabId, windowId) {
-    let tabEntry = findTabEntryById(tabId);
-    tabEntry.outerHTML = "";
-    browser.tabs.remove(tabId);
-    browser.windows.get(windowId, {
-        populate: true
-    }).then(function (window){
-        for (let tab of window.tabs) {
-            if (tab.active) {
-                findTabEntryById(tab.id).classList.add("current-tab");
-                break;
-            }
+var sourceTab;
+var sourceWindow;
+
+function windowEntryDragStarted(e) {
+    if (e.target.classList.contains("tab-entry")) {
+        sourceTab = e.target;
+        sourceWindow = sourceTab.parentElement.parentElement;
+        e.dataTransfer.setData("text/plain", sourceTab.outerHTML);
+        e.dataTransfer.effectAllowed = "move";
+    }
+}
+
+function windowEntryDraggingOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (sourceTab !== e.target && e.target.classList.contains("tab-entry")) {
+        let lastCursor = e.target.parentElement.querySelector(".insert-cursor");
+        if (lastCursor !== null) {
+            lastCursor.outerHTML = "";
         }
-    });
+        let cursor = document.createElement("div");
+        cursor.classList.add("insert-cursor");
+        e.target.parentElement.insertBefore(cursor, e.target);
+    }
+}
+
+function windowEntryDropped(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.target.classList.contains("tab-entry")) {
+        let newTabEntry = sourceTab.cloneNode(true);
+        sourceTab.outerHTML = "";
+        let cursors = tabs_list.querySelectorAll(".insert-cursor");
+        for (let cursor of cursors) {
+            cursor.outerHTML = "";
+        }
+        e.target.parentElement.insertBefore(newTabEntry, e.target);
+        let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
+        if (destinationWindowId !== null) {
+            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
+                windowId: parseInt(destinationWindowId),
+                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
+            });
+        } else {
+            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
+                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
+            });
+        }
+    }
 }

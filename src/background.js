@@ -1,7 +1,9 @@
+// Watch out for any changes in tabs
 browser.tabs.onUpdated.addListener(tabUpdated);
 browser.tabs.onActivated.addListener(tabActivated);
 browser.tabs.onRemoved.addListener(tabRemoved);
 
+// Function to send a message
 function sendMessage(msg, details) {
     browser.runtime.sendMessage({
         msg: msg,

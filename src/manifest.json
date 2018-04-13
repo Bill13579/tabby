@@ -1,10 +1,10 @@
 {
 
     "manifest_version": 2,
-    "name": "Tabby - Tab Manager and Tab Customizer",
+    "name": "Tabby - The best Tab Manager ever created",
     "version": "1.0",
 
-    "description": "Manage a lot of tabs at ease, and customize tabs to fit your flavor.",
+    "description": "Manage a lot of tabs at ease.",
     "icons": {
         "48": "icons/tabby-48.png",
         "96": "icons/tabby-96.png"
