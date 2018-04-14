@@ -393,11 +393,11 @@ function windowEntryDragStarted(e) {
 function windowEntryDraggingOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (sourceTab !== e.target && e.target.classList.contains("tab-entry")) {
-        let lastCursor = e.target.parentElement.querySelector(".insert-cursor");
-        if (lastCursor !== null) {
-            lastCursor.outerHTML = "";
-        }
+    let cursors = tabs_list.querySelectorAll(".insert-cursor");
+    for (let c of cursors) {
+        c.outerHTML = "";
+    }
+    if (sourceTab !== e.target && e.target.classList.contains("tab-entry") && !e.target.classList.contains("pinned-tab")) {
         let cursor = document.createElement("div");
         cursor.classList.add("insert-cursor");
         e.target.parentElement.insertBefore(cursor, e.target);
@@ -407,13 +407,13 @@ function windowEntryDraggingOver(e) {
 function windowEntryDropped(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (e.target.classList.contains("tab-entry")) {
+    let cursors = tabs_list.querySelectorAll(".insert-cursor");
+    for (let cursor of cursors) {
+        cursor.outerHTML = "";
+    }
+    if (sourceTab !== e.target && e.target.classList.contains("tab-entry") && !e.target.classList.contains("pinned-tab")) {
         let newTabEntry = sourceTab.cloneNode(true);
         sourceTab.outerHTML = "";
-        let cursors = tabs_list.querySelectorAll(".insert-cursor");
-        for (let cursor of cursors) {
-            cursor.outerHTML = "";
-        }
         e.target.parentElement.insertBefore(newTabEntry, e.target);
         let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
         if (destinationWindowId !== null) {
