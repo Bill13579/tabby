@@ -2,13 +2,14 @@ var tabs_list = document.querySelector("#tabs-list");
 
 // Function for stripping HTML
 function stripHTML(str) {
-    var map = {
+    var chars = {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
-        "\"": "&quot;"
+        "\"": "&quot;",
+        "'": "&#39;"
     };
-    return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+    return str.replace(/[&<>"']/g, function(i) { return chars[i]; });
 }
 
 // Add event listeners
