@@ -4,9 +4,9 @@ Tabby is a window & tab manager that can manage great amounts of windows and tab
 
 # File Structure
 
-icons - Directory for storing Tabby icons<br/>
+icons/ - Directory for storing Tabby icons<br/>
 icons/tabby.svg - Tabby icon<br/>
-src - Directory for storing the source code<br/>
+src/ - Directory for storing the source code<br/>
 src/icons - Icons used in the Tabby UI<br/>
 src/popup - Tabby popup scripts<br/>
 src/popup/index.html - Tabby popup main html file<br/>
