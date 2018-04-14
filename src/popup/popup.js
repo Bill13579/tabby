@@ -342,6 +342,7 @@ function documentClicked(e) {
                     }
                 });
             });
+            window.close();
         } else if (e.target.parentElement.classList.contains("window-entry")) {
             let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
             browser.windows.update(windowId, {
