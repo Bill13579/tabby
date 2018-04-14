@@ -214,8 +214,8 @@ html, body {
     font-weight: bolder;
     letter-spacing: -1.3px;
     color: #aaaaaa;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 #tab-details {
     height: 100%;
