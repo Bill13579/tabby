@@ -14,7 +14,7 @@ function stripHTML(str) {
 // Add event listeners
 document.addEventListener("DOMContentLoaded", addTabs);
 document.addEventListener("DOMContentLoaded", extendTabsList);
-document.addEventListener("dblclick", documentDblClicked);
+document.addEventListener("mouseover", documentMouseOver);
 document.addEventListener("click", documentClicked);
 document.querySelector("#search").addEventListener("keyup", searchTextChanged);
 // Add event listener to listen for any messages from background.js
@@ -286,37 +286,7 @@ function searchTextChanged(e) {
     }
 }
 
-function documentDblClicked(e) {
-    if (e.button === 0) {
-        if (e.target.classList.contains("tab-entry")) {
-            let tabId = parseInt(e.target.getAttribute("data-tab_id"));
-            let parentWindowId = parseInt(e.target.parentElement.parentElement.getAttribute("data-window_id"));
-            browser.tabs.update(tabId, {
-                active: true
-            });
-            browser.windows.get(parentWindowId, {
-                populate: true
-            }).then(function (w){
-                getCurrentWindow().then(function (cw) {
-                    if (w !== cw) {
-                        browser.windows.update(w.id, {
-                            focused: true
-                        });
-                    }
-                });
-            });
-        } else if (e.target.parentElement.classList.contains("window-entry")) {
-            let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
-            browser.windows.update(windowId, {
-                focused: true
-            });
-            window.close();
-        }
-    }
-    e.preventDefault();
-}
-
-function documentClicked(e) {
+function documentMouseOver(e) {
     if (e.button === 0) {
         if (e.target.classList.contains("tab-entry")) {
             let tabId = parseInt(e.target.getAttribute("data-tab_id"));
@@ -348,6 +318,36 @@ function documentClicked(e) {
                     }
                 });
             });
+        }
+    }
+    e.preventDefault();
+}
+
+function documentClicked(e) {
+    if (e.button === 0) {
+        if (e.target.classList.contains("tab-entry")) {
+            let tabId = parseInt(e.target.getAttribute("data-tab_id"));
+            let parentWindowId = parseInt(e.target.parentElement.parentElement.getAttribute("data-window_id"));
+            browser.tabs.update(tabId, {
+                active: true
+            });
+            browser.windows.get(parentWindowId, {
+                populate: true
+            }).then(function (w){
+                getCurrentWindow().then(function (cw) {
+                    if (w !== cw) {
+                        browser.windows.update(w.id, {
+                            focused: true
+                        });
+                    }
+                });
+            });
+        } else if (e.target.parentElement.classList.contains("window-entry")) {
+            let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
+            browser.windows.update(windowId, {
+                focused: true
+            });
+            window.close();
         } else if (e.target.id === "details-close") {
             document.querySelector("#details-placeholder").style.display = "inline-block";
             document.querySelector("#tab-details").style.display = "none";
