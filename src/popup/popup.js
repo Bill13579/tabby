@@ -398,7 +398,10 @@ function windowEntryDraggingOver(e) {
     for (let c of cursors) {
         c.outerHTML = "";
     }
-    if (sourceTab !== e.target && e.target.classList.contains("tab-entry") && !e.target.classList.contains("pinned-tab")) {
+    if (sourceTab !== e.target
+        && e.target.classList.contains("tab-entry")
+        && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+        || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
         let cursor = document.createElement("div");
         cursor.classList.add("insert-cursor");
         e.target.parentElement.insertBefore(cursor, e.target);
@@ -412,7 +415,10 @@ function windowEntryDropped(e) {
     for (let cursor of cursors) {
         cursor.outerHTML = "";
     }
-    if (sourceTab !== e.target && e.target.classList.contains("tab-entry") && !e.target.classList.contains("pinned-tab")) {
+    if (sourceTab !== e.target
+         && e.target.classList.contains("tab-entry")
+         && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+         || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
         let newTabEntry = sourceTab.cloneNode(true);
         sourceTab.outerHTML = "";
         e.target.parentElement.insertBefore(newTabEntry, e.target);

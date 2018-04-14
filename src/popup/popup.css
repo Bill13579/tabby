@@ -154,15 +154,13 @@ html, body {
     padding-right: 5px;
     width: 25.5px;
     height: 100%;
+    pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
     -ms-user-select: none;
     vertical-align: middle;
-}
-.tab-entry > div {
-    width: 17vw;
 }
 .tab-entry > span:not(.tab-entry-buttons) {
     pointer-events: none;
@@ -250,6 +248,12 @@ html, body {
     margin-bottom: 7.5px;
     border: 0.2px solid black;
     border-radius: 2px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
 }
 #details-title, #details-url, label[for="details-title"], label[for="details-url"] {
     font-size: 16.6px;
