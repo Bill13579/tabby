@@ -50,7 +50,7 @@ browser.runtime.onMessage.addListener(
                 }
                 break;
             case "TAB_TITLE_CHANGED":
-                findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].textContent = request.details.title;
+                findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].innerHTML = request.details.title;
                 break;
             case "TAB_REMOVED":
                 removeTab(request.details.tabId, request.details.windowId);
@@ -155,17 +155,17 @@ function updateTabs(windows) {
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
-        span.textContent += "Window " + (i+1);
+        span.innerHTML += "Window " + (i+1);
         // Check if window is focused
         if (w.focused) {
             currentWindowEntry = windowEntry;
             windowEntry.classList.add("current-window");
-            span.textContent += " - Current";
+            span.innerHTML += " - Current";
         }
         // Check if window is incognito
         if (w.incognito) {
             windowEntry.classList.add("incognito-window")
-            span.textContent += " (Incognito)";
+            span.innerHTML += " (Incognito)";
         }
         span.classList.add("darker-button");
         windowEntry.appendChild(span);
@@ -188,7 +188,7 @@ function updateTabs(windows) {
                 let favicon = null;
                 span = document.createElement("span");
                 span.classList.add("tab-title");
-                span.textContent += stripHTML(tab.title);
+                span.innerHTML += stripHTML(tab.title);
 
                 let details = document.createElement("span");
                 details.classList.add("tab-details");
@@ -274,7 +274,7 @@ function searchTextChanged(e) {
     tabEntries = document.querySelectorAll(".tab-entry");
     if (filter !== "") {
         for (let tabEntry of tabEntries) {
-            if (!tabEntry.querySelector(".tab-title").textContent.toUpperCase().includes(filter)) {
+            if (!tabEntry.querySelector(".tab-title").innerText.toUpperCase().includes(filter)) {
                 tabEntry.style.display = "none";
             } else {
                 tabEntry.style.display = "block";
@@ -297,8 +297,8 @@ function documentMouseOver(e) {
                 let detailsTitle = document.querySelector("#details-title");
                 let detailsURL = document.querySelector("#details-url");
                 browser.tabs.get(tabId).then(function (tab) {
-                    detailsTitle.textContent = tab.title;
-                    detailsURL.textContent = tab.url;
+                    detailsTitle.innerHTML = stripHTML(tab.title);
+                    detailsURL.innerHTML = stripHTML(tab.url);
                     document.querySelector("#details-placeholder").style.display = "none";
                     document.querySelector("#tab-details").style.display = "inline-block";
                     document.querySelector("#tab-details").setAttribute("data-tab_id", tabId);
