@@ -19,19 +19,19 @@ function tabActivated(activeInfo) {
 }
 
 function tabUpdated(tabId, changeInfo, tab) {
-    if (changeInfo.favIconUrl) {
+    if (changeInfo.favIconUrl !== undefined) {
         sendMessage("TAB_FAV_ICON_CHANGED", {
             tabId: tabId,
             favIconUrl: changeInfo.favIconUrl
         });
     }
-    if (changeInfo.pinned) {
+    if (changeInfo.pinned !== undefined) {
         sendMessage("TAB_PINNED_STATUS_CHANGED", {
             tabId: tabId,
             pinned: changeInfo.pinned
         });
     }
-    if (changeInfo.title) {
+    if (changeInfo.title !== undefined) {
         sendMessage("TAB_TITLE_CHANGED", {
             tabId: tabId,
             title: changeInfo.title

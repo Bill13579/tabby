@@ -3,8 +3,8 @@
     padding: 0;
 }
 html, body {
-    width: 700px;
-    height: 430px;
+    width: 730px;
+    height: 450px;
     margin: 0;
 }
 .button:hover, .button:active {
@@ -94,6 +94,18 @@ html, body {
 .current-window > span {
     background-color: #3592fc;
 }
+.incognito-window > span {
+    background-color: rgb(173, 0, 173);
+}
+.incognito-window > span:hover, .incognito-window > span:active {
+    background-color: rgb(128, 0, 128);
+}
+.incognito-window > ul > li {
+    background-color: rgb(255, 197, 255) !important;
+}
+.incognito-window > ul > li:hover, .incognito-window > ul > li:active {
+    background-color: rgb(255, 124, 255) !important;
+}
 .insert-cursor {
     width: 100%;
     height: 1.2px;
@@ -140,7 +152,7 @@ html, body {
 .tab-entry > img {
     vertical-align: middle;
     padding-right: 5px;
-    width: 29px;
+    width: 25.5px;
     height: 100%;
     user-select: none;
     -webkit-user-select: none;
@@ -152,7 +164,7 @@ html, body {
 .tab-entry > div {
     width: 17vw;
 }
-.tab-entry > span:not(.round-inline-button) {
+.tab-entry > span:not(.tab-entry-buttons) {
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
@@ -161,8 +173,23 @@ html, body {
     -ms-user-select: none;
     vertical-align: middle;
 }
-.tab-entry-remove-btn {
+.tab-entry-buttons {
+    float: right;
+}
+.tab-entry-pin-btn {
+    width: 18px;
+    height: 18px;
     margin-right: 5px;
+    vertical-align: middle;
+    background-color: transparent;
+}
+.tab-entry-pin-btn:hover, .tab-entry-pin-btn:active {
+    opacity: 0.6;
+    background-color: transparent;
+}
+.tab-entry-remove-btn {
+    width: 18px;
+    height: 18px;
     vertical-align: middle;
 }
 .tab-details {

@@ -27,15 +27,25 @@ browser.runtime.onMessage.addListener(
                 getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
                 break;
             case "TAB_PINNED_STATUS_CHANGED":
-                let tabDetails = findTabEntryById(request.details.tabId).querySelector(".tab-details");
+                let tabEntry = findTabEntryById(request.details.tabId);
+                let pinBtnImage = tabEntry.querySelector(".tab-entry-pin-btn img");
+                let windowEntryList = tabEntry.parentElement;
+                let pinnedTabs;
+                console.log(request.details.pinned);
                 if (request.details.pinned) {
-                    if (tabDetails.textContent !== "") {
-                        tabDetails.textContent += ", Pinned";
-                    } else {
-                        tabDetails.textContent = "Pinned";
-                    }
+                    pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
+                    tabEntry.classList.add("pinned-tab");
+                    pinBtnImage.src = "../icons/pinremove.svg";
                 } else {
-                    tabDetails.textContent = tabDetails.textContent.replace(/(, Pinned|Pinned)/, "Pinned");
+                    pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
+                    tabEntry.classList.remove("pinned-tab");
+                    pinBtnImage.src = "../icons/pin.svg";
+                }
+                let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
+                if (lastPinnedTab !== undefined) {
+                    windowEntryList.insertBefore(tabEntry, lastPinnedTab.nextSibling);
+                } else {
+                    windowEntryList.insertBefore(tabEntry, windowEntryList.children[0]);
                 }
                 break;
             case "TAB_TITLE_CHANGED":
@@ -144,7 +154,11 @@ function updateTabs(windows) {
         if (w.focused) {
             currentWindowEntry = windowEntry;
             windowEntry.classList.add("current-window");
-            span.textContent += " - Current Window";
+            span.textContent += " - Current";
+        }
+        if (w.incognito) {
+            windowEntry.classList.add("incognito-window")
+            span.textContent += " (Incognito)";
         }
         span.classList.add("darker-button");
         windowEntry.appendChild(span);
@@ -174,12 +188,9 @@ function updateTabs(windows) {
                     favicon = document.createElement("img");
                     favicon.src = tab.favIconUrl;
                 }
-                if (tab.hidden) {
-                    details.textContent = "Hidden: yes";
-                }
 
                 let closeBtn = document.createElement("span");
-                closeBtn.classList.add("round-inline-button");
+                closeBtn.classList.add("inline-button");
                 closeBtn.classList.add("red-button");
                 closeBtn.classList.add("img-button");
                 closeBtn.classList.add("tab-entry-remove-btn");
@@ -188,21 +199,38 @@ function updateTabs(windows) {
                 closeBtnImage.style.height = "100%";
                 closeBtn.appendChild(closeBtnImage);
 
+                let pinBtn = document.createElement("span");
+                pinBtn.classList.add("inline-button");
+                pinBtn.classList.add("red-button");
+                pinBtn.classList.add("img-button");
+                pinBtn.classList.add("tab-entry-pin-btn");
+                let pinBtnImage = document.createElement("img");
+                pinBtnImage.src = "../icons/pin.svg";
+                pinBtnImage.style.height = "100%";
+                pinBtn.appendChild(pinBtnImage);
+
+                let buttons = document.createElement("span");
+                buttons.classList.add("tab-entry-buttons");
+                buttons.appendChild(pinBtn);
+                buttons.appendChild(closeBtn);
+
                 tabEntry.setAttribute("data-tab_id", tab.id);
-                tabEntry.appendChild(closeBtn);
+                tabEntry.appendChild(buttons);
                 if (favicon !== null) {
                     tabEntry.appendChild(favicon);
                 }
                 tabEntry.appendChild(span);
-                tabEntry.appendChild(details);
 
                 if (tab.pinned) {
-                    if (details.textContent !== "") {
-                        details.textContent += ", Pinned: yes";
+                    pinBtnImage.src = "../icons/pinremove.svg";
+                    tabEntry.classList.add("pinned-tab");
+                    let pinnedTabs = tabs_list_html.querySelectorAll(".pinned-tab");
+                    let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
+                    if (lastPinnedTab !== undefined) {
+                        tabs_list_html.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                     } else {
-                        details.textContent = "Pinned: yes";
+                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.children[0]);
                     }
-                    tabs_list_html.insertBefore(tabEntry, tabs_list_html.childNodes[0]);
                 } else {
                     tabs_list_html.appendChild(tabEntry);
                 }
@@ -310,7 +338,7 @@ function documentClicked(e) {
             document.querySelector("#tab-details").style.display = "none";
             browser.tabs.remove(parseInt(document.querySelector("#tab-details").getAttribute("data-tab_id")));
         } else if (e.target.classList.contains("tab-entry-remove-btn")) {
-            let tabId = e.target.parentElement.getAttribute("data-tab_id");
+            let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             let tabDetails = document.querySelector("#tab-details");
             if (tabDetails.getAttribute("data-tab_id") === tabId) {
                 tabDetails.style.display = "none";
@@ -318,6 +346,19 @@ function documentClicked(e) {
             }
             let parentWindowId = parseInt(e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id"));
             removeTab(parseInt(tabId), parentWindowId);
+        } else if (e.target.classList.contains("tab-entry-pin-btn")) {
+            let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
+            browser.tabs.get(parseInt(tabId)).then(function (tab){
+                if (tab.pinned) {
+                    browser.tabs.update(parseInt(tabId), {
+                        pinned: false
+                    });
+                } else {
+                    browser.tabs.update(parseInt(tabId), {
+                        pinned: true
+                    });
+                }
+            });
         }
     }
 }
