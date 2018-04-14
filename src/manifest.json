@@ -1,10 +1,10 @@
 {
 
     "manifest_version": 2,
-    "name": "Tabby - The best Tab Manager ever created",
+    "name": "Tabby - The Best Window and Tab Manager ever created",
     "version": "1.0",
 
-    "description": "Manage a lot of tabs at ease.",
+    "description": "Manage great amounts of windows and tabs at ease.",
     "icons": {
         "48": "icons/tabby-48.png",
         "96": "icons/tabby-96.png"
