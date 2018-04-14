@@ -2,6 +2,8 @@
 
 Tabby is a window & tab manager that can manage great amounts of windows and tabs at ease. Tabby is an open-source project.
 
+You can install it on Tabby's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/
+
 # File Structure
 
 icons/ - Directory for storing Tabby icons<br/>
