@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("dblclick", documentDblClicked);
 document.addEventListener("click", documentClicked);
 document.querySelector("#search").addEventListener("keyup", searchTextChanged);
+// Add event listener to listen for any messages from background.js
 browser.runtime.onMessage.addListener(
     function (request, sender, sendResponse){
         switch (request.msg) {
@@ -31,7 +32,6 @@ browser.runtime.onMessage.addListener(
                 let pinBtnImage = tabEntry.querySelector(".tab-entry-pin-btn img");
                 let windowEntryList = tabEntry.parentElement;
                 let pinnedTabs;
-                console.log(request.details.pinned);
                 if (request.details.pinned) {
                     pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
                     tabEntry.classList.add("pinned-tab");
@@ -49,7 +49,7 @@ browser.runtime.onMessage.addListener(
                 }
                 break;
             case "TAB_TITLE_CHANGED":
-                findTabEntryById(request.details.tabId).querySelector("span:not(.tab-details)").textContent = request.details.title;
+                findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].textContent = request.details.title;
                 break;
             case "TAB_REMOVED":
                 removeTab(request.details.tabId, request.details.windowId);
@@ -76,7 +76,7 @@ function getActualHeight(element) {
 
 // Get favicon from a tab entry
 function getFavIconFromTabEntry(entry) {
-    return entry.querySelector("img");
+    return entry.querySelector(".tab-entry-favicon")[0];
 }
 
 // Find tab entry by tab id
@@ -143,19 +143,25 @@ function updateTabs(windows) {
     tabs_list.innerHTML = "";
     let windowEntry;
     let currentWindowEntry;
+    // Loop through windows
     for (let i = 0; i < windows.length; i++) {
+        // Set w to window
         let w = windows[i];
+        // Create window entry
         windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
         windowEntry.classList.add("category");
+        // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
         span.textContent += "Window " + (i+1);
+        // Check if window is focused
         if (w.focused) {
             currentWindowEntry = windowEntry;
             windowEntry.classList.add("current-window");
             span.textContent += " - Current";
         }
+        // Check if window is incognito
         if (w.incognito) {
             windowEntry.classList.add("incognito-window")
             span.textContent += " (Incognito)";
@@ -167,11 +173,15 @@ function updateTabs(windows) {
         windowEntry.addEventListener("drop", windowEntryDropped);
         let tabs_list_html = document.createElement("ul");
         tabs_list_html.classList.add("category-list");
+        // Loop through tabs
         for (let tab of w.tabs) {
+            // Check tab id
             if (tab.id !== browser.tabs.TAB_ID_NONE) {
+                // Create tab entry
                 let tabEntry = document.createElement("li");
                 tabEntry.classList.add("tab-entry");
                 tabEntry.classList.add("button");
+                // Set tab entry as draggable. Required to enable move tab feature
                 tabEntry.setAttribute("draggable", "true");
 
                 let favicon = null;
@@ -184,11 +194,13 @@ function updateTabs(windows) {
                 if (tab.active) {
                     tabEntry.classList.add("current-tab");
                 }
-                if (tab.favIconUrl) {
+                if (tab.favIconUrl !== undefined) {
                     favicon = document.createElement("img");
+                    favicon.classList.add("tab-entry-favicon");
                     favicon.src = tab.favIconUrl;
                 }
 
+                // Create close button
                 let closeBtn = document.createElement("span");
                 closeBtn.classList.add("inline-button");
                 closeBtn.classList.add("red-button");
@@ -199,6 +211,7 @@ function updateTabs(windows) {
                 closeBtnImage.style.height = "100%";
                 closeBtn.appendChild(closeBtnImage);
 
+                // Create pin button
                 let pinBtn = document.createElement("span");
                 pinBtn.classList.add("inline-button");
                 pinBtn.classList.add("red-button");
@@ -209,11 +222,13 @@ function updateTabs(windows) {
                 pinBtnImage.style.height = "100%";
                 pinBtn.appendChild(pinBtnImage);
 
+                // Buttons wrapper
                 let buttons = document.createElement("span");
                 buttons.classList.add("tab-entry-buttons");
                 buttons.appendChild(pinBtn);
                 buttons.appendChild(closeBtn);
 
+                // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", tab.id);
                 tabEntry.appendChild(buttons);
                 if (favicon !== null) {

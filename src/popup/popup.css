@@ -118,11 +118,10 @@ html, body {
     width: 100%;
 }
 #tabs {
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 #tabs, #tabs-list {
     display: block;
-    border-radius: 3.6px;
 }
 #search-area {
     margin-bottom: 5px;
@@ -131,7 +130,8 @@ html, body {
     font-size: 15px;
 }
 .window-entry {
-    padding-top: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -175,6 +175,7 @@ html, body {
 }
 .tab-entry-buttons {
     float: right;
+    margin-left: 2.5px;
 }
 .tab-entry-pin-btn {
     width: 18px;
@@ -270,13 +271,13 @@ input[type="text"] {
     padding: 7px 6.5px;
     margin: 6px 0;
     display: inline-block;
-    border: 0.6px solid #dadada;
-    border-radius: 6px;
+    border: 1.2px solid #dadada;
+    border-radius: 3.5px;
     box-sizing: border-box;
 }
 input[type="text"]:focus {
     outline: none;
-    box-shadow: 0 0 10px #9ecaed;
+    border-color: #91c3ec;
 }
 input[type="checkbox"] + label {
     padding-left: 3.5px;
