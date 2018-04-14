@@ -331,24 +331,20 @@ function documentClicked(e) {
             browser.tabs.update(tabId, {
                 active: true
             });
-            browser.windows.get(parentWindowId, {
-                populate: true
-            }).then(function (w){
+            browser.windows.get(parentWindowId).then(function (w){
                 getCurrentWindow().then(function (cw) {
-                    if (w !== cw) {
+                    if (w.id !== cw.id) {
                         browser.windows.update(w.id, {
                             focused: true
-                        });
+                        }).then(function (){ window.close(); });
                     }
                 });
             });
-            window.close();
         } else if (e.target.parentElement.classList.contains("window-entry")) {
             let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
             browser.windows.update(windowId, {
                 focused: true
-            });
-            window.close();
+            }).then(function (){ window.close(); });
         } else if (e.target.id === "details-close") {
             document.querySelector("#details-placeholder").style.display = "inline-block";
             document.querySelector("#tab-details").style.display = "none";
