@@ -1,5 +1,6 @@
 * {
-    font-family: Helvetica, Sans-Serif;
+    font-family: Verdana, Helvetica, Sans-Serif;
+    letter-spacing: 0.1px;
     margin: 0;
     padding: 0;
 }
@@ -18,7 +19,7 @@ html, body {
     width: 25px;
     height: 25px;
     font-weight: normal;
-    font-size: 15px;
+    font-size: 15.5px;
     display: inline-block;
     background-color: rgb(0, 153, 255);
     border-radius: 3px;
@@ -46,7 +47,7 @@ html, body {
     display: block;
     width: inherit;
     background-color: #5e5e5e;
-    font-size: 16.2px;
+    font-size: 16.7px;
     color: white;
     padding-left: 5px;
     padding-right: 5px;
@@ -55,7 +56,7 @@ html, body {
 }
 .category-list > li {
     background-color: #f2f2f2;
-    font-size: 17.1px;
+    font-size: 17.6px;
     color: black;
     padding-left: 15px;
     padding-right: 15px;
@@ -109,7 +110,7 @@ html, body {
     margin-bottom: 5px;
 }
 #search {
-    font-size: 15px;
+    font-size: 15.5px;
 }
 .window-entry {
     padding-top: 2px;
@@ -174,7 +175,7 @@ html, body {
     vertical-align: middle;
 }
 .tab-details {
-    font-size: 15px;
+    font-size: 15.5px;
 }
 .space {
     height: 6px;
@@ -210,10 +211,9 @@ html, body {
 #tabs, #tab-details {
     display: none;
 }
-#details #details-placeholder {
-    font-size: 26.5px;
+#details-placeholder {
+    font-size: 27px;
     font-weight: bolder;
-    letter-spacing: -1.3px;
     color: #aaaaaa;
     padding-left: 10px;
     padding-right: 10px;
@@ -238,7 +238,7 @@ html, body {
     -ms-user-select: none;
 }
 #details-title, #details-url, label[for="details-title"], label[for="details-url"] {
-    font-size: 16.6px;
+    font-size: 17.1px;
 }
 label[for="details-title"], label[for="details-url"] {
     font-weight: bold;
