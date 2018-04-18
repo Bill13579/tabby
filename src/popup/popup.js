@@ -205,7 +205,6 @@ function updateTabs(windows) {
                 let closeBtn = document.createElement("span");
                 closeBtn.classList.add("inline-button");
                 closeBtn.classList.add("red-button");
-                closeBtn.classList.add("img-button");
                 closeBtn.classList.add("tab-entry-remove-btn");
                 let closeBtnImage = document.createElement("img");
                 closeBtnImage.src = "../icons/close.svg";
@@ -215,7 +214,6 @@ function updateTabs(windows) {
                 // Create pin button
                 let pinBtn = document.createElement("span");
                 pinBtn.classList.add("inline-button");
-                pinBtn.classList.add("red-button");
                 pinBtn.classList.add("img-button");
                 pinBtn.classList.add("tab-entry-pin-btn");
                 let pinBtnImage = document.createElement("img");

@@ -9,6 +9,12 @@ html, body {
     height: 450px;
     margin: 0;
 }
+.img-button {
+    background-color: transparent;
+}
+.img-button:hover, .img-button:active {
+    opacity: 0.6;
+}
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
@@ -34,7 +40,7 @@ html, body {
 .inline-button:hover, .inline-button:active {
     background-color: #0062ff;
 }
-.img-button img {
+.inline-button img {
     pointer-events: none;
 }
 .red-button {
