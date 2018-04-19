@@ -2,6 +2,7 @@
 browser.tabs.onUpdated.addListener(tabUpdated);
 browser.tabs.onActivated.addListener(tabActivated);
 browser.tabs.onRemoved.addListener(tabRemoved);
+browser.windows.onRemoved.addListener(windowRemoved);
 
 // Function to send a message
 function sendMessage(msg, details) {
@@ -42,6 +43,13 @@ function tabUpdated(tabId, changeInfo, tab) {
 function tabRemoved(tabId, removeInfo) {
     sendMessage("TAB_REMOVED", {
         tabId: tabId, 
-        windowId: removeInfo.windowId
+        windowId: removeInfo.windowId,
+        windowClosing: removeInfo.isWindowClosing
+    });
+}
+
+function windowRemoved(windowId) {
+    sendMessage("WINDOW_REMOVED", {
+        windowId: windowId
     });
 }

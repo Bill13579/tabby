@@ -53,7 +53,12 @@ browser.runtime.onMessage.addListener(
                 findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].innerHTML = request.details.title;
                 break;
             case "TAB_REMOVED":
-                removeTab(request.details.tabId, request.details.windowId);
+                if (!request.details.windowClosing) {
+                    removeTab(request.details.tabId, request.details.windowId);
+                }
+                break;
+            case "WINDOW_REMOVED":
+                removeWindow(request.details.windowId);
                 break;
         }
     }
@@ -126,7 +131,6 @@ function setActiveTab(windowId, tabId) {
 function removeTab(tabId, windowId) {
     let tabEntry = findTabEntryById(tabId);
     tabEntry.outerHTML = "";
-    browser.tabs.remove(tabId);
     browser.windows.get(windowId, {
         populate: true
     }).then(function (window){
@@ -136,6 +140,15 @@ function removeTab(tabId, windowId) {
                 break;
             }
         }
+    });
+}
+
+// Remove window
+function removeWindow(windowId) {
+    let windowEntry = findWindowEntryById(windowId);
+    windowEntry.outerHTML = "";
+    browser.windows.getCurrent({}).then(function (window) {
+        findWindowEntryById(window.id).classList.add("current-window");
     });
 }
 
@@ -384,8 +397,7 @@ function documentClicked(e) {
                 tabDetails.style.display = "none";
                 document.querySelector("#details-placeholder").style.display = "inline-block";
             }
-            let parentWindowId = parseInt(e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id"));
-            removeTab(parseInt(tabId), parentWindowId);
+            browser.tabs.remove(parseInt(tabId));
         } else if (e.target.classList.contains("tab-entry-pin-btn")) {
             let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             browser.tabs.get(parseInt(tabId)).then(function (tab){
@@ -399,6 +411,9 @@ function documentClicked(e) {
                     });
                 }
             });
+        } else if (e.target.classList.contains("window-entry-remove-btn")) {
+            let windowId = e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id");
+            browser.windows.remove(parseInt(windowId));
         }
     }
 }
