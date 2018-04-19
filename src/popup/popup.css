@@ -9,12 +9,6 @@ html, body {
     height: 450px;
     margin: 0;
 }
-.img-button {
-    background-color: transparent;
-}
-.img-button:hover, .img-button:active {
-    opacity: 0.6;
-}
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
@@ -48,6 +42,13 @@ html, body {
 }
 .red-button:hover, .red-button:active {
     background-color: darkred;
+}
+.img-button {
+    background-color: transparent;
+}
+.img-button:hover, .img-button:active {
+    background-color: transparent;
+    opacity: 0.6;
 }
 .category > span {
     display: block;
@@ -160,6 +161,18 @@ html, body {
     -ms-user-select: none;
     vertical-align: middle;
 }
+.window-entry-buttons {
+    float: right;
+    top: 50%;
+    
+}
+.window-entry-buttons .inline-button {
+    vertical-align: middle;
+    display: inline-block;
+}
+.window-entry-buttons .inline-button img, .window-entry-buttons .inline-button {
+    height: 100%;
+}
 .tab-entry-buttons {
     float: right;
     margin-left: 2.5px;
@@ -169,11 +182,6 @@ html, body {
     height: 18px;
     margin-right: 5px;
     vertical-align: middle;
-    background-color: transparent;
-}
-.tab-entry-pin-btn:hover, .tab-entry-pin-btn:active {
-    opacity: 0.6;
-    background-color: transparent;
 }
 .tab-entry-remove-btn {
     width: 18px;

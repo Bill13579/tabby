@@ -148,14 +148,36 @@ function updateTabs(windows) {
     for (let i = 0; i < windows.length; i++) {
         // Set w to window
         let w = windows[i];
+
         // Create window entry
         windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
         windowEntry.classList.add("category");
+
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
+
+        // Create close button
+        let closeBtn = document.createElement("span");
+        closeBtn.classList.add("inline-button");
+        closeBtn.classList.add("img-button");
+        closeBtn.classList.add("window-entry-remove-btn");
+        let closeBtnImage = document.createElement("img");
+        closeBtnImage.src = "../icons/close.svg";
+        closeBtnImage.style.height = "100%";
+        closeBtn.appendChild(closeBtnImage);
+
+        // Buttons wrapper
+        let buttons = document.createElement("span");
+        buttons.classList.add("window-entry-buttons");
+        buttons.appendChild(closeBtn);
+
+        span.appendChild(buttons);
+
+        // Append window number
         span.innerHTML += "Window " + (i+1);
+
         // Check if window is focused
         if (w.focused) {
             currentWindowEntry = windowEntry;
@@ -167,13 +189,19 @@ function updateTabs(windows) {
             windowEntry.classList.add("incognito-window")
             span.innerHTML += " (Incognito)";
         }
+
         span.classList.add("darker-button");
+
         windowEntry.appendChild(span);
+
+        // Add window entry dragstart, dragover, and drop event listeners
         windowEntry.addEventListener("dragstart", windowEntryDragStarted);
         windowEntry.addEventListener("dragover", windowEntryDraggingOver);
         windowEntry.addEventListener("drop", windowEntryDropped);
+
         let tabs_list_html = document.createElement("ul");
         tabs_list_html.classList.add("category-list");
+
         // Loop through tabs
         for (let tab of w.tabs) {
             // Check tab id
@@ -250,6 +278,7 @@ function updateTabs(windows) {
                 }
             }
         }
+
         windowEntry.appendChild(tabs_list_html);
         tabs_list.appendChild(windowEntry);
     }
