@@ -96,11 +96,6 @@ html, body {
 .incognito-window > ul > li:hover, .incognito-window > ul > li:active {
     background-color: rgb(255, 124, 255) !important;
 }
-.insert-cursor {
-    width: 100%;
-    height: 1.2px;
-    background-color: blue;
-}
 #details-pinned, #details-hidden {
     display: none;
 }
@@ -164,7 +159,7 @@ html, body {
 .window-entry-buttons {
     float: right;
     top: 50%;
-    
+
 }
 .window-entry-buttons .inline-button {
     vertical-align: middle;
@@ -194,6 +189,14 @@ html, body {
 .space {
     height: 6px;
     width: 100%;
+}
+.insert-cursor {
+    width: 100%;
+    height: 1.2px;
+    background-color: blue;
+}
+.insert-cursor-window {
+    background-color: blue !important;
 }
 #details-header {
     margin-bottom: 4px;

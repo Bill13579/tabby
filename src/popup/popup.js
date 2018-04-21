@@ -46,7 +46,7 @@ browser.runtime.onMessage.addListener(
                 if (lastPinnedTab !== undefined) {
                     windowEntryList.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                 } else {
-                    windowEntryList.insertBefore(tabEntry, windowEntryList.children[0]);
+                    windowEntryList.insertBefore(tabEntry, windowEntryList.childNodes[0]);
                 }
                 break;
             case "TAB_TITLE_CHANGED":
@@ -56,6 +56,9 @@ browser.runtime.onMessage.addListener(
                 if (!request.details.windowClosing) {
                     removeTab(request.details.tabId, request.details.windowId);
                 }
+                break;
+            case "TAB_MOVED":
+                moveTab(request.details.tabId, request.details.windowId, request.details.toIndex);
                 break;
             case "WINDOW_REMOVED":
                 removeWindow(request.details.windowId);
@@ -143,6 +146,14 @@ function removeTab(tabId, windowId) {
     });
 }
 
+// Move tab
+function moveTab(tabId, windowId, toIndex) {
+    let tab = findTabEntryById(tabId);
+    let tabs_list_html = findWindowEntryById(windowId).querySelector(".window-entry-tabs");
+    tabs_list_html.removeChild(tab);
+    tabs_list_html.insertBefore(tab, tabs_list_html.childNodes[toIndex]);
+}
+
 // Remove window
 function removeWindow(windowId) {
     let windowEntry = findWindowEntryById(windowId);
@@ -214,6 +225,7 @@ function updateTabs(windows) {
 
         let tabs_list_html = document.createElement("ul");
         tabs_list_html.classList.add("category-list");
+        tabs_list_html.classList.add("window-entry-tabs");
 
         // Loop through tabs
         for (let tab of w.tabs) {
@@ -284,7 +296,7 @@ function updateTabs(windows) {
                     if (lastPinnedTab !== undefined) {
                         tabs_list_html.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                     } else {
-                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.children[0]);
+                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.childNodes[0]);
                     }
                 } else {
                     tabs_list_html.appendChild(tabEntry);
@@ -433,44 +445,75 @@ function windowEntryDragStarted(e) {
 function windowEntryDraggingOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+
     let cursors = tabs_list.querySelectorAll(".insert-cursor");
     for (let c of cursors) {
         c.outerHTML = "";
     }
-    if (sourceTab !== e.target
-        && e.target.classList.contains("tab-entry")
-        && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
-        || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
-        let cursor = document.createElement("div");
-        cursor.classList.add("insert-cursor");
-        e.target.parentElement.insertBefore(cursor, e.target);
+    let cursor_window = tabs_list.querySelector(".insert-cursor-window");
+    if (cursor_window !== null) {
+        cursor_window.classList.remove("insert-cursor-window");
+    }
+
+    let windowEntry;
+    if (e.target.classList.contains("tab-entry")) {
+        if (sourceTab !== e.target
+            && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+            || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
+            let cursor = document.createElement("div");
+            cursor.classList.add("insert-cursor");
+            e.target.parentElement.insertBefore(cursor, e.target);
+        }
+    } else if ((windowEntry = e.target.parentElement) !== null) {
+        if (windowEntry.classList.contains("window-entry")) {
+            if (sourceWindow !== windowEntry) {
+                e.target.classList.add("insert-cursor-window");
+            }
+        }
     }
 }
 
 function windowEntryDropped(e) {
     e.preventDefault();
     e.stopPropagation();
+
     let cursors = tabs_list.querySelectorAll(".insert-cursor");
     for (let cursor of cursors) {
         cursor.outerHTML = "";
     }
-    if (sourceTab !== e.target
-         && e.target.classList.contains("tab-entry")
-         && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
-         || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
-        let newTabEntry = sourceTab.cloneNode(true);
-        sourceTab.outerHTML = "";
-        e.target.parentElement.insertBefore(newTabEntry, e.target);
-        let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
-        if (destinationWindowId !== null) {
-            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
-                windowId: parseInt(destinationWindowId),
-                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
-            });
-        } else {
-            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
-                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
-            });
+    let cursor_window = tabs_list.querySelector(".insert-cursor-window");
+    if (cursor_window !== null) {
+        cursor_window.classList.remove("insert-cursor-window");
+    }
+    
+    if (e.target.classList.contains("tab-entry")) {
+        if (sourceTab !== e.target
+            && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+            || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
+            let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
+            let sourceTabIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, sourceTab);
+            let destinationIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, e.target);
+            let moveIndex = (sourceTabIndex !== -1 && destinationIndex > sourceTabIndex) ? destinationIndex-1 : destinationIndex;
+            if (destinationWindowId !== null) {
+                browser.tabs.move(parseInt(sourceTab.getAttribute("data-tab_id")), {
+                    windowId: parseInt(destinationWindowId),
+                    index: moveIndex
+                });
+            } else {
+                browser.tabs.move(parseInt(sourceTab.getAttribute("data-tab_id")), {
+                    index: moveIndex
+                });
+            }
+        }
+    } else if ((windowEntry = e.target.parentElement) !== null) {
+        if (windowEntry.classList.contains("window-entry")) {
+            if (sourceWindow !== e.target) {
+                let destinationWindowId = windowEntry.getAttribute("data-window_id");
+                browser.tabs.move(parseInt(sourceTab.getAttribute("data-tab_id")), {
+                    windowId: parseInt(destinationWindowId),
+                    index: -1
+                });
+            }
         }
     }
 }
