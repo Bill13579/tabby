@@ -504,21 +504,15 @@ function windowEntryDropped(e) {
             let sourceTabIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, sourceTab);
             let destinationIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, e.target);
             let moveIndex = (sourceTabIndex !== -1 && destinationIndex > sourceTabIndex) ? destinationIndex-1 : destinationIndex;
-            if (destinationWindowId !== null) {
-                let sourceTabId = parseInt(sourceTab.getAttribute("data-tab_id"));
-                browser.tabs.move(sourceTabId, {
-                    windowId: parseInt(destinationWindowId),
-                    index: moveIndex
-                });
-                if (destinationWindowId !== sourceWindow.getAttribute("data-window_id")) {
-                    attachTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
-                } else {
-                    moveTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
-                }
+            let sourceTabId = parseInt(sourceTab.getAttribute("data-tab_id"));
+            browser.tabs.move(sourceTabId, {
+                windowId: parseInt(destinationWindowId),
+                index: moveIndex
+            });
+            if (destinationWindowId !== sourceWindow.getAttribute("data-window_id")) {
+                attachTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
             } else {
-                browser.tabs.move(parseInt(sourceTab.getAttribute("data-tab_id")), {
-                    index: moveIndex
-                });
+                moveTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
             }
         }
     } else if ((windowEntry = e.target.parentElement) !== null) {
