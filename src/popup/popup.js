@@ -60,9 +60,6 @@ function onMessage(request, sender, sendResponse) {
                 removeTab(request.details.tabId, request.details.windowId);
             }
             break;
-        case "TAB_MOVED":
-            moveTab(request.details.tabId, request.details.windowId, request.details.toIndex);
-            break;
         case "WINDOW_REMOVED":
             removeWindow(request.details.windowId);
             break;
@@ -515,6 +512,8 @@ function windowEntryDropped(e) {
                 });
                 if (destinationWindowId !== sourceWindow.getAttribute("data-window_id")) {
                     attachTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
+                } else {
+                    moveTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
                 }
             } else {
                 browser.tabs.move(parseInt(sourceTab.getAttribute("data-tab_id")), {
