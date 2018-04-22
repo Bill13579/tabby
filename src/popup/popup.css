@@ -198,6 +198,9 @@ html, body {
 .insert-cursor-window {
     background-color: blue !important;
 }
+.detached-tab {
+    display: none;
+}
 #details-header {
     margin-bottom: 4px;
 }
