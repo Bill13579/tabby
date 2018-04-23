@@ -93,6 +93,19 @@ function windowFocusChanged(windowId) {
             dropCurrentWindowId = true;
         }
         currentWindowId = windowId;
+        browser.tabs.query({
+            active: true,
+            windowId: windowId
+        }).then(function (tabs){
+            if (tabs[0].id !== currentTabId) {
+                if (dropCurrentTabId) {
+                    lastTabId = currentTabId;
+                } else {
+                    dropCurrentTabId = true;
+                }
+                currentTabId = tabs[0].id;
+            }
+        });
     }
 }
 
@@ -115,6 +128,16 @@ function onCommand(name) {
             if (lastTabId !== undefined) {
                 browser.tabs.update(lastTabId, {
                     active: true
+                });
+                browser.windows.getLastFocused({}).then(function (w){
+                    browser.tabs.get(lastTabId).then(function (tab) {
+                        if (w.id !== tab.windowId) {
+                            browser.windows.update(tab.windowId, {
+                                focused: true
+                            });
+                            lastTabId = currentTabId;
+                        }
+                    });
                 });
             }
             break;
