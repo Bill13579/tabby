@@ -524,9 +524,7 @@ function windowEntryDropped(e) {
                     windowId: parseInt(destinationWindowId),
                     index: -1
                 });
-                if (destinationWindowId !== sourceWindow.getAttribute("data-window_id")) {
-                    attachTab(sourceTabId, parseInt(destinationWindowId), -1);
-                }
+                attachTab(sourceTabId, parseInt(destinationWindowId), -1);
             }
         }
     }
