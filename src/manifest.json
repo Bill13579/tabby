@@ -32,13 +32,17 @@
     "commands": {
         "last-used-tab": {
             "suggested_key": {
-                "default": "Ctrl+E"
+                "default": "Ctrl+1",
+                "windows": "Alt+1",
+                "mac": "MacCtrl+1"
             },
             "description": "Open last used tab"
         },
         "last-used-window": {
             "suggested_key": {
-                "default": "Ctrl+Shift+B"
+                "default": "Ctrl+2",
+                "windows": "Alt+2",
+                "mac": "MacCtrl+2"
             },
             "description": "Open last used window"
         }
