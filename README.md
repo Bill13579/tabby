@@ -1,4 +1,10 @@
-# What is it?
+# Intro
+
+This is the development branch for the new release v1.1.0 of Tabby. You can try out new features by using this release. If you see any bugs in this release or any other, you can report it in the issues section of Github; or even better, if you have a fix for the problem, you can create pull requests at any time! :-)
+
+Note: Because this release is still in development, it may contain bugs; so, beware!
+
+# About Tabby
 
 Tabby is a window & tab manager that can manage great amounts of windows and tabs at ease.
 

@@ -19,45 +19,52 @@ document.addEventListener("mouseover", documentMouseOver);
 document.addEventListener("click", documentClicked);
 document.querySelector("#search").addEventListener("keyup", searchTextChanged);
 // Add event listener to listen for any messages from background.js
-browser.runtime.onMessage.addListener(
-    function (request, sender, sendResponse){
-        switch (request.msg) {
-            case "ACTIVE_TAB_CHANGED":
-                setActiveTab(request.details.windowId, request.details.tabId);
-                break;
-            case "TAB_FAV_ICON_CHANGED":
-                getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
-                break;
-            case "TAB_PINNED_STATUS_CHANGED":
-                let tabEntry = findTabEntryById(request.details.tabId);
-                let pinBtnImage = tabEntry.querySelector(".tab-entry-pin-btn img");
-                let windowEntryList = tabEntry.parentElement;
-                let pinnedTabs;
-                if (request.details.pinned) {
-                    pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
-                    tabEntry.classList.add("pinned-tab");
-                    pinBtnImage.src = "../icons/pinremove.svg";
-                } else {
-                    pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
-                    tabEntry.classList.remove("pinned-tab");
-                    pinBtnImage.src = "../icons/pin.svg";
-                }
-                let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
-                if (lastPinnedTab !== undefined) {
-                    windowEntryList.insertBefore(tabEntry, lastPinnedTab.nextSibling);
-                } else {
-                    windowEntryList.insertBefore(tabEntry, windowEntryList.children[0]);
-                }
-                break;
-            case "TAB_TITLE_CHANGED":
-                findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].innerHTML = request.details.title;
-                break;
-            case "TAB_REMOVED":
+if (!browser.runtime.onMessage.hasListener(onMessage)) {
+    browser.runtime.onMessage.addListener(onMessage);
+}
+
+function onMessage(request, sender, sendResponse) {
+    switch (request.msg) {
+        case "ACTIVE_TAB_CHANGED":
+            setActiveTab(request.details.windowId, request.details.tabId);
+            break;
+        case "TAB_FAV_ICON_CHANGED":
+            getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
+            break;
+        case "TAB_PINNED_STATUS_CHANGED":
+            let tabEntry = findTabEntryById(request.details.tabId);
+            let pinBtnImage = tabEntry.querySelector(".tab-entry-pin-btn img");
+            let windowEntryList = tabEntry.parentElement;
+            let pinnedTabs;
+            if (request.details.pinned) {
+                pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
+                tabEntry.classList.add("pinned-tab");
+                pinBtnImage.src = "../icons/pinremove.svg";
+            } else {
+                pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
+                tabEntry.classList.remove("pinned-tab");
+                pinBtnImage.src = "../icons/pin.svg";
+            }
+            let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
+            if (lastPinnedTab !== undefined) {
+                windowEntryList.insertBefore(tabEntry, lastPinnedTab.nextSibling);
+            } else {
+                windowEntryList.insertBefore(tabEntry, windowEntryList.childNodes[0]);
+            }
+            break;
+        case "TAB_TITLE_CHANGED":
+            findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].innerHTML = request.details.title;
+            break;
+        case "TAB_REMOVED":
+            if (!request.details.windowClosing) {
                 removeTab(request.details.tabId, request.details.windowId);
-                break;
-        }
+            }
+            break;
+        case "WINDOW_REMOVED":
+            removeWindow(request.details.windowId);
+            break;
     }
-);
+}
 
 // Set tabs list height to any available height
 function extendTabsList() {
@@ -126,7 +133,6 @@ function setActiveTab(windowId, tabId) {
 function removeTab(tabId, windowId) {
     let tabEntry = findTabEntryById(tabId);
     tabEntry.outerHTML = "";
-    browser.tabs.remove(tabId);
     browser.windows.get(windowId, {
         populate: true
     }).then(function (window){
@@ -139,6 +145,34 @@ function removeTab(tabId, windowId) {
     });
 }
 
+// Move tab
+function moveTab(tabId, windowId, toIndex) {
+    let tab = findTabEntryById(tabId);
+    let tabs_list_html = findWindowEntryById(windowId).querySelector(".window-entry-tabs");
+    tabs_list_html.removeChild(tab);
+    tabs_list_html.insertBefore(tab, tabs_list_html.childNodes[toIndex]);
+}
+
+// Attach tab
+function attachTab(tabId, newWindowId, newPosition) {
+    let tab = findTabEntryById(tabId);
+    let tabs_list_html = findWindowEntryById(newWindowId).querySelector(".window-entry-tabs");
+    if (newPosition === -1) {
+        tabs_list_html.insertBefore(tab, null);
+        return;
+    }
+    tabs_list_html.insertBefore(tab, tabs_list_html.childNodes[newPosition]);
+}
+
+// Remove window
+function removeWindow(windowId) {
+    let windowEntry = findWindowEntryById(windowId);
+    windowEntry.outerHTML = "";
+    browser.windows.getCurrent({}).then(function (window) {
+        findWindowEntryById(window.id).classList.add("current-window");
+    });
+}
+
 // Update tabs
 function updateTabs(windows) {
     tabs_list.innerHTML = "";
@@ -148,14 +182,36 @@ function updateTabs(windows) {
     for (let i = 0; i < windows.length; i++) {
         // Set w to window
         let w = windows[i];
+
         // Create window entry
         windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
         windowEntry.classList.add("category");
+
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
+
+        // Create close button
+        let closeBtn = document.createElement("span");
+        closeBtn.classList.add("inline-button");
+        closeBtn.classList.add("img-button");
+        closeBtn.classList.add("window-entry-remove-btn");
+        let closeBtnImage = document.createElement("img");
+        closeBtnImage.src = "../icons/close.svg";
+        closeBtnImage.style.height = "100%";
+        closeBtn.appendChild(closeBtnImage);
+
+        // Buttons wrapper
+        let buttons = document.createElement("span");
+        buttons.classList.add("window-entry-buttons");
+        buttons.appendChild(closeBtn);
+
+        span.appendChild(buttons);
+
+        // Append window number
         span.innerHTML += "Window " + (i+1);
+
         // Check if window is focused
         if (w.focused) {
             currentWindowEntry = windowEntry;
@@ -167,13 +223,20 @@ function updateTabs(windows) {
             windowEntry.classList.add("incognito-window")
             span.innerHTML += " (Incognito)";
         }
+
         span.classList.add("darker-button");
+
         windowEntry.appendChild(span);
+
+        // Add window entry dragstart, dragover, and drop event listeners
         windowEntry.addEventListener("dragstart", windowEntryDragStarted);
         windowEntry.addEventListener("dragover", windowEntryDraggingOver);
         windowEntry.addEventListener("drop", windowEntryDropped);
+
         let tabs_list_html = document.createElement("ul");
         tabs_list_html.classList.add("category-list");
+        tabs_list_html.classList.add("window-entry-tabs");
+
         // Loop through tabs
         for (let tab of w.tabs) {
             // Check tab id
@@ -205,7 +268,6 @@ function updateTabs(windows) {
                 let closeBtn = document.createElement("span");
                 closeBtn.classList.add("inline-button");
                 closeBtn.classList.add("red-button");
-                closeBtn.classList.add("img-button");
                 closeBtn.classList.add("tab-entry-remove-btn");
                 let closeBtnImage = document.createElement("img");
                 closeBtnImage.src = "../icons/close.svg";
@@ -215,7 +277,6 @@ function updateTabs(windows) {
                 // Create pin button
                 let pinBtn = document.createElement("span");
                 pinBtn.classList.add("inline-button");
-                pinBtn.classList.add("red-button");
                 pinBtn.classList.add("img-button");
                 pinBtn.classList.add("tab-entry-pin-btn");
                 let pinBtnImage = document.createElement("img");
@@ -245,13 +306,14 @@ function updateTabs(windows) {
                     if (lastPinnedTab !== undefined) {
                         tabs_list_html.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                     } else {
-                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.children[0]);
+                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.childNodes[0]);
                     }
                 } else {
                     tabs_list_html.appendChild(tabEntry);
                 }
             }
         }
+
         windowEntry.appendChild(tabs_list_html);
         tabs_list.appendChild(windowEntry);
     }
@@ -357,8 +419,7 @@ function documentClicked(e) {
                 tabDetails.style.display = "none";
                 document.querySelector("#details-placeholder").style.display = "inline-block";
             }
-            let parentWindowId = parseInt(e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id"));
-            removeTab(parseInt(tabId), parentWindowId);
+            browser.tabs.remove(parseInt(tabId));
         } else if (e.target.classList.contains("tab-entry-pin-btn")) {
             let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             browser.tabs.get(parseInt(tabId)).then(function (tab){
@@ -372,6 +433,9 @@ function documentClicked(e) {
                     });
                 }
             });
+        } else if (e.target.classList.contains("window-entry-remove-btn")) {
+            let windowId = e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id");
+            browser.windows.remove(parseInt(windowId));
         }
     }
 }
@@ -391,44 +455,77 @@ function windowEntryDragStarted(e) {
 function windowEntryDraggingOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+
     let cursors = tabs_list.querySelectorAll(".insert-cursor");
     for (let c of cursors) {
         c.outerHTML = "";
     }
-    if (sourceTab !== e.target
-        && e.target.classList.contains("tab-entry")
-        && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
-        || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
-        let cursor = document.createElement("div");
-        cursor.classList.add("insert-cursor");
-        e.target.parentElement.insertBefore(cursor, e.target);
+    let cursor_window = tabs_list.querySelector(".insert-cursor-window");
+    if (cursor_window !== null) {
+        cursor_window.classList.remove("insert-cursor-window");
+    }
+
+    let windowEntry;
+    if (e.target.classList.contains("tab-entry")) {
+        if (sourceTab !== e.target
+            && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+            || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
+            let cursor = document.createElement("div");
+            cursor.classList.add("insert-cursor");
+            e.target.parentElement.insertBefore(cursor, e.target);
+        }
+    } else if ((windowEntry = e.target.parentElement) !== null) {
+        if (windowEntry.classList.contains("window-entry")) {
+            if (sourceWindow !== windowEntry) {
+                e.target.classList.add("insert-cursor-window");
+            }
+        }
     }
 }
 
 function windowEntryDropped(e) {
     e.preventDefault();
     e.stopPropagation();
+
     let cursors = tabs_list.querySelectorAll(".insert-cursor");
     for (let cursor of cursors) {
         cursor.outerHTML = "";
     }
-    if (sourceTab !== e.target
-         && e.target.classList.contains("tab-entry")
-         && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
-         || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
-        let newTabEntry = sourceTab.cloneNode(true);
-        sourceTab.outerHTML = "";
-        e.target.parentElement.insertBefore(newTabEntry, e.target);
-        let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
-        if (destinationWindowId !== null) {
-            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
+    let cursor_window = tabs_list.querySelector(".insert-cursor-window");
+    if (cursor_window !== null) {
+        cursor_window.classList.remove("insert-cursor-window");
+    }
+    
+    if (e.target.classList.contains("tab-entry")) {
+        if (sourceTab !== e.target
+            && ((!sourceTab.classList.contains("pinned-tab") && !e.target.classList.contains("pinned-tab"))
+            || (sourceTab.classList.contains("pinned-tab") && e.target.classList.contains("pinned-tab")))) {
+            let destinationWindowId = e.target.parentElement.parentElement.getAttribute("data-window_id");
+            let sourceTabIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, sourceTab);
+            let destinationIndex = Array.prototype.indexOf.call(e.target.parentElement.childNodes, e.target);
+            let moveIndex = (sourceTabIndex !== -1 && destinationIndex > sourceTabIndex) ? destinationIndex-1 : destinationIndex;
+            let sourceTabId = parseInt(sourceTab.getAttribute("data-tab_id"));
+            browser.tabs.move(sourceTabId, {
                 windowId: parseInt(destinationWindowId),
-                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
+                index: moveIndex
             });
-        } else {
-            browser.tabs.move(parseInt(newTabEntry.getAttribute("data-tab_id")), {
-                index: Array.prototype.indexOf.call(newTabEntry.parentElement.childNodes, newTabEntry)
-            });
+            if (destinationWindowId !== sourceWindow.getAttribute("data-window_id")) {
+                attachTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
+            } else {
+                moveTab(sourceTabId, parseInt(destinationWindowId), moveIndex);
+            }
+        }
+    } else if ((windowEntry = e.target.parentElement) !== null) {
+        if (windowEntry.classList.contains("window-entry")) {
+            if (sourceWindow !== e.target) {
+                let sourceTabId = parseInt(sourceTab.getAttribute("data-tab_id"));
+                let destinationWindowId = windowEntry.getAttribute("data-window_id");
+                browser.tabs.move(sourceTabId, {
+                    windowId: parseInt(destinationWindowId),
+                    index: -1
+                });
+                attachTab(sourceTabId, parseInt(destinationWindowId), -1);
+            }
         }
     }
 }

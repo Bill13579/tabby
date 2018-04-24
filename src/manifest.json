@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "Tabby - Window and Tab Manager",
-    "version": "1.0.2",
+    "version": "1.1.0",
 
     "description": "Manage great amounts of windows and tabs at ease.",
     "icons": {
@@ -27,6 +27,21 @@
     },
     "background": {
         "scripts": ["background.js"]
+    },
+
+    "commands": {
+        "last-used-tab": {
+            "suggested_key": {
+                "default": "Ctrl+E"
+            },
+            "description": "Open last used tab"
+        },
+        "last-used-window": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+B"
+            },
+            "description": "Open last used window"
+        }
     }
 
 }

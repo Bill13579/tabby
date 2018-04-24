@@ -34,7 +34,7 @@ html, body {
 .inline-button:hover, .inline-button:active {
     background-color: #0062ff;
 }
-.img-button img {
+.inline-button img {
     pointer-events: none;
 }
 .red-button {
@@ -42,6 +42,13 @@ html, body {
 }
 .red-button:hover, .red-button:active {
     background-color: darkred;
+}
+.img-button {
+    background-color: transparent;
+}
+.img-button:hover, .img-button:active {
+    background-color: transparent;
+    opacity: 0.6;
 }
 .category > span {
     display: block;
@@ -88,11 +95,6 @@ html, body {
 }
 .incognito-window > ul > li:hover, .incognito-window > ul > li:active {
     background-color: rgb(255, 124, 255) !important;
-}
-.insert-cursor {
-    width: 100%;
-    height: 1.2px;
-    background-color: blue;
 }
 #details-pinned, #details-hidden {
     display: none;
@@ -154,6 +156,18 @@ html, body {
     -ms-user-select: none;
     vertical-align: middle;
 }
+.window-entry-buttons {
+    float: right;
+    top: 50%;
+
+}
+.window-entry-buttons .inline-button {
+    vertical-align: middle;
+    display: inline-block;
+}
+.window-entry-buttons .inline-button img, .window-entry-buttons .inline-button {
+    height: 100%;
+}
 .tab-entry-buttons {
     float: right;
     margin-left: 2.5px;
@@ -163,11 +177,6 @@ html, body {
     height: 18px;
     margin-right: 5px;
     vertical-align: middle;
-    background-color: transparent;
-}
-.tab-entry-pin-btn:hover, .tab-entry-pin-btn:active {
-    opacity: 0.6;
-    background-color: transparent;
 }
 .tab-entry-remove-btn {
     width: 18px;
@@ -180,6 +189,17 @@ html, body {
 .space {
     height: 6px;
     width: 100%;
+}
+.insert-cursor {
+    width: 100%;
+    height: 1.2px;
+    background-color: blue;
+}
+.insert-cursor-window {
+    background-color: blue !important;
+}
+.detached-tab {
+    display: none;
 }
 #details-header {
     margin-bottom: 4px;
