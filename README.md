@@ -1,14 +1,10 @@
-# Intro
+# What is it?
 
-This is the development branch for the new release v1.1.0 of Tabby. You can try out new features by using this release. If you see any bugs in this release or any other, you can report it in the issues section of Github; or even better, if you have a fix for the problem, you can create pull requests at any time! :-)
+Tabby is a window & tab manager that can manage great amounts of windows and tabs at ease.
 
-Note: Because this release is still in development, it may contain bugs; so, beware!
+Tabby is an open-source project. When a new release is been developed, development branches will be created with the format `vX.X.X-dev`; Go there to see the latest code.
 
-# About Tabby
-
-Tabby is a window & tab manager that can manage great amounts of windows and tabs at ease. Tabby is an open-source project.
-
-You can install it on Tabby's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/
+You can install Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/
 
 # File Structure
 
