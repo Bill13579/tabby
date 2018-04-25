@@ -43,11 +43,6 @@ function onMessage(request, sender, sendResponse) {
         case "TAB_TITLE_CHANGED":
             findTabEntryById(request.details.tabId).querySelector(".tab-title").textContent = request.details.title;
             break;
-        case "TAB_REMOVED":
-            if (!request.details.windowClosing) {
-                removeTab(request.details.tabId, request.details.windowId);
-            }
-            break;
         case "WINDOW_REMOVED":
             removeWindow(request.details.windowId);
             break;
@@ -120,7 +115,7 @@ function setActiveTab(windowId, tabId) {
 // Remove tab
 function removeTab(tabId, windowId) {
     let tabEntry = findTabEntryById(tabId);
-    tabEntry.outerHTML = "";
+    tabEntry.parentElement.removeChild(tabEntry);
     browser.tabs.query({
         active: true,
         windowId: windowId
@@ -399,7 +394,11 @@ function documentClicked(e) {
         } else if (e.target.id === "details-close") {
             document.querySelector("#details-placeholder").style.display = "inline-block";
             document.querySelector("#tab-details").style.display = "none";
-            browser.tabs.remove(parseInt(document.querySelector("#tab-details").getAttribute("data-tab_id")));
+            browser.tabs.get(parseInt(document.querySelector("#tab-details").getAttribute("data-tab_id"))).then(function (tab){
+                browser.tabs.remove(parseInt(document.querySelector("#tab-details").getAttribute("data-tab_id"))).then(function (){
+                    removeTab(tab.id, tab.windowId);
+                });
+            });
         } else if (e.target.classList.contains("tab-entry-remove-btn")) {
             let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             let tabDetails = document.querySelector("#tab-details");
@@ -407,7 +406,9 @@ function documentClicked(e) {
                 tabDetails.style.display = "none";
                 document.querySelector("#details-placeholder").style.display = "inline-block";
             }
-            browser.tabs.remove(parseInt(tabId));
+            browser.tabs.remove(parseInt(tabId)).then(function (){
+                removeTab(parseInt(tabId), parseInt(e.target.parentElement.parentElement.parentElement.parentElement.getAttribute("data-window_id")));
+            });
         } else if (e.target.classList.contains("tab-entry-pin-btn")) {
             let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             browser.tabs.get(parseInt(tabId)).then(function (tab){
