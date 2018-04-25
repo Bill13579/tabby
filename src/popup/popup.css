@@ -129,6 +129,9 @@ html, body {
     -ms-user-select: none;
     text-align: center;
 }
+.window-title {
+    pointer-events: none;
+}
 .tab-entry {
     white-space: nowrap;
     overflow: hidden;

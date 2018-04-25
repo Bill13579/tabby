@@ -1,17 +1,5 @@
 var tabs_list = document.querySelector("#tabs-list");
 
-// Function for stripping HTML
-function stripHTML(str) {
-    var chars = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "\"": "&quot;",
-        "'": "&#39;"
-    };
-    return str.replace(/[&<>"']/g, function(i) { return chars[i]; });
-}
-
 // Add event listeners
 document.addEventListener("DOMContentLoaded", addTabs);
 document.addEventListener("DOMContentLoaded", extendTabsList);
@@ -53,7 +41,7 @@ function onMessage(request, sender, sendResponse) {
             }
             break;
         case "TAB_TITLE_CHANGED":
-            findTabEntryById(request.details.tabId).querySelector(".tab-title")[0].innerHTML = request.details.title;
+            findTabEntryById(request.details.tabId).querySelector(".tab-title").textContent = request.details.title;
             break;
         case "TAB_REMOVED":
             if (!request.details.windowClosing) {
@@ -133,15 +121,11 @@ function setActiveTab(windowId, tabId) {
 function removeTab(tabId, windowId) {
     let tabEntry = findTabEntryById(tabId);
     tabEntry.outerHTML = "";
-    browser.windows.get(windowId, {
-        populate: true
-    }).then(function (window){
-        for (let tab of window.tabs) {
-            if (tab.active) {
-                findTabEntryById(tab.id).classList.add("current-tab");
-                break;
-            }
-        }
+    browser.tabs.query({
+        active: true,
+        windowId: windowId
+    }).then(function (tabs){
+        findTabEntryById(tabs[0].id).classList.add("current-tab");
     });
 }
 
@@ -208,21 +192,25 @@ function updateTabs(windows) {
         buttons.appendChild(closeBtn);
 
         span.appendChild(buttons);
-
-        // Append window number
-        span.innerHTML += "Window " + (i+1);
+        
+        // Create window name span
+        let windowName = document.createElement("span");
+        windowName.classList.add("window-title");
+        windowName.textContent += "Window " + (i+1);
 
         // Check if window is focused
         if (w.focused) {
             currentWindowEntry = windowEntry;
             windowEntry.classList.add("current-window");
-            span.innerHTML += " - Current";
+            windowName.textContent += " - Current";
         }
         // Check if window is incognito
         if (w.incognito) {
             windowEntry.classList.add("incognito-window")
-            span.innerHTML += " (Incognito)";
+            windowName.textContent += " (Incognito)";
         }
+
+        span.appendChild(windowName);
 
         span.classList.add("darker-button");
 
@@ -251,7 +239,7 @@ function updateTabs(windows) {
                 let favicon = null;
                 span = document.createElement("span");
                 span.classList.add("tab-title");
-                span.innerHTML += stripHTML(tab.title);
+                span.textContent += tab.title;
 
                 let details = document.createElement("span");
                 details.classList.add("tab-details");
@@ -359,8 +347,8 @@ function documentMouseOver(e) {
                 let detailsTitle = document.querySelector("#details-title");
                 let detailsURL = document.querySelector("#details-url");
                 browser.tabs.get(tabId).then(function (tab) {
-                    detailsTitle.innerHTML = stripHTML(tab.title);
-                    detailsURL.innerHTML = stripHTML(tab.url);
+                    detailsTitle.textContent = tab.title;
+                    detailsURL.textContent = tab.url;
                     document.querySelector("#details-placeholder").style.display = "none";
                     document.querySelector("#tab-details").style.display = "inline-block";
                     document.querySelector("#tab-details").setAttribute("data-tab_id", tabId);
