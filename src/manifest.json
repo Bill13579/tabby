@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "Tabby - Window and Tab Manager",
-    "version": "1.1.1",
+    "version": "1.1.2",
 
     "description": "Manage great amounts of windows and tabs at ease.",
     "icons": {
