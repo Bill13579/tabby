@@ -20,6 +20,38 @@ browser.windows.getLastFocused({}).then(function (w){
     dropCurrentWindowId = true;
 });
 
+/********** Fix for cross-window dragging issue **********/
+var wrongToRight = {};
+var rightToWrong = {};
+
+browser.tabs.onAttached.addListener(fixOnAttached);
+browser.tabs.onRemoved.addListener(fixOnRemoved);
+
+function fixOnAttached(tabId, attachInfo) {
+    browser.tabs.get(tabId).then(function (tab){
+        if (tabId !== tab.id) {
+            let lastWrongId = rightToWrong[tabId];
+            if (lastWrongId) {
+                delete wrongToRight[lastWrongId];
+            }
+            wrongToRight[tab.id] = tabId;
+            rightToWrong[tabId] = tab.id;
+        }
+    });
+}
+
+function fixOnRemoved(tabId, removeInfo) {
+    let wrongId = rightToWrong[tabId];
+    if (wrongId) {
+        delete wrongToRight[wrongId];
+    }
+    delete rightToWrong[tabId];
+}
+
+function getCorrectTabId(tabId) {
+    return wrongToRight[tabId] || tabId;
+}
+
 // Watch out for any changes in tabs
 browser.tabs.onUpdated.addListener(tabUpdated);
 browser.tabs.onActivated.addListener(tabActivated);
@@ -52,19 +84,19 @@ function tabActivated(activeInfo) {
 function tabUpdated(tabId, changeInfo, tab) {
     if (changeInfo.favIconUrl !== undefined) {
         sendMessage("TAB_FAV_ICON_CHANGED", {
-            tabId: tabId,
+            tabId: getCorrectTabId(tabId),
             favIconUrl: changeInfo.favIconUrl
         });
     }
     if (changeInfo.pinned !== undefined) {
         sendMessage("TAB_PINNED_STATUS_CHANGED", {
-            tabId: tabId,
+            tabId: getCorrectTabId(tabId),
             pinned: changeInfo.pinned
         });
     }
     if (changeInfo.title !== undefined) {
         sendMessage("TAB_TITLE_CHANGED", {
-            tabId: tabId,
+            tabId: getCorrectTabId(tabId),
             title: changeInfo.title
         });
     }
