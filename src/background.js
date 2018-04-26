@@ -103,6 +103,11 @@ function tabUpdated(tabId, changeInfo, tab) {
 }
 
 function tabRemoved(tabId, removeInfo) {
+    sendMessage("TAB_REMOVED", {
+        tabId: tabId,
+        windowId: removeInfo.windowId,
+        windowClosing: removeInfo.isWindowClosing
+    });
     if (lastTabId === tabId) {
         lastTabId = undefined;
     }
