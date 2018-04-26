@@ -11,6 +11,20 @@ if (!browser.runtime.onMessage.hasListener(onMessage)) {
     browser.runtime.onMessage.addListener(onMessage);
 }
 
+// Function to send a message
+function sendMessage(msg, details) {
+    return browser.runtime.sendMessage({
+        msg: msg,
+        details: details
+    });
+}
+
+function getWrongToRight() {
+    return sendMessage("WRONG_TO_RIGHT_GET", {}).then(function (response){
+        return response.wrongToRight;
+    });
+}
+
 function onMessage(request, sender, sendResponse) {
     switch (request.msg) {
         case "ACTIVE_TAB_CHANGED":
@@ -75,6 +89,13 @@ function getFavIconFromTabEntry(entry) {
     return entry.querySelector(".tab-entry-favicon")[0];
 }
 
+// Find correct tab entry by tab id
+function findCorrectTabEntryById(tabId) {
+    return getWrongToRight().then(function (wrongToRight){
+        return findTabEntryById(getCorrectTabId(tabId, wrongToRight));
+    });
+}
+
 // Find tab entry by tab id
 function findTabEntryById(tabId) {
     return document.querySelector(".tab-entry[data-tab_id=\"" + tabId + "\"]");
@@ -125,7 +146,9 @@ function removeTab(tabId, windowId) {
         active: true,
         windowId: windowId
     }).then(function (tabs){
-        findTabEntryById(tabs[0].id).classList.add("current-tab");
+        findCorrectTabEntryById(tabs[0].id).then(function (tab){
+            tab.classList.add("current-tab");
+        });
     });
 }
 
@@ -157,8 +180,20 @@ function removeWindow(windowId) {
     });
 }
 
+// Update tabs initiator
+function updateTabsStarter(windows) {
+    getWrongToRight().then(function (wrongToRight){
+        updateTabs(windows, wrongToRight);
+    });
+}
+
+// Function to get correct tab id
+function getCorrectTabId(tabId, wrongToRight) {
+    return wrongToRight[tabId] || tabId;
+}
+
 // Update tabs
-function updateTabs(windows) {
+function updateTabs(windows, wrongToRight) {
     tabs_list.innerHTML = "";
     let windowEntry;
     let currentWindowEntry;
@@ -279,7 +314,7 @@ function updateTabs(windows) {
                 buttons.appendChild(closeBtn);
 
                 // Set tab entry tab id
-                tabEntry.setAttribute("data-tab_id", tab.id);
+                tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id, wrongToRight));
                 tabEntry.appendChild(buttons);
                 if (favicon !== null) {
                     tabEntry.appendChild(favicon);
@@ -312,7 +347,7 @@ function updateTabs(windows) {
 // Add tabs to list
 function addTabs() {
     getWindows().then(function (windows) {
-        updateTabs(windows);
+        updateTabsStarter(windows);
     });
 }
 

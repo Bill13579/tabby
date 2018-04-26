@@ -26,6 +26,7 @@ var rightToWrong = {};
 
 browser.tabs.onAttached.addListener(fixOnAttached);
 browser.tabs.onRemoved.addListener(fixOnRemoved);
+browser.runtime.onMessage.addListener(onMessage);
 
 function fixOnAttached(tabId, attachInfo) {
     browser.tabs.get(tabId).then(function (tab){
@@ -50,6 +51,16 @@ function fixOnRemoved(tabId, removeInfo) {
 
 function getCorrectTabId(tabId) {
     return wrongToRight[tabId] || tabId;
+}
+
+function onMessage(request, sender, sendResponse) {
+    switch (request.msg) {
+        case "WRONG_TO_RIGHT_GET":
+            sendResponse({
+                wrongToRight: wrongToRight
+            });
+            break;
+    }
 }
 
 // Watch out for any changes in tabs
