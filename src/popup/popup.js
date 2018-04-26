@@ -498,7 +498,8 @@ function windowEntryDraggingOver(e) {
             e.target.parentElement.insertBefore(cursor, e.target);
         }
     } else if ((windowEntry = e.target.parentElement) !== null) {
-        if (windowEntry.classList.contains("window-entry")) {
+        if (windowEntry.classList.contains("window-entry")
+            && !sourceTab.classList.contains("pinned-tab")) {
             if (sourceWindow !== windowEntry) {
                 e.target.classList.add("insert-cursor-window");
             }
@@ -539,7 +540,8 @@ function windowEntryDropped(e) {
             }
         }
     } else if ((windowEntry = e.target.parentElement) !== null) {
-        if (windowEntry.classList.contains("window-entry")) {
+        if (windowEntry.classList.contains("window-entry")
+            && !sourceTab.classList.contains("pinned-tab")) {
             if (sourceWindow !== e.target) {
                 let sourceTabId = parseInt(sourceTab.getAttribute("data-tab_id"));
                 let destinationWindowId = windowEntry.getAttribute("data-window_id");
