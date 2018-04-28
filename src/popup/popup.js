@@ -35,17 +35,17 @@ function onMessage(request, sender, sendResponse) {
             break;
         case "TAB_PINNED_STATUS_CHANGED":
             let tabEntry = findTabEntryById(request.details.tabId);
-            let pinBtnImage = tabEntry.querySelector(".tab-entry-pin-btn img");
+            let pinBtn = tabEntry.querySelector(".tab-entry-pin-btn");
             let windowEntryList = tabEntry.parentElement;
             let pinnedTabs;
             if (request.details.pinned) {
                 pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
                 tabEntry.classList.add("pinned-tab");
-                pinBtnImage.src = "../icons/pinremove.svg";
+                pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
             } else {
                 pinnedTabs = windowEntryList.querySelectorAll(".pinned-tab");
                 tabEntry.classList.remove("pinned-tab");
-                pinBtnImage.src = "../icons/pin.svg";
+                pinBtn.style.backgroundImage = "url(../icons/pin.svg)";
             }
             let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
             if (lastPinnedTab !== undefined) {
@@ -195,31 +195,52 @@ function getCorrectTabId(tabId, wrongToRight) {
 // Update tabs
 function updateTabs(windows, wrongToRight) {
     tabs_list.innerHTML = "";
-    let windowEntry;
+    let tabsListFragment = document.createDocumentFragment();
     let currentWindowEntry;
+    /* Predefined elements for faster performance */
+    // Window close button
+    let WINDOW_CLOSE_BTN = document.createElement("span");
+    WINDOW_CLOSE_BTN.classList.add("inline-button");
+    WINDOW_CLOSE_BTN.classList.add("img-button");
+    WINDOW_CLOSE_BTN.classList.add("opacity-changing-button");
+    WINDOW_CLOSE_BTN.classList.add("window-entry-remove-btn");
+    WINDOW_CLOSE_BTN.style.backgroundImage = "url(../icons/close.svg)";
+    let DIV = document.createElement("div");
+    DIV.style.display = "inline-block";
+    WINDOW_CLOSE_BTN.appendChild(DIV);
+    // Tab close button
+    let TAB_CLOSE_BTN = document.createElement("span");
+    TAB_CLOSE_BTN.classList.add("inline-button");
+    TAB_CLOSE_BTN.classList.add("red-button");
+    TAB_CLOSE_BTN.classList.add("img-button");
+    TAB_CLOSE_BTN.classList.add("tab-entry-remove-btn");
+    TAB_CLOSE_BTN.style.backgroundImage = "url(../icons/close.svg)";
+    // Tab pin button
+    let TAB_PIN_BTN = document.createElement("span");
+    TAB_PIN_BTN.classList.add("inline-button");
+    TAB_PIN_BTN.classList.add("img-button");
+    TAB_PIN_BTN.classList.add("opacity-changing-button");
+    TAB_PIN_BTN.classList.add("tab-entry-pin-btn");
+    TAB_PIN_BTN.style.backgroundImage = "url(../icons/pin.svg)";
     // Loop through windows
     for (let i = 0; i < windows.length; i++) {
         // Set w to window
         let w = windows[i];
 
         // Create window entry
-        windowEntry = document.createElement("li");
+        let windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
         windowEntry.classList.add("category");
+
+        // Create window entry fragment
+        let windowEntryFragment = document.createDocumentFragment();
 
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
 
         // Create close button
-        let closeBtn = document.createElement("span");
-        closeBtn.classList.add("inline-button");
-        closeBtn.classList.add("img-button");
-        closeBtn.classList.add("window-entry-remove-btn");
-        let closeBtnImage = document.createElement("img");
-        closeBtnImage.src = "../icons/close.svg";
-        closeBtnImage.style.height = "100%";
-        closeBtn.appendChild(closeBtnImage);
+        let closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
 
         // Buttons wrapper
         let buttons = document.createElement("span");
@@ -249,17 +270,18 @@ function updateTabs(windows, wrongToRight) {
 
         span.classList.add("darker-button");
 
-        windowEntry.appendChild(span);
+        windowEntryFragment.appendChild(span);
 
         // Add window entry dragstart, dragover, and drop event listeners
         windowEntry.addEventListener("dragstart", windowEntryDragStarted);
         windowEntry.addEventListener("dragover", windowEntryDraggingOver);
         windowEntry.addEventListener("drop", windowEntryDropped);
 
-        let tabs_list_html = document.createElement("ul");
-        tabs_list_html.classList.add("category-list");
-        tabs_list_html.classList.add("window-entry-tabs");
+        let windowTabsList = document.createElement("ul");
+        windowTabsList.classList.add("category-list");
+        windowTabsList.classList.add("window-entry-tabs");
 
+        let windowTabsListFragment = document.createDocumentFragment();
         // Loop through tabs
         for (let tab of w.tabs) {
             // Check tab id
@@ -271,7 +293,10 @@ function updateTabs(windows, wrongToRight) {
                 // Set tab entry as draggable. Required to enable move tab feature
                 tabEntry.setAttribute("draggable", "true");
 
-                let favicon = null;
+                // Create tab entry fragment
+                let tabEntryFragment = document.createDocumentFragment();
+
+                let favicon;
                 span = document.createElement("span");
                 span.classList.add("tab-title");
                 span.textContent += tab.title;
@@ -288,24 +313,10 @@ function updateTabs(windows, wrongToRight) {
                 }
 
                 // Create close button
-                let closeBtn = document.createElement("span");
-                closeBtn.classList.add("inline-button");
-                closeBtn.classList.add("red-button");
-                closeBtn.classList.add("tab-entry-remove-btn");
-                let closeBtnImage = document.createElement("img");
-                closeBtnImage.src = "../icons/close.svg";
-                closeBtnImage.style.height = "100%";
-                closeBtn.appendChild(closeBtnImage);
+                let closeBtn = TAB_CLOSE_BTN.cloneNode(false);
 
                 // Create pin button
-                let pinBtn = document.createElement("span");
-                pinBtn.classList.add("inline-button");
-                pinBtn.classList.add("img-button");
-                pinBtn.classList.add("tab-entry-pin-btn");
-                let pinBtnImage = document.createElement("img");
-                pinBtnImage.src = "../icons/pin.svg";
-                pinBtnImage.style.height = "100%";
-                pinBtn.appendChild(pinBtnImage);
+                let pinBtn = TAB_PIN_BTN.cloneNode(false);
 
                 // Buttons wrapper
                 let buttons = document.createElement("span");
@@ -315,31 +326,38 @@ function updateTabs(windows, wrongToRight) {
 
                 // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id, wrongToRight));
-                tabEntry.appendChild(buttons);
-                if (favicon !== null) {
-                    tabEntry.appendChild(favicon);
+                tabEntryFragment.appendChild(buttons);
+                if (favicon !== undefined) {
+                    tabEntryFragment.appendChild(favicon);
                 }
-                tabEntry.appendChild(span);
+                tabEntryFragment.appendChild(span);
+                
+                tabEntry.appendChild(tabEntryFragment);
 
                 if (tab.pinned) {
-                    pinBtnImage.src = "../icons/pinremove.svg";
+                    pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
                     tabEntry.classList.add("pinned-tab");
-                    let pinnedTabs = tabs_list_html.querySelectorAll(".pinned-tab");
+                    let pinnedTabs = windowTabsList.querySelectorAll(".pinned-tab");
                     let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
                     if (lastPinnedTab !== undefined) {
-                        tabs_list_html.insertBefore(tabEntry, lastPinnedTab.nextSibling);
+                        windowTabsListFragment.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                     } else {
-                        tabs_list_html.insertBefore(tabEntry, tabs_list_html.childNodes[0]);
+                        windowTabsListFragment.insertBefore(tabEntry, windowTabsList.childNodes[0]);
                     }
                 } else {
-                    tabs_list_html.appendChild(tabEntry);
+                    windowTabsListFragment.appendChild(tabEntry);
                 }
             }
         }
 
-        windowEntry.appendChild(tabs_list_html);
-        tabs_list.appendChild(windowEntry);
+        // Append fragment to actual windowTabsList
+        windowTabsList.appendChild(windowTabsListFragment);
+
+        windowEntryFragment.appendChild(windowTabsList);
+        windowEntry.appendChild(windowEntryFragment);
+        tabsListFragment.appendChild(windowEntry);
     }
+    tabs_list.appendChild(tabsListFragment);
     document.querySelector("#tabs").style.display = "block";
     currentWindowEntry.scrollIntoView({ behavior: 'smooth' });
 }
@@ -422,7 +440,7 @@ function documentClicked(e) {
                     if (w.id !== cw.id) {
                         browser.windows.update(w.id, {
                             focused: true
-                        }).then(function (){ window.close(); });
+                        });
                     }
                 });
             });
@@ -430,7 +448,7 @@ function documentClicked(e) {
             let windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
             browser.windows.update(windowId, {
                 focused: true
-            }).then(function (){ window.close(); });
+            });
         } else if (e.target.id === "details-close") {
             document.querySelector("#details-placeholder").style.display = "inline-block";
             document.querySelector("#tab-details").style.display = "none";

@@ -44,9 +44,13 @@ html, body {
     background-color: darkred;
 }
 .img-button {
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.opacity-changing-button {
     background-color: transparent;
 }
-.img-button:hover, .img-button:active {
+.opacity-changing-button:hover, .opacity-changing-button:active {
     background-color: transparent;
     opacity: 0.6;
 }
@@ -162,14 +166,11 @@ html, body {
 .window-entry-buttons {
     float: right;
     top: 50%;
-
 }
 .window-entry-buttons .inline-button {
-    vertical-align: middle;
-    display: inline-block;
-}
-.window-entry-buttons .inline-button img, .window-entry-buttons .inline-button {
     height: 100%;
+    vertical-align: top;
+    display: inline-block;
 }
 .tab-entry-buttons {
     float: right;
