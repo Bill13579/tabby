@@ -12,11 +12,16 @@ You can install Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en
 
 icons/ - Directory for storing Tabby icons<br/>
 icons/tabby.svg - Tabby icon<br/>
+release/ - All Tabby release zip files<br/>
+screenshots/ - Screenshots of Tabby<br/>
+screenshots-archive/ - Old screenshots of Tabby of old releases<br/>
 src/ - Directory for storing the source code<br/>
-src/icons - Icons used in the Tabby UI<br/>
-src/popup - Tabby popup scripts<br/>
+src/icons/ - Icons used in the Tabby UI<br/>
+src/popup/ - Tabby popup scripts<br/>
 src/popup/index.html - Tabby popup main html file<br/>
 src/popup/popup.css - Tabby popup main css file<br/>
 src/popup/popup.js - Tabby popup main javascript file<br/>
 src/background.js - Tabby background script<br/>
-src/manifest.json - Web extension manifest file
+src/manifest.json - Web extension manifest file<br/>
+LICENSE - License file<br/>
+README.md - README file
