@@ -11,7 +11,8 @@ You can install Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en
 # File Structure
 
 icons/ - Directory for storing Tabby icons<br/>
-icons/tabby.svg - Tabby icon<br/>
+icons/tabby.svg - Tabby icon (Vector)<br/>
+icons/tabby.png - Tabby icon (Raster)<br/>
 release/ - All Tabby release zip files<br/>
 screenshots/ - Screenshots of Tabby<br/>
 screenshots-archive/ - Old screenshots of Tabby of old releases<br/>
