@@ -1,10 +1,10 @@
 # What is it?
 
+__NEWS__: Tabby has been selected as a finalist for the Firefox Quantum Extensions Challenge! If you like Tabby, please vote for it here:<br/>https://docs.google.com/forms/d/e/1FAIpQLSe0Ac0IyMnHL_Tn5jvN8JXWz-XP9UvtuLwec3zPUYyeoTmz8w/viewform<br/>Thank you so much for your support!
+
 Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.
 
 When a new release is been developed, development branches will be created with the format `vX.X.X-dev`; Go there to see the latest code.
-
-Tabby has been selected as a finalist for the Firefox Quantum Extensions Challenge! If you like Tabby, please vote for it here:<br/>https://docs.google.com/forms/d/e/1FAIpQLSe0Ac0IyMnHL_Tn5jvN8JXWz-XP9UvtuLwec3zPUYyeoTmz8w/viewform<br/>Thank you so much for your support!
 
 You can install Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/
 
