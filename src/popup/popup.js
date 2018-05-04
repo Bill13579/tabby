@@ -70,7 +70,19 @@ function onMessage(request, sender, sendResponse) {
             setActiveTab(request.details.windowId, request.details.tabId);
             break;
         case "TAB_FAV_ICON_CHANGED":
-            getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = request.details.favIconUrl;
+            browser.tabs.get(request.details.tabId).then(function (tab){
+                browser.windows.get(tab.windowId).then(function (w){
+                    let favIconPromise;
+                    if (w.incognito) {
+                        favIconPromise = getImage(request.details.favIconUrl, true);
+                    } else {
+                        favIconPromise = getImage(request.details.favIconUrl);
+                    }
+                    favIconPromise.then(function (base64Image){
+                        getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = base64Image;
+                    });
+                });
+            });
             break;
         case "TAB_PINNED_STATUS_CHANGED":
             let tabEntry = findTabEntryById(request.details.tabId);
