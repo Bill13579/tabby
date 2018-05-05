@@ -137,7 +137,7 @@ function getActualHeight(element) {
 
 // Get favicon from a tab entry
 function getFavIconFromTabEntry(entry) {
-    return entry.querySelector(".tab-entry-favicon")[0];
+    return entry.querySelector(".tab-entry-favicon");
 }
 
 // Find correct tab entry by tab id
