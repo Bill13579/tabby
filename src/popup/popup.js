@@ -71,16 +71,14 @@ function onMessage(request, sender, sendResponse) {
             break;
         case "TAB_FAV_ICON_CHANGED":
             browser.tabs.get(request.details.tabId).then(function (tab){
-                browser.windows.get(tab.windowId).then(function (w){
-                    let favIconPromise;
-                    if (w.incognito) {
-                        favIconPromise = getImage(request.details.favIconUrl, true);
-                    } else {
-                        favIconPromise = getImage(request.details.favIconUrl);
-                    }
-                    favIconPromise.then(function (base64Image){
-                        getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = base64Image;
-                    });
+                let favIconPromise;
+                if (tab.incognito) {
+                    favIconPromise = getImage(request.details.favIconUrl, true);
+                } else {
+                    favIconPromise = getImage(request.details.favIconUrl);
+                }
+                favIconPromise.then(function (base64Image){
+                    getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = base64Image;
                 });
             });
             break;
