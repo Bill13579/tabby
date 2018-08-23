@@ -582,6 +582,12 @@ function windowEntryDraggingOver(e) {
     }
 }
 
+function removePreview() {
+    document.body.style.width = "490px";
+    document.querySelector("#tabs-container").style.width = "100%";
+    document.querySelector("#details").style.display = "none";
+};
+
 function windowEntryDropped(e) {
     e.preventDefault();
     e.stopPropagation();
