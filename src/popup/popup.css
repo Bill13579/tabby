@@ -38,10 +38,10 @@ html, body {
     pointer-events: none;
 }
 .red-button {
-    background-color: red;
+    background-color: #bcb8b8;
 }
 .red-button:hover, .red-button:active {
-    background-color: darkred;
+    background-color: #ea5456;
 }
 .img-button {
     background-repeat: no-repeat;
