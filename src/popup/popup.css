@@ -5,8 +5,8 @@
     padding: 0;
 }
 html, body {
-    width: 730px;
-    height: 450px;
+    width: 700px;
+    height: 400px;
     margin: 0;
 }
 .button:hover, .button:active {
@@ -16,10 +16,10 @@ html, body {
     background-color: #0062ff;
 }
 .inline-button {
-    width: 25px;
-    height: 25px;
+    width: 5vh;
+    height: 5vh;
     font-weight: normal;
-    font-size: 15.5px;
+    font-size: 3vh;
     display: inline-block;
     background-color: rgb(0, 153, 255);
     border-radius: 3px;
@@ -58,7 +58,7 @@ html, body {
     display: block;
     width: inherit;
     background-color: #5e5e5e;
-    font-size: 16.7px;
+	font-size: 3vh;
     color: white;
     padding-left: 5px;
     padding-right: 5px;
@@ -67,7 +67,7 @@ html, body {
 }
 .category-list > li {
     background-color: #f2f2f2;
-    font-size: 17.6px;
+	font-size: 3vh;
     color: black;
     padding-left: 15px;
     padding-right: 15px;
@@ -116,7 +116,7 @@ html, body {
     margin-bottom: 5px;
 }
 #search {
-    font-size: 15.5px;
+	font-size: 3vh;
 }
 .window-entry {
     padding-top: 2px;
@@ -144,7 +144,7 @@ html, body {
 .tab-entry > img {
     vertical-align: middle;
     padding-right: 5px;
-    width: 25.5px;
+    width: 3vh;
     height: 100%;
     pointer-events: none;
     user-select: none;
@@ -177,8 +177,8 @@ html, body {
     margin-left: 2.5px;
 }
 .tab-entry-pin-btn {
-    width: 18px;
-    height: 18px;
+    width: 3vw;
+    height: 3vh;
     margin-right: 5px;
     vertical-align: middle;
 }
@@ -188,7 +188,7 @@ html, body {
     vertical-align: middle;
 }
 .tab-details {
-    font-size: 15.5px;
+	font-size: 3vh;
 }
 .space {
     height: 6px;
@@ -236,7 +236,7 @@ html, body {
     display: none;
 }
 #details-placeholder {
-    font-size: 27px;
+	font-size: 3vh;
     font-weight: bolder;
     color: #aaaaaa;
     padding-left: 10px;
@@ -262,7 +262,7 @@ html, body {
     -ms-user-select: none;
 }
 #details-title, #details-url, label[for="details-title"], label[for="details-url"] {
-    font-size: 17.1px;
+	font-size: 3vh;
 }
 label[for="details-title"], label[for="details-url"] {
     font-weight: bold;
