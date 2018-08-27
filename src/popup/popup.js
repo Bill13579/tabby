@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", extendTabsList);
 document.addEventListener("mouseover", documentMouseOver);
 document.addEventListener("click", documentClicked);
 document.querySelector("#search").addEventListener("keyup", searchTextChanged);
+document.getElementById("search").focus();
+document.getElementById("search").select();
 // Add event listener to listen for any messages from background.js
 if (!browser.runtime.onMessage.hasListener(onMessage)) {
     browser.runtime.onMessage.addListener(onMessage);
@@ -367,6 +369,10 @@ function updateTabs(windows, wrongToRight) {
                     favIconPromise.then(function (base64Image){
                         favicon.src = base64Image;
                     });
+                }else{
+                    favicon = document.createElement("img");
+                    favicon.classList.add("tab-entry-favicon");
+                    favicon.src="../icons/question.svg";
                 }
 
                 // Create close button
