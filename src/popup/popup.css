@@ -9,6 +9,22 @@ html, body {
     height: 400px;
     margin: 0;
 }
+#settings{
+    display: none;
+}
+#options {
+    color: white;
+    height: 95%;
+    padding: 7px 6.5px;
+    margin: 6px 0;
+    display: inline-block;
+    border: 1.2px solid #be632e;
+    border-radius: 3.5px;
+    box-sizing: border-box;
+}
+#options:hover, #options:active {
+    background-color: #cc6b33;
+}
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
@@ -39,6 +55,9 @@ html, body {
 }
 .red-button {
     background-color: red;
+}
+.orange-button {
+    background-color: rgb(236, 115, 16);
 }
 .red-button:hover, .red-button:active {
     background-color: darkred;
@@ -218,6 +237,9 @@ html, body {
 }
 #details, #tabs-container {
     display: inline-block;
+}
+#search{
+    width: 75%;
 }
 #details {
     height: 100%;

@@ -119,6 +119,21 @@ function onMessage(request, sender, sendResponse) {
     }
 }
 
+//listen for options menu
+document.getElementById("options").addEventListener("click", function(){
+    let settingbutton = document.getElementById("settings");
+    let listoftabs = document.getElementById("tabs");
+    
+    if(settingbutton.style.display == 'inline-block'){
+        settingbutton.style.display = 'none';
+        listoftabs.style.display = 'block';
+
+    }else{
+        listoftabs.style.display = 'none';
+        settingbutton.style.display = 'inline-block';
+    }
+});
+
 // Set tabs list height to any available height
 function extendTabsList() {
     let searchArea = document.querySelector("#search-area");
