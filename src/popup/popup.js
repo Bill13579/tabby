@@ -372,7 +372,7 @@ function updateTabs(windows, wrongToRight) {
                 }else{
                     favicon = document.createElement("img");
                     favicon.classList.add("tab-entry-favicon");
-                    favicon.src="../icons/question.svg";
+                    favicon.src="../icons/icon-none.svg";
                 }
 
                 // Create close button
