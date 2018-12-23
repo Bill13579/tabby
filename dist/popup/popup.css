@@ -16,8 +16,6 @@ html, body {
     background-color: #0062ff;
 }
 .inline-button {
-    width: 25px;
-    height: 25px;
     font-weight: normal;
     font-size: 15.5px;
     display: inline-block;
@@ -75,14 +73,14 @@ html, body {
     padding-bottom: 5px;
 }
 #container {
-    width: calc(100% - 23px);
-    height: calc(100% - 13px);
-    padding-top: 6.5px;
-    padding-bottom: 6.5px;
-    padding-left: 11.5px;
-    padding-right: 11.5px;
+    width: calc(100% - 28.5px);
+    height: calc(100% - 28.5px);
+    padding-top: 8.5px;
+    padding-bottom: 8.5px;
+    padding-left: 14.25px;
+    padding-right: 14.25px;
 }
-.current-tab {
+.current-tab, .multiselect {
     background-color: #b7e7ff !important;
 }
 .current-window > span {
@@ -114,8 +112,33 @@ html, body {
 }
 #search-area {
     margin-bottom: 5px;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: -moz-flex;
+    display: flex;
+}
+.saving-for-later {
+    border-style: solid !important;
+}
+#save-for-later {
+    width: 16%;
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: dashed;
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5.3px;
+    margin-right: 5.3px;
+    margin-top: 4.75px;
+    margin-bottom: 4.75px;
+    background-image: url(../icons/archive.svg);
+    background-repeat: no-repeat;
+    background-size: 60%;
+    background-position: center;
 }
 #search {
+    vertical-align: middle;
     font-size: 15.5px;
 }
 .window-entry {
@@ -133,54 +156,98 @@ html, body {
     -ms-user-select: none;
     text-align: center;
 }
+.window-entry .darker-button {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    -ms-justify-content: space-between;
+    -webkit-justify-content: space-between;
+    -moz-justify-content: space-between;
+    justify-content: space-between;
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    align-items: center;
+}
 .window-title {
     pointer-events: none;
+    width: 100%;
+    text-align: center;
 }
 .tab-entry {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    -ms-justify-content: space-between;
+    -webkit-justify-content: space-between;
+    -moz-justify-content: space-between;
+    justify-content: space-between;
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    align-items: center;
+    height: 28px;
+    overflow: hidden;
+}
+.tab-entry-favicon {
+    vertical-align: middle;
+    padding-right: 7.5px;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+    vertical-align: middle;
+}
+.tab-title, .tab-title-wrapper {
+    width: 100%;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
 }
-.tab-entry > img {
-    vertical-align: middle;
-    padding-right: 5px;
-    width: 25.5px;
-    height: 100%;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -ms-user-select: none;
-    vertical-align: middle;
-}
-.tab-entry > span:not(.tab-entry-buttons) {
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -ms-user-select: none;
-    vertical-align: middle;
+.tab-entry.noicon.tab-title-wrapper {
+    padding-left: 6px;
 }
 .window-entry-buttons {
-    float: right;
-    top: 50%;
+    display: inline-block;
+    width: auto;
+    height: auto;
 }
 .window-entry-buttons .inline-button {
-    height: 100%;
-    vertical-align: top;
-    display: inline-block;
-}
-.tab-entry-buttons {
-    float: right;
-    margin-left: 2.5px;
+    width: 19px;
+    height: 19px;
+    display: block;
 }
 .tab-entry-pin-btn {
     width: 18px;
     height: 18px;
     margin-right: 5px;
     vertical-align: middle;
+}
+.details-tab-remove-btn {
+    width: 25px;
+    height: 25px;
+}
+.copy-button {
+    font-size: 13px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-left: 3px;
+    margin-right: 0.5px;
 }
 .tab-entry-remove-btn {
     width: 18px;
@@ -206,6 +273,8 @@ html, body {
     display: none;
 }
 #details-header {
+    display: inline-block;
+    width: 100%;
     margin-bottom: 4px;
 }
 #details-status {
@@ -216,16 +285,30 @@ html, body {
     float: right;
     margin-bottom: inherit;
 }
-#details, #tabs-container {
+#tabs-container {
     display: inline-block;
 }
-#details {
+#left-container {
     height: 100%;
+    float: left;
+    width: 55%;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 10px;
+    box-sizing: border-box;
+}
+#actions {
+    display: inline-flex;
+    height: 30px;
+    width: 100%;
+}
+#details {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 55%;
-    float: left;
+    width: 100%;
+    height: 100%;
     text-align: center;
 }
 #tabs-container {
@@ -244,12 +327,12 @@ html, body {
 }
 #tab-details {
     height: 100%;
-    padding-left: 7px;
-    padding-right: 18px;
+    width: 100%;
     margin-right: 7px;
     overflow-y: auto;
 }
 #details-img {
+    box-sizing: border-box;
     width: 100%;
     margin-bottom: 7.5px;
     border: 0.2px solid black;
@@ -274,7 +357,18 @@ label[for="details-title"], label[for="details-url"] {
 }
 #details-title, #details-url {
     display: block;
-    word-wrap: normal;
+}
+#details-title {
+    padding-top: 3px;
+}
+#details-url {
+    overflow-y: hidden;
+    overflow-x: scroll;
+    white-space: nowrap;
+    padding-top: 3px;
+    padding-bottom: 10px;
+}
+#details-title {
     overflow: hidden;
 }
 #tabs-list, #tabs-list ul {

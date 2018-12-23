@@ -1,0 +1,27 @@
+{
+    "name": "tabby",
+    "version": "2.0.0",
+    "description": "Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.",
+    "private": true,
+    "scripts": {
+        "build": "webpack"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Bill13579/tabby.git"
+    },
+    "author": "Bill Kudo <bluesky42624@gmail.com> (https://www.WhatsYourIdea.com)",
+    "license": "MPL-2.0",
+    "bugs": {
+        "url": "https://github.com/Bill13579/tabby/issues"
+    },
+    "homepage": "https://github.com/Bill13579/tabby#readme",
+    "devDependencies": {
+        "eslint": "^5.10.0",
+        "webpack": "^4.27.1",
+        "webpack-cli": "^3.1.2"
+    },
+    "dependencies": {
+        "circular-dependency-plugin": "^5.0.2"
+    }
+}
