@@ -2,7 +2,7 @@
 export function sendRuntimeMessage(type, data) {
     return browser.runtime.sendMessage({
         type: type,
-        ...data
+        data: data
     });
 }
 

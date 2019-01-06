@@ -4,7 +4,7 @@
     "description": "Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.",
     "private": true,
     "scripts": {
-        "build": "webpack"
+        "build": "webpack --display-modules"
     },
     "repository": {
         "type": "git",

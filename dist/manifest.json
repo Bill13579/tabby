@@ -35,7 +35,7 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["background/background.js"]
     },
 
     "commands": {

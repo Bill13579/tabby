@@ -5,7 +5,7 @@ module.exports = {
     mode: "development",
     devtool: "inline-source-map",
     entry: {
-        "background": "./src/background.js",
+        "background/background": "./src/background/background.js",
         "popup/popup": "./src/popup/popup.js",
         "content/content": "./src/content/content.js"
     },

@@ -80,8 +80,14 @@ html, body {
     padding-left: 14.25px;
     padding-right: 14.25px;
 }
-.current-tab, .multiselect {
+.current-tab {
     background-color: #b7e7ff !important;
+}
+.multiselect {
+    background-color: #9edeff !important;
+}
+.current-tab.multiselect {
+    background-color: #75d0ff !important;
 }
 .current-window > span {
     background-color: #3592fc;

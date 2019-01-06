@@ -1,6 +1,6 @@
 import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
-import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect } from "../wtdom"
+import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, findTabEntryById } from "../wtdom"
 
 let sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
@@ -99,10 +99,10 @@ export function windowEntryDropped(e) {
                 windowId: destinationWindowId,
                 index: moveIndex
             });
-            if (destinationWindowId === sourceWindowId) {
-                moveTab(sourceTabId, destinationWindowId, moveIndex);
+            if (under) {
+                attachTab(sourceTab, getWindowFromTab(targetTab));
             } else {
-                attachTab(sourceTabId, sourceWindowId, destinationWindowId, moveIndex);
+                moveTab(sourceTab, targetTab);
             }
         }
     } else if ((windowEntry = e.target.parentElement) !== null) {
@@ -117,7 +117,7 @@ export function windowEntryDropped(e) {
                 windowId: destinationWindowId,
                 index: -1
             });
-            attachTab(sourceTabId, sourceWindowId, destinationWindowId, -1);
+            attachTab(sourceTab, windowEntry);
         }
     }
 }

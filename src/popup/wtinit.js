@@ -4,7 +4,7 @@ import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows } from "./wtutils"
 import { getActualHeight } from "./domutils"
 import { archiveDragStartReceiver } from "./event-listeners/archive"
-import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped } from "./event-listeners/windowEntry"
+import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped } from "./event-listeners/windowEntryDrag"
 
 // Update tabs
 export function updateTabs(windows) {

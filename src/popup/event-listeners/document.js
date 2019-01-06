@@ -1,7 +1,7 @@
 import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { getCurrentWindow } from "../wtutils"
-import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection } from "../wtdom"
+import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection, multiSelectReset } from "../wtdom"
 
 export function documentMouseOver(e) {
     if (e.button === 0) {
@@ -103,6 +103,8 @@ export function documentClicked(e) {
         } else if (e.target.classList.contains("window-entry-remove-btn")) {
             let windowId = e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id");
             browser.windows.remove(parseInt(windowId));
+        } else {
+            if (G.isSelecting) multiSelectReset();
         }
     }
 }

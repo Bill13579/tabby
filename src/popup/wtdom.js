@@ -57,6 +57,7 @@ export function removeTab(tabId, windowId) {
     });
 }
 
+/*
 // Move tab
 export function moveTab(tabId, windowId, toIndex) {
     let tab = findTabEntryById(tabId);
@@ -68,7 +69,29 @@ export function moveTab(tabId, windowId, toIndex) {
     }
     tabsListDOM.insertBefore(tab, tabsListDOM.childNodes[toIndex]);
 }
+*/
 
+// Move tab
+export function moveTab(target, dest) {
+    getWindowFromTab(dest).getElementByClassName("window-entry-tabs").insertBefore(target, dest);
+}
+
+// Move tabs
+export function moveTabs(targets, dest) {
+    for (let i = 0; i < targets.length; i++) moveTab(targets[i], dest);
+}
+
+// Attach tab
+export function attachTab(target, dest) {
+    dest.getElementByClassName("window-entry-tabs").appendChild(target);
+}
+
+// Attach tabs
+export function attachTabs(targets, dest) {
+    for (let i = 0; i < targets.length; i++) attachTab(targets[i], dest);
+}
+
+/*
 // Attach tab
 export function attachTab(tabId, from, to, toIndex) {
     let tab = findTabEntryById(tabId);
@@ -81,6 +104,7 @@ export function attachTab(tabId, from, to, toIndex) {
     }
     newTabsListDOM.insertBefore(tab, newTabsListDOM.childNodes[toIndex]);
 }
+*/
 
 // Remove window
 export function removeWindow(windowId) {
@@ -134,6 +158,13 @@ export function multiSelectCancel(element) {
         element.classList.remove("multiselect");
     }
 }
+// Reset multiselect
+export function multiSelectReset() {
+    for (let element of Array.prototype.slice.call(document.getElementsByClassName("multiselect"))) {
+        element.classList.remove("multiselect");
+    }
+    G.isSelecting = false;
+}
 // Toggle Selection
 export function multiSelectToggle(element) {
     if (element.classList.contains("multiselect")) {
@@ -146,5 +177,4 @@ export function multiSelectToggle(element) {
 export function resetSlideSelection() {
     G.slideSelection.sliding = false;
     G.slideSelection.initiator = undefined;
-    G.slideSelection.vector = 0;
 }
