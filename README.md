@@ -4,8 +4,8 @@ Tabby is an open-source window & tab manager that can manage great amounts of wi
 
 This is the development branch for Tabby v2.0.
 
-You can install Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/
-Or, to install the newest development version, see the [Installing the dev build](#installing-the-dev-build) section.
+You can install the latest stable version of Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/<br/>
+Or, to install the newest development version, see the [Building, Installing, and Editing](#building-installing-and-editing) section.
 
 # Contributing
 
@@ -13,7 +13,7 @@ If you like this project, please share it. Your support is always welcomed!
 
 Tabby is an open-source project and is in active development, so feel free to submit any issues that you are experiencing and I will do my best to fix it. And if you can fix the issue altogether, feel free to submit a pull request!
 
-My Website: http://www.WhatsYourIdea.com
+My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 
 # Building, Installing, and Editing
 
@@ -50,7 +50,7 @@ This instruction will install Tabby as a temporary add-on, so you will need to r
 
 After you edit the code, you will need to build again.
 
-Re-do step 6 of [Building Tabby](#building-tabby) and press the `Reload` button in the Tabby section of the `about:debugging` page.
+Re-do Step 6 of [Building Tabby](#building-tabby) and press the `Reload` button in the Tabby section of the `about:debugging` page.
 
 Note: Content Scripts will only be reloaded for each tab once that tab is refreshed.
 
@@ -65,17 +65,8 @@ release/ - Release zip files<br/>
 screenshots/ - Screenshots<br/>
 screenshots-archive/ - Old screenshots of old releases<br/>
 
-src/ - Source code directory<br/>
-
-src/ - Firefox source code directory<br/>
-src/content/ - Tabby content scripts<br/>
-src/icons/ - Icons used in the Tabby UI<br/>
-src/popup/ - Tabby popup scripts<br/>
-src/popup/index.html - Tabby popup main html file<br/>
-src/popup/popup.css - Tabby popup main css file<br/>
-src/popup/popup.js - Tabby popup main javascript file<br/>
-src/background.js - Tabby background script<br/>
-src/manifest.json - Web extension manifest file<br/>
+dist/ - Distribution directory<br/>
+src/ - Source code directory (for more info, go to the [README.md](src/README.md) file in that directory)<br/>
 
 LICENSE - License file<br/>
-README.md - README file
+README&#46;md - README file
