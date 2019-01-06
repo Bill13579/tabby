@@ -9,8 +9,29 @@ Or, to install the newest development version, see the [Installing the dev build
 
 # Installing the dev build
 
-### Installing on Firefox
-1. 
+#### Prerequisites
+- Git
+- Node.js
+- Firefox >= 59 (recommended)
+
+#### Building Tabby
+1. Open a git enabled shell of your choice (e.g. Command Prompt, Git Bash)
+2. Get the source code  
+`git clone https://github.com/Bill13579/tabby.git`
+3. Go into the Tabby directory  
+`cd tabby`
+4. Switch to the `v2.0-dev` branch  
+`git checkout v2.0-dev`
+5. Install dependencies with npm  
+`npm install`
+6. Build Tabby
+`npm run build`
+
+#### Installation
+1. Start Firefox
+2. Go to `about:debugging`
+3. Press on the `Load Temporary Add-on...` button
+4. Select the `manifest.json` file in the `dist` directory
 
 # File Structure
 
