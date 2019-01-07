@@ -9,60 +9,60 @@ import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped } f
 // Update tabs
 export function updateTabs(windows) {
     G.tabsList.innerHTML = "";
-    let tabsListFragment = document.createDocumentFragment();
-    let currentWindowEntry;
+    var tabsListFragment = document.createDocumentFragment();
+    var currentWindowEntry;
     /* Predefined elements for faster performance */
     // Window close button
-    let WINDOW_CLOSE_BTN = document.createElement("span");
+    var WINDOW_CLOSE_BTN = document.createElement("span");
     WINDOW_CLOSE_BTN.classList.add("inline-button");
     WINDOW_CLOSE_BTN.classList.add("img-button");
     WINDOW_CLOSE_BTN.classList.add("opacity-changing-button");
     WINDOW_CLOSE_BTN.classList.add("window-entry-remove-btn");
     WINDOW_CLOSE_BTN.style.backgroundImage = "url(../icons/close.svg)";
-    let DIV = document.createElement("div");
+    var DIV = document.createElement("div");
     DIV.style.display = "inline-block";
     WINDOW_CLOSE_BTN.appendChild(DIV);
     // Tab close button
-    let TAB_CLOSE_BTN = document.createElement("span");
+    var TAB_CLOSE_BTN = document.createElement("span");
     TAB_CLOSE_BTN.classList.add("inline-button");
     TAB_CLOSE_BTN.classList.add("red-button");
     TAB_CLOSE_BTN.classList.add("img-button");
     TAB_CLOSE_BTN.classList.add("tab-entry-remove-btn");
     TAB_CLOSE_BTN.style.backgroundImage = "url(../icons/close.svg)";
     // Tab pin button
-    let TAB_PIN_BTN = document.createElement("span");
+    var TAB_PIN_BTN = document.createElement("span");
     TAB_PIN_BTN.classList.add("inline-button");
     TAB_PIN_BTN.classList.add("img-button");
     TAB_PIN_BTN.classList.add("opacity-changing-button");
     TAB_PIN_BTN.classList.add("tab-entry-pin-btn");
     TAB_PIN_BTN.style.backgroundImage = "url(../icons/pin.svg)";
     // Loop through windows
-    for (let i = 0; i < windows.length; i++) {
+    for (var i = 0; i < windows.length; i++) {
         // Set w to window
-        let w = windows[i];
+        var w = windows[i];
 
         // Create window entry
-        let windowEntry = document.createElement("li");
+        var windowEntry = document.createElement("li");
         windowEntry.classList.add("window-entry");
         windowEntry.classList.add("category");
 
         // Create window entry fragment
-        let windowEntryFragment = document.createDocumentFragment();
+        var windowEntryFragment = document.createDocumentFragment();
 
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
-        let span = document.createElement("span");
+        var span = document.createElement("span");
 
         // Create close button
-        let closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
+        var closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
 
         // Buttons wrapper
-        let buttons = document.createElement("span");
+        var buttons = document.createElement("span");
         buttons.classList.add("window-entry-buttons");
         buttons.appendChild(closeBtn);
         
         // Create window name span
-        let windowName = document.createElement("span");
+        var windowName = document.createElement("span");
         windowName.classList.add("window-title");
         windowName.textContent += "Window " + (i+1);
 
@@ -94,30 +94,30 @@ export function updateTabs(windows) {
         // Add window button dragstart, dragover, and drop event listeners
         windowEntry.addEventListener("dragstart", archiveDragStartReceiver);
 
-        let windowTabsList = document.createElement("ul");
+        var windowTabsList = document.createElement("ul");
         windowTabsList.classList.add("category-list");
         windowTabsList.classList.add("window-entry-tabs");
 
-        let windowTabsListFragment = document.createDocumentFragment();
+        var windowTabsListFragment = document.createDocumentFragment();
         // Loop through tabs
-        for (let tab of w.tabs) {
+        for (var tab of w.tabs) {
             // Check tab id
             if (tab.id !== browser.tabs.TAB_ID_NONE) {
                 // Create tab entry
-                let tabEntry = document.createElement("li");
+                var tabEntry = document.createElement("li");
                 tabEntry.classList.add("tab-entry");
                 tabEntry.classList.add("button");
                 // Set tab entry as draggable. Required to enable move tab feature
                 tabEntry.setAttribute("draggable", "true");
 
                 // Create tab entry fragment
-                let tabEntryFragment = document.createDocumentFragment();
+                var tabEntryFragment = document.createDocumentFragment();
 
-                let favicon;
-                let title = document.createElement("span");
+                var favicon;
+                var title = document.createElement("span");
                 title.classList.add("tab-title");
                 title.textContent += tab.title;
-                let titleWrapper = document.createElement("div");
+                var titleWrapper = document.createElement("div");
                 titleWrapper.classList.add("tab-title-wrapper");
                 titleWrapper.appendChild(title);
 
@@ -127,7 +127,7 @@ export function updateTabs(windows) {
                 if (tab.favIconUrl) {
                     favicon = document.createElement("img");
                     favicon.classList.add("tab-entry-favicon");
-                    let favIconPromise;
+                    var favIconPromise;
                     if (w.incognito) {
                         favIconPromise = getImage(tab.favIconUrl, true);
                     } else {
@@ -139,13 +139,13 @@ export function updateTabs(windows) {
                 }
 
                 // Create close button
-                let closeBtn = TAB_CLOSE_BTN.cloneNode(false);
+                closeBtn = TAB_CLOSE_BTN.cloneNode(false);
 
                 // Create pin button
-                let pinBtn = TAB_PIN_BTN.cloneNode(false);
+                var pinBtn = TAB_PIN_BTN.cloneNode(false);
 
                 // Buttons wrapper
-                let buttons = document.createElement("span");
+                buttons = document.createElement("span");
                 buttons.classList.add("tab-entry-buttons");
                 buttons.appendChild(pinBtn);
                 buttons.appendChild(closeBtn);
@@ -165,8 +165,8 @@ export function updateTabs(windows) {
                 if (tab.pinned) {
                     pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
                     tabEntry.classList.add("pinned-tab");
-                    let pinnedTabs = windowTabsList.getElementsByClassName("pinned-tab");
-                    let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
+                    var pinnedTabs = windowTabsList.getElementsByClassName("pinned-tab");
+                    var lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
                     if (lastPinnedTab !== undefined) {
                         windowTabsListFragment.insertBefore(tabEntry, lastPinnedTab.nextSibling);
                     } else {
@@ -199,8 +199,8 @@ export function populateTabsList() {
 
 // Set tabs list height to any available height
 export function extendTabsList() {
-    let searchArea = document.getElementById("search-area");
-    let searchAreaHeight = getActualHeight(searchArea);
-    let tabs = document.getElementById("tabs");
+    var searchArea = document.getElementById("search-area");
+    var searchAreaHeight = getActualHeight(searchArea);
+    var tabs = document.getElementById("tabs");
     tabs.style.height = "calc(100% - " + searchAreaHeight + "px)";
 }

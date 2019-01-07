@@ -32,12 +32,12 @@ document.addEventListener("click", documentClicked);
 document.addEventListener("dragover", documentDragOver);
 
 // Add keyup event listener and put focus on search
-let search = document.getElementById("search");
+var search = document.getElementById("search");
 search.addEventListener("keyup", searchTextChanged);
 search.focus();
 
 // Add event listeners to all copy buttons
-for (let copyBtn of document.getElementsByClassName("copy-button")) {
+for (var copyBtn of document.getElementsByClassName("copy-button")) {
     copyBtn.addEventListener("click", e => {
         document.oncopy = ce => {
             ce.clipboardData.setData("text", document.getElementById(copyBtn.getAttribute("for")).innerText);

@@ -1,6 +1,7 @@
 function keywordSearch(s, key) {
-    let keywords = key.trim().split(" "), count = 0;
-    for (let word of keywords) {
+    var keywords = key.trim().split(" "), count = 0;
+    for (var i = 0; i < keywords.length; i++) {
+        var word = keywords[i];
         if (word.trim() !== "" && word.match(/^[a-zA-Z0-9]+$/)) {
             if (s.toUpperCase().includes(word.toUpperCase())) {
                 count++;
@@ -16,12 +17,13 @@ function search(s, key) {
 
 // Search
 export function searchTextChanged(e) {
-    let input, filter, tabEntries;
+    var input, filter, tabEntries;
     input = document.getElementById("search");
     filter = input.value;
     tabEntries = document.getElementsByClassName("tab-entry");
     if (filter !== "") {
-        for (let tabEntry of tabEntries) {
+        for (var i = 0; i < tabEntries.length; i++) {
+            var tabEntry = tabEntries[i];
             if (!search(tabEntry.getElementByClassName("tab-title").innerText, filter)) {
                 tabEntry.style.display = "none";
             } else {
@@ -29,7 +31,8 @@ export function searchTextChanged(e) {
             }
         }
     } else {
-        for (let tabEntry of tabEntries) {
+        for (var i = 0; i < tabEntries.length; i++) {
+            var tabEntry = tabEntries[i];
             tabEntry.style.display = "flex";
         }
     }

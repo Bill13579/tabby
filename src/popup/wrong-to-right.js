@@ -1,6 +1,6 @@
 import { sendRuntimeMessage } from "./messaging"
 
-let wrongToRight;
+var wrongToRight;
 
 export function getWrongToRight() {
     return sendRuntimeMessage("WRONG_TO_RIGHT_GET", {}).then(response => {

@@ -2,7 +2,7 @@ import G from "../globals"
 import { sendTabMessage } from "../messaging"
 import { getTabByTabEntry } from "../wtdom"
 
-let archiveTarget;
+var archiveTarget;
 
 export function archiveDragStartReceiver(e) {
     archiveTarget = e.target;
@@ -27,14 +27,14 @@ export function archiveDropReceiver(e) {
                         data.archive = {};
                         data.archive.default = [];
                     }
-                    let repeat;
-                    for (let i = 0; i < data.archive.default.length; i++) {
+                    var repeat;
+                    for (var i = 0; i < data.archive.default.length; i++) {
                         if (data.archive.default[i].url === tab.url) {
                             repeat = i;
                             break;
                         }
                     }
-                    let scroll = {
+                    var scroll = {
                         top: response.top,
                         left: response.left
                     };

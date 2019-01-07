@@ -1,4 +1,4 @@
-let keyPressed = {};
+var keyPressed = {};
 onkeydown = onkeyup = e => {
     e = e || event;
     keyPressed[e.code] = e.type == "keydown";

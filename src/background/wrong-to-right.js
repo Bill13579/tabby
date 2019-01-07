@@ -9,7 +9,7 @@ browser.tabs.onRemoved.addListener(fixOnRemoved);
 function fixOnAttached(tabId, attachInfo) {
     browser.tabs.get(tabId).then(function (tab){
         if (tabId !== tab.id) {
-            let lastWrongId = rightToWrong[tabId];
+            var lastWrongId = rightToWrong[tabId];
             if (lastWrongId) {
                 delete G.wrongToRight[lastWrongId];
             }
@@ -20,7 +20,7 @@ function fixOnAttached(tabId, attachInfo) {
 }
 
 function fixOnRemoved(tabId, removeInfo) {
-    let wrongId = rightToWrong[tabId];
+    var wrongId = rightToWrong[tabId];
     if (wrongId) {
         delete G.wrongToRight[wrongId];
     }
