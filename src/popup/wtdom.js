@@ -57,20 +57,6 @@ export function removeTab(tabId, windowId) {
     });
 }
 
-/*
-// Move tab
-export function moveTab(tabId, windowId, toIndex) {
-    let tab = findTabEntryById(tabId);
-    let tabsListDOM = findWindowEntryById(windowId).getElementByClassName("window-entry-tabs");
-    tabsListDOM.removeChild(tab);
-    if (toIndex === -1) {
-        tabsListDOM.appendChild(tab);
-        return;
-    }
-    tabsListDOM.insertBefore(tab, tabsListDOM.childNodes[toIndex]);
-}
-*/
-
 // Move tab
 export function moveTab(target, dest) {
     getWindowFromTab(dest).getElementByClassName("window-entry-tabs").insertBefore(target, dest);
@@ -90,21 +76,6 @@ export function attachTab(target, dest) {
 export function attachTabs(targets, dest) {
     for (var i = 0; i < targets.length; i++) attachTab(targets[i], dest);
 }
-
-/*
-// Attach tab
-export function attachTab(tabId, from, to, toIndex) {
-    let tab = findTabEntryById(tabId);
-    let oldTabsListDOM = findWindowEntryById(from).getElementByClassName("window-entry-tabs");
-    let newTabsListDOM = findWindowEntryById(to).getElementByClassName("window-entry-tabs");
-    oldTabsListDOM.removeChild(tab);
-    if (toIndex === -1) {
-        newTabsListDOM.appendChild(tab);
-        return;
-    }
-    newTabsListDOM.insertBefore(tab, newTabsListDOM.childNodes[toIndex]);
-}
-*/
 
 // Remove window
 export function removeWindow(windowId) {
