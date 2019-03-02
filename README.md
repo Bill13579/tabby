@@ -70,7 +70,7 @@ After you edit the code, you will need to build again.
 
 Re-do Step 6 of [Building Tabby](#building-tabby) and<br/>
 - on Firefox, press the `Reload` button in the Tabby section of the `about:debugging` page.<br/>
-- on Chrome, press the <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAQAAABLCVATAAABMUlEQVR4Ae3VA6hYYRgG4CdrtpW33MyseVmzrTxvcWlhzi0MYbaVa1YY82x91z7d/9RJF88bD35Dq2ams3lOeeKrL544YZ6OattBWn97/Rb18ssefQA7haSpfojs+GFqZTEhYZWozA3rDddBByOsd1dU5rxIFzSp8qNnRqpvgheVb5MF9fJdCPd1lqWbd/kKOiSEN7rLtlzkKWhg5QcTksUkClorhMuyrRd5C7oghCWybBT5C3ouhCEK+yOE9gr7KoS2iqpcboMVdrFysFPmCeGYbFhXOf0p51MVDkosSGCcEH7qVGSL0NZrIRzUqN6Vm/aBbtnFuCmEr3pJmNLIMTLJq8q3s6RZU+dgG6aTLsZZ7IqozGY5zfBLZMcH8yWlD/9duhS5jj574IgV+mpWWpUAA03Yhvnk/HgAAAAASUVORK5CYII=" alt="Chrome Reload Icon" width="20px" /> button in the Tabby section of the `chrome://extensions` page.
+- on Chrome, press the <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAQAAABLCVATAAABMUlEQVR4Ae3VA6hYYRgG4CdrtpW33MyseVmzrTxvcWlhzi0MYbaVa1YY82x91z7d/9RJF88bD35Dq2ams3lOeeKrL544YZ6OattBWn97/Rb18ssefQA7haSpfojs+GFqZTEhYZWozA3rDddBByOsd1dU5rxIFzSp8qNnRqpvgheVb5MF9fJdCPd1lqWbd/kKOiSEN7rLtlzkKWhg5QcTksUkClorhMuyrRd5C7oghCWybBT5C3ouhCEK+yOE9gr7KoS2iqpcboMVdrFysFPmCeGYbFhXOf0p51MVDkosSGCcEH7qVGSL0NZrIRzUqN6Vm/aBbtnFuCmEr3pJmNLIMTLJq8q3s6RZU+dgG6aTLsZZ7IqozGY5zfBLZMcH8yWlD/9duhS5jj574IgV+mpWWpUAA03Yhvnk/HgAAAAASUVORK5CYII=" alt="Chrome Reload Icon" /> button in the Tabby section of the `chrome://extensions` page.
 
 Note: Content Scripts will only be reloaded for each tab once that tab is refreshed.
 
