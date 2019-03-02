@@ -1,3 +1,5 @@
+import "Polyfill"
+
 // Toggle a class of an element
 export function toggleClass(element, c) {
     if (element.classList.contains(c)) {

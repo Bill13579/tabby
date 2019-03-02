@@ -1,3 +1,4 @@
+import "Polyfill"
 import { module } from "./module"
 
 module("packd", (action, data) => {

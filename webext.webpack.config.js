@@ -1,9 +1,15 @@
 const path = require("path");
+const {DefinePlugin} = require("webpack");
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
     mode: "development",
     devtool: "inline-source-map",
+    resolve: {
+        alias: {
+            Polyfill: path.resolve(__dirname, "src/polyfill.js")
+        }
+    },
     entry: {
         "background/background": "./src/background/background.js",
         "popup/popup": "./src/popup/popup.js",
@@ -19,6 +25,9 @@ module.exports = {
             failOnError: true,
             allowAsyncCycles: false,
             cwd: process.cwd()
+        }),
+        new DefinePlugin({
+            TARGET: "\"webext\""
         })
     ]
 };

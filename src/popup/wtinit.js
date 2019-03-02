@@ -1,7 +1,8 @@
+import "Polyfill"
 import G from "./globals"
 import { getImage } from "./net"
 import { getCorrectTabId } from "./wrong-to-right"
-import { getWindows } from "./wtutils"
+import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight } from "./domutils"
 import { archiveDragStartReceiver } from "./event-listeners/archive"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped } from "./event-listeners/windowEntryDrag"
@@ -100,7 +101,8 @@ export function updateTabs(windows) {
 
         var windowTabsListFragment = document.createDocumentFragment();
         // Loop through tabs
-        for (var tab of w.tabs) {
+        for (var i = 0; i < w.tabs.length; i++) {
+            var tab = w.tabs[i];
             // Check tab id
             if (tab.id !== browser.tabs.TAB_ID_NONE) {
                 // Create tab entry
@@ -165,7 +167,7 @@ export function updateTabs(windows) {
                 if (tab.pinned) {
                     pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
                     tabEntry.classList.add("pinned-tab");
-                    var pinnedTabs = windowTabsList.getElementsByClassName("pinned-tab");
+                    var pinnedTabs = Array.from(windowTabsList.getElementsByClassName("pinned-tab"));
                     var lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
                     if (lastPinnedTab !== undefined) {
                         windowTabsListFragment.insertBefore(tabEntry, lastPinnedTab.nextSibling);
@@ -191,10 +193,10 @@ export function updateTabs(windows) {
 }
 
 // Add tabs to list
-export function populateTabsList() {
-    getWindows().then(windows => {
-        updateTabs(windows);
-    });
+export async function populateTabsList() {
+    var windows = await getWindows();
+    await correctFocused(windows);
+    updateTabs(windows);
 }
 
 // Set tabs list height to any available height

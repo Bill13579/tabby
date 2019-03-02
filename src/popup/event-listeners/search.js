@@ -1,3 +1,5 @@
+import "Polyfill"
+
 function keywordSearch(s, key) {
     var keywords = key.trim().split(" "), count = 0;
     for (var i = 0; i < keywords.length; i++) {

@@ -1,5 +1,6 @@
 node_modules/
 dist/popup/popup.js
 dist/popup/popup.js.map
-dist/background/*
-dist/content/*
+dist/background/background.js
+dist/content/content.js
+dist/manifest.json

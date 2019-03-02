@@ -1,3 +1,5 @@
+import "Polyfill"
+
 const globals = {
     tabsList: undefined,
     archive: undefined,

@@ -1,6 +1,7 @@
+import "Polyfill"
 import G from "../globals"
 import { sendTabMessage } from "../messaging"
-import { getTabByTabEntry } from "../wtdom"
+import { getTabByTabEntry, getTabId } from "../wtdom"
 
 var archiveTarget;
 
@@ -19,7 +20,7 @@ export function archiveDragOverReceiver(e) {
 export function archiveDropReceiver(e) {
     if (archiveTarget.classList.contains("tab-entry")) {
         getTabByTabEntry(archiveTarget).then(tab => {
-            sendTabMessage(parseInt(archiveTarget.getAttribute("data-tab_id")), "packd", {
+            sendTabMessage(getTabId(archiveTarget), "packd", {
                 action: "pack"
             }).then(response => {
                 browser.storage.sync.get(["archive"], data => {

@@ -1,6 +1,7 @@
+import "Polyfill"
 import "../domutils"
 import { getImage } from "../net"
-import { findTabEntryById, getFavIconFromTabEntry, setActiveTab, removeTab, removeWindow } from "../wtdom"
+import { findTabEntryById, getFavIconFromTabEntry, setActiveTab, removeTab, removeWindow, getWindowFromTab } from "../wtdom"
 
 export function onMessage(request, sender) {
     switch (request.type) {
@@ -26,11 +27,11 @@ export function onMessage(request, sender) {
             var windowEntryList = tabEntry.parentElement;
             var pinnedTabs;
             if (request.details.pinned) {
-                pinnedTabs = windowEntryList.getElementsByClassName("pinned-tab");
+                pinnedTabs = Array.from(windowEntryList.getElementsByClassName("pinned-tab"));
                 tabEntry.classList.add("pinned-tab");
                 pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
             } else {
-                pinnedTabs = windowEntryList.getElementsByClassName("pinned-tab");
+                pinnedTabs = Array.from(windowEntryList.getElementsByClassName("pinned-tab"));
                 tabEntry.classList.remove("pinned-tab");
                 pinBtn.style.backgroundImage = "url(../icons/pin.svg)";
             }

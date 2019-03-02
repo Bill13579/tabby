@@ -4,7 +4,13 @@
     "description": "Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.",
     "private": true,
     "scripts": {
-        "build": "webpack --display-modules"
+        "build:chrome": "webpack --display-modules --config chrome.webpack.config.js && npm run gen-manifest:chrome",
+        "build:webext": "webpack --display-modules --config webext.webpack.config.js && npm run gen-manifest:webext",
+        "build:firefox": "npm run build:webext",
+        "gen-manifest:chrome": "node gen-manifest.js chrome",
+        "gen-manifest:webext": "node gen-manifest.js webext",
+        "gen-manifest:firefox": "npm run gen-manifest:webext",
+        "clean": "rimraf dist/background/background.js dist/content/content.js dist/popup/popup.js dist/manifest.json"
     },
     "repository": {
         "type": "git",
@@ -17,9 +23,11 @@
     },
     "homepage": "https://github.com/Bill13579/tabby#readme",
     "devDependencies": {
+        "circular-dependency-plugin": "^5.0.2",
         "eslint": "^5.10.0",
+        "rimraf": "^2.6.3",
+        "webextension-polyfill": "^0.4.0",
         "webpack": "^4.27.1",
-        "webpack-cli": "^3.1.2",
-        "circular-dependency-plugin": "^5.0.2"
+        "webpack-cli": "^3.1.2"
     }
 }

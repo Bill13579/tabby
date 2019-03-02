@@ -1,3 +1,4 @@
+import "Polyfill"
 import G from "./globals"
 import { onMessage } from "./event-listeners/message"
 import { tabActivated, tabUpdated, tabRemoved } from "./event-listeners/tab"

@@ -1,3 +1,5 @@
+import "Polyfill"
+
 import G from "./globals"
 import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
@@ -5,16 +7,19 @@ import { documentMouseOver, documentMouseUp, documentClicked, documentDragOver }
 import { archiveDragOverReceiver, archiveDropReceiver } from "./event-listeners/archive"
 import { searchTextChanged } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
+import * as captureTab from "./captureTab"
 
 G.tabsList = document.getElementById("tabs-list");
 
 async function main() {
+    // Initialize captureTab based on environment
+    captureTab.init();
     // Make tabs list fit the panel
     extendTabsList();
     // Fix for cross-window dragging issue
     await getWrongToRight();
     // Populate tabs list with tabs
-    populateTabsList();
+    await populateTabsList();
 }
 
 /* Add event listeners */
@@ -37,16 +42,17 @@ search.addEventListener("keyup", searchTextChanged);
 search.focus();
 
 // Add event listeners to all copy buttons
-for (var copyBtn of document.getElementsByClassName("copy-button")) {
-    copyBtn.addEventListener("click", e => {
+var copyButtons = Array.from(document.getElementsByClassName("copy-button"));
+for (var i = 0; i < copyButtons.length; i++) {
+    copyButtons[i].addEventListener("click", e => {
         document.oncopy = ce => {
-            ce.clipboardData.setData("text", document.getElementById(copyBtn.getAttribute("for")).innerText);
+            ce.clipboardData.setData("text", document.getElementById(e.target.getAttribute("for")).innerText);
             ce.preventDefault();
         };
         document.execCommand("copy", false, null);
-        copyBtn.innerText = "Copied!";
+        e.target.innerText = "Copied!";
         setTimeout(() => {
-            copyBtn.innerText = "Copy";
+            e.target.innerText = "Copy";
         }, 2000);
     });
 }

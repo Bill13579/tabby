@@ -1,3 +1,5 @@
+import "Polyfill"
+
 // Function to get image from URL
 export function getImage(url, noCache=false) {
     return new Promise((resolve, reject) => {

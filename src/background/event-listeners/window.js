@@ -1,3 +1,4 @@
+import "Polyfill"
 import G from "../globals"
 import { sendTabMessage } from "../messaging"
 

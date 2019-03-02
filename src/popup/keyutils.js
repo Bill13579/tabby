@@ -1,3 +1,5 @@
+import "Polyfill"
+
 var keyPressed = {};
 onkeydown = onkeyup = e => {
     e = e || event;

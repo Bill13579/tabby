@@ -1,3 +1,5 @@
+import "Polyfill"
+
 var modules = {};
 
 export function module(name, onRequest) {

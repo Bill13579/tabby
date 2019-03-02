@@ -1,1 +1,2 @@
+import "Polyfill"
 import "./packd"

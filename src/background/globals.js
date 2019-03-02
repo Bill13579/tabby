@@ -1,3 +1,5 @@
+import "Polyfill"
+
 const globals = {
     wrongToRight: undefined,
     lastTabId: undefined,

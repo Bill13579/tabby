@@ -1,8 +1,20 @@
+import "Polyfill"
 import G from "./globals"
 import { getCorrectTabId } from "./wrong-to-right"
 
+// Get a tab by a tab entry
 export function getTabByTabEntry(entry) {
-    return browser.tabs.get(parseInt(entry.getAttribute("data-tab_id")));
+    return browser.tabs.get(getTabId(entry));
+}
+
+// Get the TabId of a tab entry
+export function getTabId(entry) {
+    return parseInt(entry.getAttribute("data-tab_id"));
+}
+
+// Get the WindowId of a window entry
+export function getWindowId(entry) {
+    return parseInt(entry.getAttribute("data-window_id"));
 }
 
 // Find tab entry by tab id
@@ -91,17 +103,27 @@ export function getWindowFromTab(tab) {
 }
 
 // Test if tab is draggable
-export function tabDraggable(sourceTab, targetTab, under, sourceWindow) {
-    return sourceTab !== targetTab
+export function tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging) {
+    return !sourceTab.isSameNode(targetTab)
+            && (!multiDragging || (multiSelected(sourceTab) && multiSelected(targetTab)))
             && ((!sourceTab.classList.contains("pinned-tab") && !targetTab.classList.contains("pinned-tab"))
-            || (sourceTab.classList.contains("pinned-tab") && targetTab.classList.contains("pinned-tab"))
-            || (under && !sourceTab.classList.contains("pinned-tab")))
+                || (sourceTab.classList.contains("pinned-tab") && targetTab.classList.contains("pinned-tab"))
+                || (under && !sourceTab.classList.contains("pinned-tab")))
             && ((!sourceWindow.classList.contains("incognito-window") && !getWindowFromTab(targetTab).classList.contains("incognito-window"))
-            || (sourceWindow.classList.contains("incognito-window") && getWindowFromTab(targetTab).classList.contains("incognito-window")));
+                || (sourceWindow.classList.contains("incognito-window") && getWindowFromTab(targetTab).classList.contains("incognito-window")));
 }
 
+// Test if tab is draggable to window
+export function tabDraggableToWindow(sourceTab, targetWindow, sourceWindow) {
+    return !sourceWindow.isSameNode(targetWindow)
+            && !sourceTab.classList.contains("pinned-tab")
+            && ((!sourceWindow.classList.contains("incognito-window") && !targetWindow.classList.contains("incognito-window"))
+                || (sourceWindow.classList.contains("incognito-window") && targetWindow.classList.contains("incognito-window")));
+}
+
+// Returns the index of a tab entry
 export function tabEntryIndex(tabEntry) {
-    var tabs = document.getElementsByClassName("tab-entry");
+    var tabs = Array.from(document.getElementsByClassName("tab-entry"));
     for (var i = 0; i < tabs.length; i++) {
         if (tabs[i] === tabEntry) {
             return i;
@@ -112,6 +134,14 @@ export function tabEntryIndex(tabEntry) {
 
 /* Multiselect */
 var selectedTabs = 0;
+// Get Selected Items
+export function getSelectedItems() {
+    return Array.from(document.getElementsByClassName("multiselect"));
+}
+// Multiselected
+export function multiSelected(element) {
+    return element.classList.contains("multiselect");
+}
 // Select
 export function multiSelect(element) {
     if (!element.classList.contains("multiselect")) {
@@ -131,7 +161,7 @@ export function multiSelectCancel(element) {
 }
 // Reset multiselect
 export function multiSelectReset() {
-    for (var element of Array.prototype.slice.call(document.getElementsByClassName("multiselect"))) {
+    for (var element of Array.from(document.getElementsByClassName("multiselect"))) {
         element.classList.remove("multiselect");
     }
     G.isSelecting = false;

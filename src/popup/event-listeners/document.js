@@ -1,7 +1,9 @@
+import "Polyfill"
 import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { getCurrentWindow } from "../wtutils"
-import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection, multiSelectReset } from "../wtdom"
+import * as captureTab from "../captureTab"
+import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection, multiSelectReset, getTabId, getWindowId } from "../wtdom"
 
 export function documentMouseOver(e) {
     if (e.button === 0) {
@@ -9,10 +11,12 @@ export function documentMouseOver(e) {
             if (ctrlOrCmd() && G.slideSelection.sliding) {
                 multiSelect(e.target);
             } else {
-                var tabId = parseInt(e.target.getAttribute("data-tab_id"));
-                browser.tabs.captureTab(tabId).then(dataUri => {
-                    var detailsImage = document.getElementById("details-img");
-                    detailsImage.src = dataUri;
+                var tabId = getTabId(e.target);
+                captureTab.captureTab(tabId).then(dataUri => {
+                    if (dataUri !== null) {
+                        var detailsImage = document.getElementById("details-img");
+                        detailsImage.src = dataUri;
+                    }
                     var detailsTitle = document.getElementById("details-title");
                     var detailsURL = document.getElementById("details-url");
                     browser.tabs.get(tabId).then(tab => {
@@ -54,8 +58,8 @@ export function documentClicked(e) {
             if (ctrlOrCmd()) {
                 multiSelectToggle(e.target);
             } else {
-                var tabId = parseInt(e.target.getAttribute("data-tab_id"));
-                var parentWindowId = parseInt(getWindowFromTab(e.target).getAttribute("data-window_id"));
+                var tabId = getTabId(e.target);
+                var parentWindowId = getWindowId(getWindowFromTab(e.target));
                 browser.tabs.update(tabId, {
                     active: true
                 });
@@ -71,14 +75,14 @@ export function documentClicked(e) {
                 });
             }
         } else if (e.target.parentElement.classList.contains("window-entry")) {
-            var windowId = parseInt(e.target.parentElement.getAttribute("data-window_id"));
+            var windowId = getWindowId(e.target.parentElement);
             browser.windows.update(windowId, {
                 focused: true
             });
         } else if (e.target.id === "details-close") {
             document.getElementById("details-placeholder").style.display = "inline-block";
             document.getElementById("tab-details").style.display = "none";
-            browser.tabs.remove(parseInt(document.getElementById("tab-details").getAttribute("data-tab_id")));
+            browser.tabs.remove(getTabId(document.getElementById("tab-details")));
         } else if (e.target.classList.contains("tab-entry-remove-btn")) {
             var tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
             var tabDetails = document.getElementById("tab-details");
@@ -88,21 +92,21 @@ export function documentClicked(e) {
             }
             browser.tabs.remove(parseInt(tabId));
         } else if (e.target.classList.contains("tab-entry-pin-btn")) {
-            var tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
-            browser.tabs.get(parseInt(tabId)).then(tab => {
+            var tabId = getTabId(e.target.parentElement.parentElement);
+            browser.tabs.get(tabId).then(tab => {
                 if (tab.pinned) {
-                    browser.tabs.update(parseInt(tabId), {
+                    browser.tabs.update(tab.id, {
                         pinned: false
                     });
                 } else {
-                    browser.tabs.update(parseInt(tabId), {
+                    browser.tabs.update(tab.id, {
                         pinned: true
                     });
                 }
             });
         } else if (e.target.classList.contains("window-entry-remove-btn")) {
-            var windowId = e.target.parentElement.parentElement.parentElement.getAttribute("data-window_id");
-            browser.windows.remove(parseInt(windowId));
+            var windowId = getWindowId(e.target.parentElement.parentElement.parentElement);
+            browser.windows.remove(windowId);
         } else {
             if (G.isSelecting) multiSelectReset();
         }

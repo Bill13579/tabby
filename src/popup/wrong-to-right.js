@@ -1,3 +1,4 @@
+import "Polyfill"
 import { sendRuntimeMessage } from "./messaging"
 
 var wrongToRight;

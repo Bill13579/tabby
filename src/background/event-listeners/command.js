@@ -1,3 +1,4 @@
+import "Polyfill"
 import G from "../globals"
 
 export function onCommand(name) {

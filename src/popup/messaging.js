@@ -1,3 +1,5 @@
+import "Polyfill"
+
 // Function to send a message to the runtime
 export function sendRuntimeMessage(type, data) {
     return browser.runtime.sendMessage({
