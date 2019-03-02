@@ -21,7 +21,9 @@ My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 
 - Git
 - Node.js
-- Firefox >= 59 (recommended)
+- Firefox >= 59 (recommended)<br/>
+  or<br/>
+  Chrome >= 49 (fully tested on Chrome 72)
 
 ## Building Tabby
 
@@ -35,22 +37,34 @@ My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 5. Install dependencies with npm  
 `npm install`
 6. Build Tabby  
-`npm run build`
+Firefox: `npm run build:firefox`  
+Chrome: `npm run build:chrome`  
+WebExtension: `npm run build:webext`
 
 ## Installation
 
-This instruction will install Tabby as a temporary add-on, so you will need to re-do this everytime you restart Firefox.
+### Firefox
+This will install Tabby as a temporary add-on, so you will need to re-do this everytime you restart Firefox.
 
 1. Start Firefox
 2. Go to `about:debugging`
 3. Press on the `Load Temporary Add-on...` button
 4. Select the `manifest.json` file in the `dist` directory
 
+### Chrome
+
+1. Start Chrome
+2. Go to `chrome://extensions`
+3. Press on the `Load unpacked` button
+4. Select the `dist` directory
+
 ## Editing & Testing
 
 After you edit the code, you will need to build again.
 
-Re-do Step 6 of [Building Tabby](#building-tabby) and press the `Reload` button in the Tabby section of the `about:debugging` page.
+Re-do Step 6 of [Building Tabby](#building-tabby) and<br/>
+- on Firefox, press the `Reload` button in the Tabby section of the `about:debugging` page.<br/>
+- on Chrome, press the <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAQAAABLCVATAAABMUlEQVR4Ae3VA6hYYRgG4CdrtpW33MyseVmzrTxvcWlhzi0MYbaVa1YY82x91z7d/9RJF88bD35Dq2ams3lOeeKrL544YZ6OattBWn97/Rb18ssefQA7haSpfojs+GFqZTEhYZWozA3rDddBByOsd1dU5rxIFzSp8qNnRqpvgheVb5MF9fJdCPd1lqWbd/kKOiSEN7rLtlzkKWhg5QcTksUkClorhMuyrRd5C7oghCWybBT5C3ouhCEK+yOE9gr7KoS2iqpcboMVdrFysFPmCeGYbFhXOf0p51MVDkosSGCcEH7qVGSL0NZrIRzUqN6Vm/aBbtnFuCmEr3pJmNLIMTLJq8q3s6RZU+dgG6aTLsZZ7IqozGY5zfBLZMcH8yWlD/9duhS5jj574IgV+mpWWpUAA03Yhvnk/HgAAAAASUVORK5CYII=" width="20px" /> button in the Tabby section of the `chrome://extensions` page.
 
 Note: Content Scripts will only be reloaded for each tab once that tab is refreshed.
 
