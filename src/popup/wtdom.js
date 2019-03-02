@@ -44,13 +44,13 @@ export function findTabEntryInWindow(windowEntry, tabId) {
 
 // Get active tab in the specified window
 export function getActiveTab(windowId) {
-    var window = findWindowEntryById(windowId);
+    let window = findWindowEntryById(windowId);
     return window.getElementByClassName("current-tab");
 }
 
 // Set active tab in the specified window
 export function setActiveTab(windowId, tabId) {
-    var window = findWindowEntryById(windowId), lastActiveTab;
+    let window = findWindowEntryById(windowId), lastActiveTab;
     if ((lastActiveTab = getActiveTab(windowId)) !== null) {
         lastActiveTab.classList.remove("current-tab");
     }
@@ -59,7 +59,7 @@ export function setActiveTab(windowId, tabId) {
 
 // Remove tab
 export function removeTab(tabId, windowId) {
-    var tabEntry = findTabEntryById(tabId);
+    let tabEntry = findTabEntryById(tabId);
     tabEntry.parentElement.removeChild(tabEntry);
     browser.tabs.query({
         active: true,
@@ -76,7 +76,7 @@ export function moveTab(target, dest) {
 
 // Move tabs
 export function moveTabs(targets, dest) {
-    for (var i = 0; i < targets.length; i++) moveTab(targets[i], dest);
+    for (let i = 0; i < targets.length; i++) moveTab(targets[i], dest);
 }
 
 // Attach tab
@@ -86,12 +86,12 @@ export function attachTab(target, dest) {
 
 // Attach tabs
 export function attachTabs(targets, dest) {
-    for (var i = 0; i < targets.length; i++) attachTab(targets[i], dest);
+    for (let i = 0; i < targets.length; i++) attachTab(targets[i], dest);
 }
 
 // Remove window
 export function removeWindow(windowId) {
-    var windowEntry = findWindowEntryById(windowId);
+    let windowEntry = findWindowEntryById(windowId);
     windowEntry.parentElement.removeChild(windowEntry);
     browser.windows.getCurrent({}).then(window => {
         findWindowEntryById(window.id).classList.add("current-window");
@@ -123,8 +123,8 @@ export function tabDraggableToWindow(sourceTab, targetWindow, sourceWindow) {
 
 // Returns the index of a tab entry
 export function tabEntryIndex(tabEntry) {
-    var tabs = Array.from(document.getElementsByClassName("tab-entry"));
-    for (var i = 0; i < tabs.length; i++) {
+    let tabs = Array.from(document.getElementsByClassName("tab-entry"));
+    for (let i = 0; i < tabs.length; i++) {
         if (tabs[i] === tabEntry) {
             return i;
         }
@@ -133,7 +133,7 @@ export function tabEntryIndex(tabEntry) {
 }
 
 /* Multiselect */
-var selectedTabs = 0;
+let selectedTabs = 0;
 // Get Selected Items
 export function getSelectedItems() {
     return Array.from(document.getElementsByClassName("multiselect"));
@@ -161,7 +161,7 @@ export function multiSelectCancel(element) {
 }
 // Reset multiselect
 export function multiSelectReset() {
-    for (var element of Array.from(document.getElementsByClassName("multiselect"))) {
+    for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
         element.classList.remove("multiselect");
     }
     G.isSelecting = false;

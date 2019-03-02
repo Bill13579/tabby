@@ -11,14 +11,14 @@ export function documentMouseOver(e) {
             if (ctrlOrCmd() && G.slideSelection.sliding) {
                 multiSelect(e.target);
             } else {
-                var tabId = getTabId(e.target);
+                let tabId = getTabId(e.target);
                 captureTab.captureTab(tabId).then(dataUri => {
                     if (dataUri !== null) {
-                        var detailsImage = document.getElementById("details-img");
+                        let detailsImage = document.getElementById("details-img");
                         detailsImage.src = dataUri;
                     }
-                    var detailsTitle = document.getElementById("details-title");
-                    var detailsURL = document.getElementById("details-url");
+                    let detailsTitle = document.getElementById("details-title");
+                    let detailsURL = document.getElementById("details-url");
                     browser.tabs.get(tabId).then(tab => {
                         detailsTitle.textContent = tab.title;
                         detailsURL.textContent = tab.url;
@@ -58,8 +58,8 @@ export function documentClicked(e) {
             if (ctrlOrCmd()) {
                 multiSelectToggle(e.target);
             } else {
-                var tabId = getTabId(e.target);
-                var parentWindowId = getWindowId(getWindowFromTab(e.target));
+                let tabId = getTabId(e.target);
+                let parentWindowId = getWindowId(getWindowFromTab(e.target));
                 browser.tabs.update(tabId, {
                     active: true
                 });
@@ -75,7 +75,7 @@ export function documentClicked(e) {
                 });
             }
         } else if (e.target.parentElement.classList.contains("window-entry")) {
-            var windowId = getWindowId(e.target.parentElement);
+            let windowId = getWindowId(e.target.parentElement);
             browser.windows.update(windowId, {
                 focused: true
             });
@@ -84,15 +84,15 @@ export function documentClicked(e) {
             document.getElementById("tab-details").style.display = "none";
             browser.tabs.remove(getTabId(document.getElementById("tab-details")));
         } else if (e.target.classList.contains("tab-entry-remove-btn")) {
-            var tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
-            var tabDetails = document.getElementById("tab-details");
+            let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
+            let tabDetails = document.getElementById("tab-details");
             if (tabDetails.getAttribute("data-tab_id") === tabId) {
                 tabDetails.style.display = "none";
                 document.getElementById("details-placeholder").style.display = "inline-block";
             }
             browser.tabs.remove(parseInt(tabId));
         } else if (e.target.classList.contains("tab-entry-pin-btn")) {
-            var tabId = getTabId(e.target.parentElement.parentElement);
+            let tabId = getTabId(e.target.parentElement.parentElement);
             browser.tabs.get(tabId).then(tab => {
                 if (tab.pinned) {
                     browser.tabs.update(tab.id, {
@@ -105,7 +105,7 @@ export function documentClicked(e) {
                 }
             });
         } else if (e.target.classList.contains("window-entry-remove-btn")) {
-            var windowId = getWindowId(e.target.parentElement.parentElement.parentElement);
+            let windowId = getWindowId(e.target.parentElement.parentElement.parentElement);
             browser.windows.remove(windowId);
         } else {
             if (G.isSelecting) multiSelectReset();

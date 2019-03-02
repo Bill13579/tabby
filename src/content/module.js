@@ -1,6 +1,6 @@
 import "Polyfill"
 
-var modules = {};
+let modules = {};
 
 export function module(name, onRequest) {
     if (modules[name] !== undefined) {
@@ -11,7 +11,7 @@ export function module(name, onRequest) {
 }
 
 browser.runtime.onMessage.addListener((message, sender) => {
-    var onRequest = modules[message.target];
+    let onRequest = modules[message.target];
     if (onRequest !== undefined) {
         return onRequest(message.action, message.data);
     }

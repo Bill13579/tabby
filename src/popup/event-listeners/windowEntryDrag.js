@@ -3,17 +3,17 @@ import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, findTabEntryById, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId } from "../wtdom"
 
-var multiDragging = false, sourceTab, targetTab, under, sourceWindow, sourceWindowId;
+let multiDragging = false, sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
 function getMultiDragImage(target, clientX, clientY) {
-    var dragImage = document.createElement("div"), x, y;
-    var selectedItems = getSelectedItems();
+    let dragImage = document.createElement("div"), x, y;
+    let selectedItems = getSelectedItems();
     if (selectedItems.length === 1) return selectedItems[i];
-    for (var i = 0; i < selectedItems.length - 1; i++) {
-        var ref1 = selectedItems[i], ref2 = selectedItems[i+1];
-        var ref1br = ref1.getBoundingClientRect(), ref2br = ref2.getBoundingClientRect();
-        var distance = ref2br.top - (ref1br.top + ref1br.height);
-        var ref1Clone = ref1.cloneNode(true);
+    for (let i = 0; i < selectedItems.length - 1; i++) {
+        let ref1 = selectedItems[i], ref2 = selectedItems[i+1];
+        let ref1br = ref1.getBoundingClientRect(), ref2br = ref2.getBoundingClientRect();
+        let distance = ref2br.top - (ref1br.top + ref1br.height);
+        let ref1Clone = ref1.cloneNode(true);
         ref1Clone.style.marginBottom = distance + "px";
         dragImage.appendChild(ref1Clone);
     } dragImage.appendChild(selectedItems[selectedItems.length - 1].cloneNode(true));
@@ -39,7 +39,7 @@ export function windowEntryDragStarted(e) {
             e.dataTransfer.effectAllowed = "move";
             if (G.isSelecting && multiSelected(e.target)) {
                 multiDragging = true;
-                var dragImage = getMultiDragImage();
+                let dragImage = getMultiDragImage();
                 e.dataTransfer.setDragImage(dragImage.image, dragImage.x, dragImage.y);
             }
         }
@@ -49,19 +49,19 @@ export function windowEntryDragStarted(e) {
 
 export function windowEntryDraggingOver(e) {
     e.preventDefault();
-    var cursors = Array.from(G.tabsList.getElementsByClassName("insert-cursor"));
-    for (var i = 0; i < cursors; i++) {
-        var c = cursors[i];
+    let cursors = Array.from(G.tabsList.getElementsByClassName("insert-cursor"));
+    for (let i = 0; i < cursors.length; i++) {
+        let c = cursors[i];
         c.parentElement.removeChild(c);
     }
-    var cursorWindow = G.tabsList.getElementByClassName("insert-cursor-window");
+    let cursorWindow = G.tabsList.getElementByClassName("insert-cursor-window");
     if (cursorWindow !== null) {
         cursorWindow.classList.remove("insert-cursor-window");
     }
 
-    var windowEntry;
+    let windowEntry;
     if (e.target.classList.contains("tab-entry")) {
-        var tabEntryBoundingClientRect = e.target.getBoundingClientRect();
+        let tabEntryBoundingClientRect = e.target.getBoundingClientRect();
         targetTab = e.target;
         under = false;
         if ((e.clientY - tabEntryBoundingClientRect.top) >= tabEntryBoundingClientRect.height / 2) {
@@ -72,7 +72,7 @@ export function windowEntryDraggingOver(e) {
             }
         }
         if (tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging)) {
-            var cursor = document.createElement("div");
+            let cursor = document.createElement("div");
             cursor.classList.add("insert-cursor");
             if (under) {
                 targetTab.parentElement.appendChild(cursor);
@@ -90,20 +90,20 @@ export function windowEntryDraggingOver(e) {
 export function windowEntryDropped(e) {
     e.preventDefault();
     e.stopPropagation();
-    var cursors = Array.from(G.tabsList.getElementsByClassName("insert-cursor"));
-    for (var i = 0; i < cursors; i++) {
-        var cursor = cursors[i];
+    let cursors = Array.from(G.tabsList.getElementsByClassName("insert-cursor"));
+    for (let i = 0; i < cursors.length; i++) {
+        let cursor = cursors[i];
         cursor.parentElement.removeChild(cursor);
     }
-    var cursorWindow = G.tabsList.getElementByClassName("insert-cursor-window");
+    let cursorWindow = G.tabsList.getElementByClassName("insert-cursor-window");
     if (cursorWindow !== null) {
         cursorWindow.classList.remove("insert-cursor-window");
     }
     
-    var windowEntry;
+    let windowEntry;
     if (e.target.classList.contains("tab-entry")) {
         if (!e.target.isSameNode(targetTab)) {
-            var tabEntryBoundingClientRect = e.target.getBoundingClientRect();
+            let tabEntryBoundingClientRect = e.target.getBoundingClientRect();
             targetTab = e.target;
             under = false;
             if ((e.clientY - tabEntryBoundingClientRect.top) >= tabEntryBoundingClientRect.height / 2) {
@@ -115,11 +115,11 @@ export function windowEntryDropped(e) {
             }
         }
         if (tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging)) {
-            var destinationWindowId = getWindowId(getWindowFromTab(targetTab));
-            var sourceTabIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, sourceTab);
-            var destinationIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, targetTab);
-            var moveIndex = under ? -1 : ((sourceTabIndex !== -1 && destinationIndex > sourceTabIndex && destinationWindowId === sourceWindowId) ? destinationIndex-1 : destinationIndex);
-            var sourceTabId = getTabId(sourceTab);
+            let destinationWindowId = getWindowId(getWindowFromTab(targetTab));
+            let sourceTabIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, sourceTab);
+            let destinationIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, targetTab);
+            let moveIndex = under ? -1 : ((sourceTabIndex !== -1 && destinationIndex > sourceTabIndex && destinationWindowId === sourceWindowId) ? destinationIndex-1 : destinationIndex);
+            let sourceTabId = getTabId(sourceTab);
             browser.tabs.move(sourceTabId, {
                 windowId: destinationWindowId,
                 index: moveIndex
@@ -132,8 +132,8 @@ export function windowEntryDropped(e) {
         }
     } else if ((windowEntry = e.target.parentElement) !== null && windowEntry.classList.contains("window-entry")) {
         if (tabDraggableToWindow(sourceTab, windowEntry, sourceWindow)) {
-            var sourceTabId = getTabId(sourceTab);
-            var destinationWindowId = getWindowId(windowEntry);
+            let sourceTabId = getTabId(sourceTab);
+            let destinationWindowId = getWindowId(windowEntry);
             browser.tabs.move(sourceTabId, {
                 windowId: destinationWindowId,
                 index: -1

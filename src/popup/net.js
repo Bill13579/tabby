@@ -5,13 +5,13 @@ export function getImage(url, noCache=false) {
     return new Promise((resolve, reject) => {
         try {
             if (!url.startsWith("chrome://")) {
-                var xhr = new XMLHttpRequest();
+                let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(){
                     if (this.readyState == 4 && this.status == 200) {
-                        var contentType = xhr.getResponseHeader("Content-Type").trim();
+                        let contentType = xhr.getResponseHeader("Content-Type").trim();
                         if (contentType.startsWith("image/")) {
-                            var flag = "data:" + contentType + ";charset=utf-8;base64,";
-                            var imageStr = arrayBufferToBase64(xhr.response);
+                            let flag = "data:" + contentType + ";charset=utf-8;base64,";
+                            let imageStr = arrayBufferToBase64(xhr.response);
                             resolve(flag + imageStr);
                         } else {
                             reject("Image Request Failed: Content-Type is not an image! (Content-Type: \"" + contentType + "\")");
@@ -33,8 +33,8 @@ export function getImage(url, noCache=false) {
 
 // Function to transform ArrayBuffer into a Base64 String
 export function arrayBufferToBase64(buffer) {
-    var binary = "";
-    var bytes = [].slice.call(new Uint8Array(buffer));
+    let binary = "";
+    let bytes = [].slice.call(new Uint8Array(buffer));
     bytes.forEach((b) => binary += String.fromCharCode(b));
     return window.btoa(binary);
 }

@@ -10,7 +10,7 @@ export function onMessage(request, sender) {
             break;
         case "TAB_FAV_ICON_CHANGED":
             browser.tabs.get(request.details.tabId).then(tab => {
-                var favIconPromise;
+                let favIconPromise;
                 if (tab.incognito) {
                     favIconPromise = getImage(request.details.favIconUrl, true);
                 } else {
@@ -22,10 +22,10 @@ export function onMessage(request, sender) {
             });
             break;
         case "TAB_PINNED_STATUS_CHANGED":
-            var tabEntry = findTabEntryById(request.details.tabId);
-            var pinBtn = tabEntry.getElementByClassName("tab-entry-pin-btn");
-            var windowEntryList = tabEntry.parentElement;
-            var pinnedTabs;
+            let tabEntry = findTabEntryById(request.details.tabId);
+            let pinBtn = tabEntry.getElementByClassName("tab-entry-pin-btn");
+            let windowEntryList = tabEntry.parentElement;
+            let pinnedTabs;
             if (request.details.pinned) {
                 pinnedTabs = Array.from(windowEntryList.getElementsByClassName("pinned-tab"));
                 tabEntry.classList.add("pinned-tab");
@@ -35,7 +35,7 @@ export function onMessage(request, sender) {
                 tabEntry.classList.remove("pinned-tab");
                 pinBtn.style.backgroundImage = "url(../icons/pin.svg)";
             }
-            var lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
+            let lastPinnedTab = pinnedTabs[pinnedTabs.length-1];
             if (lastPinnedTab !== undefined) {
                 windowEntryList.insertBefore(tabEntry, lastPinnedTab.nextSibling);
             } else {

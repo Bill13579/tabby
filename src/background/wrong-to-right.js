@@ -2,7 +2,7 @@ import "Polyfill"
 import G from "./globals"
 
 G.wrongToRight = {};
-var rightToWrong = {};
+let rightToWrong = {};
 
 browser.tabs.onAttached.addListener(fixOnAttached);
 browser.tabs.onRemoved.addListener(fixOnRemoved);
@@ -21,7 +21,7 @@ function fixOnAttached(tabId, attachInfo) {
 }
 
 function fixOnRemoved(tabId, removeInfo) {
-    var wrongId = rightToWrong[tabId];
+    let wrongId = rightToWrong[tabId];
     if (wrongId) {
         delete G.wrongToRight[wrongId];
     }

@@ -11,7 +11,7 @@ export function getWindows() {
 // Correct focused property of windows
 export function correctFocused(windows) {
     return browser.windows.getLastFocused().then(function (w) {
-        for (var i = 0; i < windows.length; i++) {
+        for (let i = 0; i < windows.length; i++) {
             if (windows[i].id === w.id) {
                 windows[i].focused = true;
             }

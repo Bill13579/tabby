@@ -11,8 +11,8 @@ export function toggleClass(element, c) {
 
 // Get actual height of an element
 export function getActualHeight(element) {
-    var styles = window.getComputedStyle(element);
-    var margin = parseFloat(styles['marginTop']) +
+    let styles = window.getComputedStyle(element);
+    let margin = parseFloat(styles['marginTop']) +
                parseFloat(styles['marginBottom']);
     return element.offsetHeight + margin;
 }

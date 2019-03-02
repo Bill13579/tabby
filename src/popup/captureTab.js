@@ -1,6 +1,6 @@
 import "Polyfill"
 
-export var available = false;
+export let available = false;
 
 export function init() {
     if (window["browser"] !== undefined
