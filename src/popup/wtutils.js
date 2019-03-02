@@ -8,11 +8,27 @@ export function getWindows() {
     });
 }
 
+// Get the correct last focused window id
+export function getLastFocusedWindowId() {
+    /*
+    Due to a bug in Chromium, windows.getLastFocused() will sometimes
+    return incorrect windows. So here, instead of calling getLastFocused(),
+    we call getCurrent().
+    Reference: https://crbug.com/809822
+    */
+    return browser.tabs.query({ lastFocusedWindow: true }).then(function (tabs) {
+        if (tabs.length > 0) {
+            return tabs[0].windowId;
+        }
+        return -1;
+    });
+}
+
 // Correct focused property of windows
 export function correctFocused(windows) {
-    return browser.windows.getLastFocused().then(function (w) {
+    return getLastFocusedWindowId().then(function (lastFocusedWindowId) {
         for (let i = 0; i < windows.length; i++) {
-            if (windows[i].id === w.id) {
+            if (windows[i].id === lastFocusedWindowId) {
                 windows[i].focused = true;
             }
         }
