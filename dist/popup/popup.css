@@ -262,6 +262,10 @@ html, body {
 }
 .tab-entry-buttons {
     margin-left: 5.5px;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: -moz-flex;
+    display: flex;
 }
 .tab-entry-buttons *:not(.tab-entry-remove-btn) {
     display: none;
