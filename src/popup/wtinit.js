@@ -5,7 +5,8 @@ import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight } from "./domutils"
 import { archiveDragStartReceiver } from "./event-listeners/archive"
-import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped } from "./event-listeners/windowEntryDrag"
+import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
+import { tabEntryMouseOver, tabEntryMouseLeave, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
 
 // Update tabs
 export function updateTabs(windows) {
@@ -53,9 +54,11 @@ export function updateTabs(windows) {
         // Set window id to window entry
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
+        span.addEventListener("click", windowEntryTitleClicked);
 
         // Create close button
         let closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
+        closeBtn.addEventListener("click", windowCloseClick);
 
         // Buttons wrapper
         let buttons = document.createElement("span");
@@ -142,9 +145,11 @@ export function updateTabs(windows) {
 
                 // Create close button
                 closeBtn = TAB_CLOSE_BTN.cloneNode(false);
+                closeBtn.addEventListener("click", tabCloseClick);
 
                 // Create pin button
                 let pinBtn = TAB_PIN_BTN.cloneNode(false);
+                pinBtn.addEventListener("click", tabPinClick);
 
                 // Buttons wrapper
                 buttons = document.createElement("span");
@@ -164,12 +169,9 @@ export function updateTabs(windows) {
                 
                 tabEntry.appendChild(tabEntryFragment);
 
-                tabEntry.addEventListener("mouseover", e => {
-                    pinBtn.style.display = "inline-block";
-                });
-                tabEntry.addEventListener("mouseleave", e => {
-                    pinBtn.style.display = "none";
-                });
+                tabEntry.addEventListener("mouseover", tabEntryMouseOver);
+                tabEntry.addEventListener("mouseleave", tabEntryMouseLeave);
+                tabEntry.addEventListener("click", tabEntryClicked);
 
                 if (tab.pinned) {
                     pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";

@@ -1,7 +1,7 @@
 import "Polyfill"
 import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
-import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, findTabEntryById, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId } from "../wtdom"
+import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId } from "../wtdom"
 
 let multiDragging = false, sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
@@ -141,4 +141,16 @@ export function windowEntryDropped(e) {
             attachTab(sourceTab, windowEntry);
         }
     }
+}
+
+export function windowEntryTitleClicked(e) {
+    let windowId = getWindowId(e.target.parentElement);
+    browser.windows.update(windowId, {
+        focused: true
+    });
+}
+
+export function windowCloseClick(e) {
+    let windowId = getWindowId(e.target.parentElement.parentElement.parentElement);
+    browser.windows.remove(windowId);
 }

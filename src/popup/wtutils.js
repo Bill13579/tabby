@@ -25,6 +25,7 @@ export function getLastFocusedWindowId() {
 }
 
 // Correct focused property of windows
+// In Chromium, window.focused doesn't work, so we manually set it here
 export function correctFocused(windows) {
     return getLastFocusedWindowId().then(function (lastFocusedWindowId) {
         for (let i = 0; i < windows.length; i++) {
@@ -36,6 +37,7 @@ export function correctFocused(windows) {
 }
 
 // Get current window
-export function getCurrentWindow() {
-    return browser.windows.getLastFocused({});
+export function getLastFocusedWindow() {
+    // return browser.windows.getLastFocused({}); // Doesn't work due to a bug in Chromium. See explanation in getLastFocusedWindowId
+    return getLastFocusedWindowId().then(windowId => browser.windows.get(windowId));
 }
