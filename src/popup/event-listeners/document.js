@@ -118,3 +118,17 @@ export function documentDragOver(e) {
         G.archive.classList.remove("saving-for-later");
     }
 }
+
+function isInlinePrintableKey(e) {
+    if (typeof e.which === "undefined") {
+        return true;
+    } else if (typeof e.which === "number" && e.which > 0) {
+        return !e.ctrlKey && !e.metaKey && !e.altKey && e.which !== 8 && e.which !== 13;
+    }
+}
+
+export function documentKeyPressed(e) {
+    if (isInlinePrintableKey(e)) {
+        document.getElementById("search").focus();
+    }
+}

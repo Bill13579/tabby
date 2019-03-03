@@ -3,7 +3,7 @@ import "Polyfill"
 import G from "./globals"
 import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
-import { documentMouseOver, documentMouseUp, documentClicked, documentDragOver } from "./event-listeners/document"
+import { documentMouseOver, documentMouseUp, documentClicked, documentDragOver, documentKeyPressed } from "./event-listeners/document"
 import { archiveDragOverReceiver, archiveDropReceiver } from "./event-listeners/archive"
 import { searchTextChanged } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
@@ -35,6 +35,7 @@ document.addEventListener("mouseover", documentMouseOver);
 document.addEventListener("mouseup", documentMouseUp);
 document.addEventListener("click", documentClicked);
 document.addEventListener("dragover", documentDragOver);
+document.addEventListener("keypress", documentKeyPressed);
 
 // Add keyup event listener and put focus on search
 let search = document.getElementById("search");
