@@ -164,6 +164,13 @@ export function updateTabs(windows) {
                 
                 tabEntry.appendChild(tabEntryFragment);
 
+                tabEntry.addEventListener("mouseover", e => {
+                    pinBtn.style.display = "inline-block";
+                });
+                tabEntry.addEventListener("mouseleave", e => {
+                    pinBtn.style.display = "none";
+                });
+
                 if (tab.pinned) {
                     pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
                     tabEntry.classList.add("pinned-tab");

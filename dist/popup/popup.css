@@ -260,6 +260,15 @@ html, body {
     height: 18px;
     vertical-align: middle;
 }
+.tab-entry-buttons {
+    margin-left: 5.5px;
+}
+.tab-entry-buttons *:not(.tab-entry-remove-btn) {
+    display: none;
+}
+.tab-entry.pinned-tab .tab-entry-buttons *:not(.tab-entry-remove-btn) {
+    display: inline-block !important;
+}
 .tab-details {
     font-size: 15.5px;
 }
