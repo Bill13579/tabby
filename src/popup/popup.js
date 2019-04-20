@@ -1,5 +1,4 @@
 import "Polyfill"
-
 import G from "./globals"
 import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"

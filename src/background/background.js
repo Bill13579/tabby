@@ -4,6 +4,11 @@ import { onMessage } from "./event-listeners/message"
 import { tabActivated, tabUpdated, tabRemoved } from "./event-listeners/tab"
 import { windowFocusChanged, windowRemoved } from "./event-listeners/window"
 import { onCommand } from "./event-listeners/command"
+import { onInstalled } from "./event-listeners/installed"
+
+if (!browser.runtime.onInstalled.hasListener(onInstalled)) {
+    browser.runtime.onInstalled.addListener(onInstalled);
+}
 
 // Set initial tab id
 browser.tabs.query({

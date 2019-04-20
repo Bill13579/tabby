@@ -23,7 +23,7 @@ export function archiveDropReceiver(e) {
             sendTabMessage(getTabId(archiveTarget), "packd", {
                 action: "pack"
             }).then(response => {
-                browser.storage.sync.get(["archive"], data => {
+                browser.storage.sync.get(["archive"]).then(data => {
                     if (!data.archive) {
                         data.archive = {};
                         data.archive.default = [];

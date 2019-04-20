@@ -1,3 +1,5 @@
+export const TargetBrowser = TARGET;
+
 if (TARGET === "chrome") {
     window["browser"] = require("webextension-polyfill");
 }

@@ -1,0 +1,86 @@
+:root {
+    --switch-width: 39.5px;
+    --switch-height: 16px;
+    --switch-slider-size: 23px;
+    --switch-glow-size: 50px;
+    --switch-animation-length: 0.25s;
+    --switch-margin: 0.1;
+}
+
+.ui-switch {
+    display: inline-block;
+    position: relative;
+    overflow: visible;
+    width: var(--switch-width);
+    height: var(--switch-height);
+    border-radius: 25px;
+    transition: background-color var(--switch-animation-length) ease;
+    cursor: pointer;
+}
+
+.ui-switch .ui-switch-slider, .ui-switch .ui-switch-glow {
+    position: absolute;
+    border-radius: 50%;
+    display: inline-block;
+    transition: left var(--switch-animation-length) ease, background-color var(--switch-animation-length) ease;
+}
+
+.ui-switch .ui-switch-slider {
+    width: var(--switch-slider-size);
+    height: var(--switch-slider-size);
+    top: calc((var(--switch-height) - var(--switch-slider-size)) / 2);
+    left: calc(-1 * var(--switch-slider-size) * var(--switch-margin));
+    box-shadow: 0.2px 0.2px 1px 1px #a9a9a9;
+    cursor: pointer;
+}
+
+.ui-switch .ui-switch-glow {
+    width: var(--switch-glow-size);
+    height: var(--switch-glow-size);
+    top: calc((var(--switch-height) - var(--switch-glow-size)) / 2);
+    left: calc(-1 * var(--switch-glow-size) * var(--switch-margin) - var(--switch-slider-size) / 2);
+    display: none;
+}
+
+.ui-switch[value=off] {
+    background-color: #9b9b9b;
+}
+
+.ui-switch[value=off] .ui-switch-slider {
+    background-color: #ffffff;
+}
+
+.ui-switch[value=off] .ui-switch-glow {
+    background-color: #a9a9a914;
+}
+
+.ui-switch[value=on] {
+    background-color: #8bf6ff;
+}
+
+.ui-switch[value=on] .ui-switch-slider {
+    left: calc(var(--switch-width) - var(--switch-slider-size) + var(--switch-slider-size) * var(--switch-margin));
+    background-color: #4fc3f7;
+}
+
+.ui-switch[value=on] .ui-switch-glow {
+    left: calc(var(--switch-width) - var(--switch-glow-size) + var(--switch-glow-size) * var(--switch-margin) + var(--switch-slider-size) / 2);
+    background-color: #8bf5ff3a;
+}
+
+.ui-switch[disabled] {
+    pointer-events: none;
+    opacity: 0.25;
+    cursor: default;
+}
+
+.ui-switch[disabled] .ui-switch-slider {
+    pointer-events: none;
+    cursor: default;
+    box-shadow: 0.4px 0.4px 1px 1.3px #6a6a6a;
+}
+
+.ui-switch[disabled] .ui-switch-glow {
+    pointer-events: none;
+    background-color: #00000000;
+}

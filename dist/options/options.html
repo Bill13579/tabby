@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Tabby Options</title>
+        <link rel="stylesheet" href="elements/elements.css" />
+        <script type="text/javascript" src="elements/elements.js"></script>
+        <link rel="stylesheet" href="options.css" />
+        <script type="text/javascript" src="options.js"></script>
+    </head>
+    <body>
+        <div id="content">
+            <div id="header">
+                <img id="header-icon" src="../icons/tabby.svg" alt="Tabby Icon" width="100px" />
+                <span id="header-title">Tabby Options</span>
+            </div>
+            <div class="panel">
+                <div id="popup-options" class="section">
+                    <label>Popup</label>
+                    <div class="option">
+                        <label>Popup Size: </label>
+                        <div id="option-popup-size">
+                            <input id="option-popup-width" class="ui-input" type="number" placeholder="Width" max="800"></input>
+                            <span style="font-size: 15px;">&nbsp;X&nbsp;</span>
+                            <input id="option-popup-height" class="ui-input" type="number" placeholder="Height" max="600"></input>
+                        </div>
+                    </div>
+                    <div class="option">
+                        <label>Popup Scale: </label>
+                        <input id="option-popup-scale" class="ui-input" type="number" placeholder="Scale" step="0.1" min="0.1"></input>
+                    </div>
+                    <div class="option">
+                        <label>Show Tab Details: </label>
+                        <div id="option-details" class="ui-switch"></div>
+                    </div>
+                    <div class="option sub-option">
+                        <label>Show Tab Preview: </label>
+                        <div id="option-preview" class="ui-switch"></div>
+                    </div>
+                    <div class="option">
+                        <label>Hide popup after tab selection: </label>
+                        <div id="option-hide-after-tab-switch" class="ui-switch"></div>
+                    </div>
+                    <div class="option">
+                        <label>Search in URLs:</label>
+                        <div id="option-search-urls" class="ui-switch"></div>
+                    </div>
+                </div>
+                <div id="about" class="section">
+                    <label>About</label>
+                    <div class="option">
+                        <label style="user-select: initial;">Tabby Version 2.0</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

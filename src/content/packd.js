@@ -1,14 +1,12 @@
 import "Polyfill"
 import { module } from "./module"
 
-module("packd", (action, data) => {
-    switch (action) {
+module("packd", data => {
+    switch (data.action) {
         case "pack":
-            return new Promise(resolve => {
-                resolve({
-                    top: document.documentElement.scrollTop || document.body.scrollTop,
-                    left: document.documentElement.scrollLeft || document.body.scrollLeft
-                });
+            return Promise.resolve({
+                top: document.documentElement.scrollTop || document.body.scrollTop,
+                left: document.documentElement.scrollLeft || document.body.scrollLeft
             });
             break;
         case "unpack":

@@ -15,8 +15,8 @@ switch (process.argv[2]) {
                 strict_min_version: "59.0"
             }
         };
+        break;
     case "chrome":
-        ;
-    default:
-        fs.writeFileSync(path.join(__dirname, "dist", "manifest.json"), JSON.stringify(manifest, undefined, indent));
+        break;
 }
+fs.writeFileSync(path.join(__dirname, "dist", "manifest.json"), JSON.stringify(manifest, undefined, indent));

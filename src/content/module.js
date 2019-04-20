@@ -13,6 +13,6 @@ export function module(name, onRequest) {
 browser.runtime.onMessage.addListener((message, sender) => {
     let onRequest = modules[message.target];
     if (onRequest !== undefined) {
-        return onRequest(message.action, message.data);
+        return onRequest(message.data);
     }
 });
