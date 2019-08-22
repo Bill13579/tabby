@@ -8,6 +8,7 @@ const globals = {
         sliding: false,
         initiator: undefined,
         vector: 0
-    }
+    },
+    searchInURLs: undefined
 };
 export default globals;

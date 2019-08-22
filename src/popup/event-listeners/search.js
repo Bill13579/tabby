@@ -1,4 +1,6 @@
 import "Polyfill"
+import G from "../globals"
+import { getTabId } from "../wtdom"
 
 function keywordSearch(s, key) {
     let keywords = key.trim().split(" "), count = 0;
@@ -18,7 +20,7 @@ function search(s, key) {
 }
 
 // Search
-export function searchTextChanged(e) {
+export async function searchTextChanged(e) {
     let input, filter, tabEntries;
     input = document.getElementById("search");
     filter = input.value;
@@ -26,7 +28,8 @@ export function searchTextChanged(e) {
     if (filter !== "") {
         for (let i = 0; i < tabEntries.length; i++) {
             let tabEntry = tabEntries[i];
-            if (!search(tabEntry.getElementByClassName("tab-title").innerText, filter)) {
+            if (!search(tabEntry.getElementByClassName("tab-title").innerText, filter) &&
+                !(G.searchInURLs && search((await browser.tabs.get(getTabId(tabEntry))).url, filter))) {
                 tabEntry.style.display = "none";
             } else {
                 tabEntry.style.display = "flex";

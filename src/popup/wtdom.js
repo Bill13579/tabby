@@ -2,6 +2,11 @@ import "Polyfill"
 import G from "./globals"
 import { getCorrectTabId } from "./wrong-to-right"
 
+// Hides the tab preview
+export function hideTabPreview() {
+    document.getElementById("details-img").style.display = "none";
+}
+
 // Get a tab by a tab entry
 export function getTabByTabEntry(entry) {
     return browser.tabs.get(getTabId(entry));

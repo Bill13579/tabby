@@ -61,7 +61,7 @@ body {
 
 .option input {
     display: inline-block;
-    width: 20%;
+    width: 30%;
     font-size: 15px;
     padding-left: 10px;
     padding-right: 10px;
@@ -80,7 +80,7 @@ body {
 
 #option-popup-size {
     display: inline-block;
-    width: 70%;
+    width: 40%;
 }
 
 .panel {
@@ -92,4 +92,11 @@ body {
     background-color: #ffffff;
     border-radius: 2px;
     box-shadow: 0.7px 0.7px 1.5px 1px #b6b6b6;
+}
+
+.reset-default {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background: white url("../icons/restore.svg") no-repeat top left;
 }

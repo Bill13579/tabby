@@ -2,17 +2,50 @@ import "Polyfill"
 import G from "./globals"
 import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
+import { getActualWidth } from "./domutils"
 import { documentMouseOver, documentMouseUp, documentClicked, documentDragOver, documentKeyPressed } from "./event-listeners/document"
 import { archiveDragOverReceiver, archiveDropReceiver } from "./event-listeners/archive"
 import { searchTextChanged } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
 import * as captureTab from "./captureTab"
+import * as Options from "../options"
+import { hideTabPreview } from "./wtdom"
 
 G.tabsList = document.getElementById("tabs-list");
+
+function setPopupSize(width, height) {
+    document.documentElement.style.width = width + "px";
+    document.documentElement.style.height = height + "px";
+    document.body.style.width = width + "px";
+    document.body.style.height = height + "px";
+}
+
+async function fulfillOptions() {
+    let popupOptions = (await Options.options()).popup;
+    // popup.size
+    setPopupSize(popupOptions.size.width, popupOptions.size.height);
+    // popup.scale
+
+    // popup.showDetails
+    if (!Options.stbool(popupOptions.showDetails)) {
+        let leftContainer = document.getElementById("left-container");
+        popupOptions.size.width = popupOptions.size.width - getActualWidth(leftContainer);
+        setPopupSize(popupOptions.size.width, popupOptions.size.height);
+        leftContainer.style.display = "none";
+        document.getElementById("tabs-container").style.width = "100%";
+    } else {
+        // popup.showPreview
+        if (!Options.stbool(popupOptions.showPreview)) hideTabPreview();
+    }
+    // popup.searchInURLs
+    G.searchInURLs = Options.stbool(popupOptions.searchInURLs);
+}
 
 async function main() {
     // Initialize captureTab based on environment
     captureTab.init();
+    // Fulfill user options
+    await fulfillOptions();
     // Make tabs list fit the panel
     extendTabsList();
     // Fix for cross-window dragging issue

@@ -8,7 +8,6 @@ export function init() {
         available = true;
         return;
     }
-    document.getElementById("details-img").style.display = "none";
 }
 
 export function captureTab(id) {
