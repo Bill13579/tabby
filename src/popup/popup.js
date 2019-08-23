@@ -25,7 +25,7 @@ async function fulfillOptions() {
     // popup.size
     setPopupSize(popupOptions.size.width, popupOptions.size.height);
     // popup.scale
-
+    document.documentElement.style.setProperty('--scale', popupOptions.scale.toString());
     // popup.showDetails
     if (!Options.stbool(popupOptions.showDetails)) {
         let leftContainer = document.getElementById("left-container");

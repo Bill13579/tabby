@@ -1,3 +1,6 @@
+:root {
+    --scale: 1;
+}
 * {
     font-family: Helvetica, Sans-Serif;
     letter-spacing: 0.1px;
@@ -17,7 +20,7 @@ html, body {
 }
 .inline-button {
     font-weight: normal;
-    font-size: 15.5px;
+    font-size: calc(15.5px * var(--scale));
     display: inline-block;
     background-color: rgb(0, 153, 255);
     border-radius: 3px;
@@ -56,29 +59,29 @@ html, body {
     display: block;
     width: inherit;
     background-color: #5e5e5e;
-    font-size: 16.7px;
+    font-size: calc(16.7px * var(--scale));
     color: white;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 3.5px;
-    padding-bottom: 3.5px;
+    padding-left: calc(5px * var(--scale));
+    padding-right: calc(5px * var(--scale));
+    padding-top: calc(3.5px * var(--scale));
+    padding-bottom: calc(3.5px * var(--scale));
 }
 .category-list > li {
     background-color: #f2f2f2;
-    font-size: 17.6px;
+    font-size: calc(17.6px * var(--scale));
     color: black;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-left: calc(15px * var(--scale));
+    padding-right: calc(15px * var(--scale));
+    padding-top: calc(5px * var(--scale));
+    padding-bottom: calc(5px * var(--scale));
 }
 #container {
-    width: calc(100% - 28.5px);
-    height: calc(100% - 28.5px);
-    padding-top: 8.5px;
-    padding-bottom: 8.5px;
-    padding-left: 14.25px;
-    padding-right: 14.25px;
+    width: calc(100% - 28.5px * var(--scale));
+    height: calc(100% - 28.5px * var(--scale));
+    padding-top: calc(8.5px * var(--scale));
+    padding-bottom: calc(8.5px * var(--scale));
+    padding-left: calc(14.25px * var(--scale));
+    padding-right: calc(14.25px * var(--scale));
 }
 .current-tab {
     background-color: #b7e7ff !important;
@@ -145,7 +148,7 @@ html, body {
 }
 #search {
     vertical-align: middle;
-    font-size: 15.5px;
+    font-size: calc(15.5px * var(--scale));
 }
 .window-entry {
     padding-top: 2px;
@@ -194,7 +197,7 @@ html, body {
     -webkit-align-items: center;
     -moz-align-items: center;
     align-items: center;
-    height: 28px;
+    height: calc(28px * var(--scale));
     overflow: hidden;
 }
 .tab-entry-favicon {
@@ -232,22 +235,22 @@ html, body {
     height: auto;
 }
 .window-entry-buttons .inline-button {
-    width: 19px;
-    height: 19px;
+    width: calc(19px * var(--scale));
+    height: calc(19px * var(--scale));
     display: block;
 }
 .tab-entry-pin-btn {
-    width: 18px;
-    height: 18px;
+    width: calc(18px * var(--scale));
+    height: calc(18px * var(--scale));
     margin-right: 5px;
     vertical-align: middle;
 }
 .details-tab-remove-btn {
-    width: 25px;
-    height: 25px;
+    width: calc(25px * var(--scale));
+    height: calc(25px * var(--scale));
 }
 .copy-button {
-    font-size: 13px;
+    font-size: calc(13px * var(--scale));
     padding-left: 3px;
     padding-right: 3px;
     padding-top: 2px;
@@ -256,8 +259,8 @@ html, body {
     margin-right: 0.5px;
 }
 .tab-entry-remove-btn {
-    width: 18px;
-    height: 18px;
+    width: calc(18px * var(--scale));
+    height: calc(18px * var(--scale));
     vertical-align: middle;
 }
 .tab-entry-buttons {
@@ -274,15 +277,15 @@ html, body {
     display: inline-block !important;
 }
 .tab-details {
-    font-size: 15.5px;
+    font-size: calc(15.5px * var(--scale));
 }
 .space {
-    height: 6px;
+    height: calc(6px * var(--scale));
     width: 100%;
 }
 .insert-cursor {
     width: 100%;
-    height: 1.2px;
+    height: calc(1.2px * var(--scale));
     background-color: blue;
 }
 .insert-cursor-window {
@@ -319,7 +322,7 @@ html, body {
 }
 #actions {
     display: inline-flex;
-    height: 30px;
+    height: calc(30px * var(--scale));
     width: 100%;
 }
 #details {
@@ -338,7 +341,7 @@ html, body {
     display: none;
 }
 #details-placeholder {
-    font-size: 27px;
+    font-size: calc(27px * var(--scale));
     font-weight: bolder;
     color: #aaaaaa;
     padding-left: 10px;
@@ -364,7 +367,7 @@ html, body {
     -ms-user-select: none;
 }
 #details-title, #details-url, label[for="details-title"], label[for="details-url"] {
-    font-size: 17.1px;
+    font-size: calc(17.1px * var(--scale));
 }
 label[for="details-title"], label[for="details-url"] {
     font-weight: bold;
