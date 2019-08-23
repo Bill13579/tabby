@@ -129,22 +129,35 @@ html, body {
 .saving-for-later {
     border-style: solid !important;
 }
-#save-for-later {
+#store {
     width: 16%;
+}
+#save-for-later, #restore-now {
+    width: 100%;
+    height: 50%;
     border-width: 1px;
-    border-radius: 2px;
-    border-style: dashed;
+    border-style: solid;
     text-align: center;
     display: inline-block;
     vertical-align: middle;
     margin-left: 5.3px;
     margin-right: 5.3px;
-    margin-top: 4.75px;
-    margin-bottom: 4.75px;
-    background-image: url(../icons/archive.svg);
     background-repeat: no-repeat;
     background-size: 60%;
     background-position: center;
+}
+#save-for-later {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-image: url(../icons/archive.svg);
+    margin-top: 4.75px;
+}
+#restore-now {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top: none;
+    background-image: url(../icons/restore.svg);
+    margin-bottom: 4.75px;
 }
 #search {
     vertical-align: middle;

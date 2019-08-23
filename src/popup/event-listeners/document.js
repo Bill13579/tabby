@@ -25,12 +25,6 @@ export function documentClicked(e) {
     }
 }
 
-export function documentDragOver(e) {
-    if (G.archive.classList.contains("saving-for-later")) {
-        G.archive.classList.remove("saving-for-later");
-    }
-}
-
 function isInlinePrintableKey(e) {
     if (typeof e.which === "undefined") {
         return true;

@@ -3,8 +3,7 @@ import G from "./globals"
 import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
 import { getActualWidth } from "./domutils"
-import { documentMouseOver, documentMouseUp, documentClicked, documentDragOver, documentKeyPressed } from "./event-listeners/document"
-import { archiveDragOverReceiver, archiveDropReceiver } from "./event-listeners/archive"
+import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
 import { searchTextChanged } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
 import * as captureTab from "./captureTab"
@@ -68,7 +67,6 @@ if (document.readyState === "loading") {
 document.addEventListener("mouseover", documentMouseOver);
 document.addEventListener("mouseup", documentMouseUp);
 document.addEventListener("click", documentClicked);
-document.addEventListener("dragover", documentDragOver);
 document.addEventListener("keypress", documentKeyPressed);
 
 // Add keyup event listener and put focus on search
@@ -91,10 +89,6 @@ for (let i = 0; i < copyButtons.length; i++) {
         }, 2000);
     });
 }
-
-G.archive = document.getElementById("save-for-later");
-G.archive.addEventListener("dragover", archiveDragOverReceiver);
-G.archive.addEventListener("drop", archiveDropReceiver);
 
 // Add event listener to listen for any messages from background.js
 if (!browser.runtime.onMessage.hasListener(onMessage)) {

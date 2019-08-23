@@ -4,7 +4,6 @@ import { getImage } from "./net"
 import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight } from "./domutils"
-import { archiveDragStartReceiver } from "./event-listeners/archive"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
 import { tabEntryMouseOver, tabEntryMouseLeave, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
 
@@ -94,9 +93,6 @@ export function updateTabs(windows) {
         windowEntry.addEventListener("dragover", windowEntryDraggingOver);
         windowEntry.addEventListener("drop", windowEntryDropped);
         windowEntry.setAttribute("draggable", "true");
-
-        // Add window button dragstart, dragover, and drop event listeners
-        windowEntry.addEventListener("dragstart", archiveDragStartReceiver);
 
         let windowTabsList = document.createElement("ul");
         windowTabsList.classList.add("category-list");
