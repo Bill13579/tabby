@@ -11,10 +11,10 @@ export async function updateRecorderToolTip() {
     let r = await lastRecord();
     let restoreBtn = document.getElementById("restore-now");
     if (r) {
-        restoreBtn.setAttribute("title", "Restore websites that have been saved on " + (new Date(r.timestamp)).toLocaleString())
+        restoreBtn.setAttribute("title", "Restore websites that have been saved on " + (new Date(r.timestamp)).toLocaleString());
         restoreBtn.removeAttribute("disabled");
     } else {
-        restoreBtn.setAttribute("title", "Restore websites that have been saved")
+        restoreBtn.setAttribute("title", "Restore websites that have been saved");
         restoreBtn.setAttribute("disabled", "");
     }
 }
