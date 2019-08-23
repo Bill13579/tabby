@@ -7,21 +7,25 @@ export async function lastRecord() {
     return browser.storage.local.get(["record"]).then(data => data.record);
 }
 
+function tabInfoToRecord(info) {
+    return {
+        url: info.url,
+        pinned: info.pinned
+    };
+}
 export async function record() {
     let record = [];
     for (let windowEntry of G.tabsList.getElementsByClassName("window-entry")) {
         let windowRecord = [];
         for (let tabEntry of windowEntry.getElementsByClassName("tab-entry")) {
             await browser.tabs.sendMessage(getTabId(tabEntry), { target: "packd", data: { action: "pack" } }).then(async pack => {
-                windowRecord.push({
-                    url: (await browser.tabs.get(getTabId(tabEntry))).url,
+                windowRecord.push(Object.assign({
                     pack: pack
-                });
+                }, tabInfoToRecord(await browser.tabs.get(getTabId(tabEntry)))));
             }).catch(async reason => {
-                windowRecord.push({
-                    url: (await browser.tabs.get(getTabId(tabEntry))).url,
+                windowRecord.push(Object.assign({
                     pack: undefined
-                });
+                }, tabInfoToRecord(await browser.tabs.get(getTabId(tabEntry)))));
             });
         }
         record.push(windowRecord);
@@ -36,7 +40,8 @@ export async function restore() {
             for (let tabRecord of windowRecord) {
                 browser.tabs.create({
                     url: tabRecord.url,
-                    windowId: w.id
+                    windowId: w.id,
+                    pinned: tabRecord.pinned
                 }).then(t => {
                     if (tabRecord.pack) {
                         runAfterTabLoad(t.id, () => {
@@ -48,6 +53,7 @@ export async function restore() {
                     }
                 });
             }
+            browser.tabs.remove(w.tabs[0].id);
         });
     }
 }
