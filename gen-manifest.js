@@ -11,7 +11,7 @@ switch (process.argv[2]) {
     case "firefox":
         manifest.applications = {
             gecko: {
-                id: "bluesky42624@gmail.com",
+                id: "tabby@whatsyouridea.com",
                 strict_min_version: "59.0"
             }
         };
