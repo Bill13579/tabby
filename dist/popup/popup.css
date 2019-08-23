@@ -162,6 +162,9 @@ html, body {
     opacity: 0.5;
     pointer-events: none;
 }
+#save-for-later[done], #restore-now[done] {
+    background-image: url(../icons/done.svg);
+}
 #restore-now {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
