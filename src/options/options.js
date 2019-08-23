@@ -74,36 +74,10 @@ function addEventListeners() {
             browser.storage.local.set(data);
         });
     });
-    document.querySelector(".reset-default[for=option-popup-size]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            let widthElement = document.getElementById("option-popup-width");
-            let heightElement = document.getElementById("option-popup-height");
-            switch (stbool(getSwitchState(document.getElementById("option-details")))) {
-                case true:
-                    data.options.popup.size = INITIAL_OPTIONS.popup.size;
-                    widthElement.value = INITIAL_OPTIONS.popup.size.width;
-                    heightElement.value = INITIAL_OPTIONS.popup.size.height;
-                    break;
-                case false:
-                    data.options.popup.size.width = 450;
-                    data.options.popup.size.height = INITIAL_OPTIONS.popup.size.height;
-                    widthElement.value = 450;
-                    heightElement.value = INITIAL_OPTIONS.popup.size.height;
-                    break;
-            }
-            browser.storage.local.set(data);
-        });
-    });
 
     document.getElementById("option-popup-scale").addEventListener("input", e => {
         browser.storage.local.get(["options"]).then(data => {
             data.options.popup.scale = parseFloat(e.target.value);
-            browser.storage.local.set(data);
-        });
-    });
-    document.querySelector(".reset-default[for=option-popup-scale]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.scale = INITIAL_OPTIONS.popup.scale;
             browser.storage.local.set(data);
         });
     });
@@ -115,22 +89,10 @@ function addEventListeners() {
             browser.storage.local.set(data);
         });
     });
-    document.querySelector(".reset-default[for=option-details]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.showDetails = INITIAL_OPTIONS.popup.showDetails;
-            browser.storage.local.set(data);
-        });
-    });
 
     document.getElementById("option-preview").addEventListener("input", e => {
         browser.storage.local.get(["options"]).then(data => {
             data.options.popup.showPreview = getSwitchState(e.target);
-            browser.storage.local.set(data);
-        });
-    });
-    document.querySelector(".reset-default[for=option-preview]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.showPreview = INITIAL_OPTIONS.popup.showPreview;
             browser.storage.local.set(data);
         });
     });
@@ -141,12 +103,6 @@ function addEventListeners() {
             browser.storage.local.set(data);
         });
     });
-    document.querySelector(".reset-default[for=option-hide-after-tab-switch]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.hideAfterTabSelection = INITIAL_OPTIONS.popup.hideAfterTabSelection;
-            browser.storage.local.set(data);
-        });
-    });
 
     document.getElementById("option-search-urls").addEventListener("input", e => {
         browser.storage.local.get(["options"]).then(data => {
@@ -154,32 +110,10 @@ function addEventListeners() {
             browser.storage.local.set(data);
         });
     });
-    document.querySelector(".reset-default[for=option-search-urls]").addEventListener("click", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.searchInURLs = INITIAL_OPTIONS.popup.searchInURLs;
-            browser.storage.local.set(data);
-        });
-    });
-}
-
-function setupSwitchResetButtons() {
-    let resetDefaultButtons = document.getElementsByClassName("reset-default");
-    for (let i = 0; i < resetDefaultButtons.length; i++) {
-        let button = resetDefaultButtons[i];
-        let forElementId = button.getAttribute("for");
-        let forElement = document.getElementById(forElementId);
-        if (forElement.classList.contains("ui-switch")) {
-            let switchState = getSwitchState(forElement);
-            if (switchState === SWITCH_LOCKED_ON || switchState === SWITCH_LOCKED_OFF) {
-                button.style.display = "none";
-            }
-        }
-    }
 }
 
 function main() {
     readOptions();
-    setupSwitchResetButtons();
     addEventListeners();
 }
 
