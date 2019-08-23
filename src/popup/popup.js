@@ -37,6 +37,8 @@ async function fulfillOptions() {
         // popup.showPreview
         if (!Options.stbool(popupOptions.showPreview)) hideTabPreview();
     }
+    // popup.hideAfterTabSelection
+    G.hideAfterTabSelection = Options.stbool(popupOptions.hideAfterTabSelection);
     // popup.searchInURLs
     G.searchInURLs = Options.stbool(popupOptions.searchInURLs);
 }

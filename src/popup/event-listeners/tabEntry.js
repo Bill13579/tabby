@@ -66,7 +66,7 @@ export function tabEntryClicked(e) {
                             focused: true
                         });
                     }
-                    window.close();
+                    if (G.hideAfterTabSelection) window.close();
                 });
             });
         }
