@@ -1,0 +1,2 @@
+import "Polyfill"
+import "./packd"
