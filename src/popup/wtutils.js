@@ -41,3 +41,16 @@ export function getLastFocusedWindow() {
     // return browser.windows.getLastFocused({}); // Doesn't work due to a bug in Chromium. See explanation in getLastFocusedWindowId
     return getLastFocusedWindowId().then(windowId => browser.windows.get(windowId));
 }
+
+// Run code after a tab loads
+export function runAfterTabLoad(tabId, f) {
+    return new Promise((resolve, reject) => {
+        let listener = (uTabId, info) => {
+            if (uTabId === tabId && info.status === 'complete') {
+                browser.tabs.onUpdated.removeListener(listener);
+                resolve(f());
+            }
+        };
+        browser.tabs.onUpdated.addListener(listener);
+    });
+}

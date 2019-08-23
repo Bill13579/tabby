@@ -36,7 +36,6 @@ module("packd", data => {
                     videoStats: true
                 }
             }, getScroll(), getVideoStats()));
-            break;
         case "unpack":
             return new Promise((resolve, reject) => {
                 let unpack = () => {

@@ -1,6 +1,7 @@
 import "Polyfill"
 import G from "./globals"
 import { getTabId } from "./wtdom"
+import { runAfterTabLoad } from "./wtutils";
 
 export async function lastRecord() {
     return browser.storage.local.get(["record"]).then(data => data.record);
@@ -11,9 +12,16 @@ export async function record() {
     for (let windowEntry of G.tabsList.getElementsByClassName("window-entry")) {
         let windowRecord = [];
         for (let tabEntry of windowEntry.getElementsByClassName("tab-entry")) {
-            windowRecord.push({
-                url: (await browser.tabs.get(getTabId(tabEntry))).url,
-                pack: await browser.tabs.sendMessage(getTabId(tabEntry), { target: "packd", data: { action: "pack" } })
+            await browser.tabs.sendMessage(getTabId(tabEntry), { target: "packd", data: { action: "pack" } }).then(async pack => {
+                windowRecord.push({
+                    url: (await browser.tabs.get(getTabId(tabEntry))).url,
+                    pack: pack
+                });
+            }).catch(async reason => {
+                windowRecord.push({
+                    url: (await browser.tabs.get(getTabId(tabEntry))).url,
+                    pack: undefined
+                });
             });
         }
         record.push(windowRecord);
@@ -30,10 +38,14 @@ export async function restore() {
                     url: tabRecord.url,
                     windowId: w.id
                 }).then(t => {
-                    browser.tabs.sendMessage(t.id, {
-                        target: "packd",
-                        data: Object.assign({action: "unpack"}, tabRecord.pack)
-                    });
+                    if (tabRecord.pack) {
+                        runAfterTabLoad(t.id, () => {
+                            browser.tabs.sendMessage(t.id, {
+                                target: "packd",
+                                data: Object.assign({action: "unpack"}, tabRecord.pack)
+                            });
+                        });
+                    }
                 });
             }
         });
