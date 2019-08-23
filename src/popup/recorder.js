@@ -52,6 +52,9 @@ export async function record() {
 export async function restore() {
     let { record: r } = await lastRecord();
     for (let windowRecord of r) {
+        if (browser.runtime.getBrowserInfo) {
+            windowRecord = windowRecord.filter(tabRecord => !tabRecord.url.startsWith("about:"))
+        }
         browser.windows.create({
             url: windowRecord.map(tabRecord => tabRecord.url)
         }).then(async w => {
