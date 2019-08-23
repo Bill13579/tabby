@@ -52,9 +52,9 @@ export async function record() {
 export async function restore() {
     let { timestamp, record: r } = await lastRecord();
     for (let windowRecord of r) {
-        browser.windows.create().then(w => {
+        browser.windows.create().then(async w => {
             for (let tabRecord of windowRecord) {
-                browser.tabs.create({
+                await browser.tabs.create({
                     url: tabRecord.url,
                     windowId: w.id,
                     pinned: tabRecord.pinned
@@ -67,6 +67,8 @@ export async function restore() {
                             });
                         });
                     }
+                }).catch(e => {
+                    console.log(e);
                 });
             }
             browser.tabs.remove(w.tabs[0].id);
