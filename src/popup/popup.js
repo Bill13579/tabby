@@ -6,6 +6,7 @@ import { getActualWidth } from "./domutils"
 import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
 import { searchTextChanged } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
+import { saveForLater, restore as recorderRestore } from "./event-listeners/recorder"
 import * as captureTab from "./captureTab"
 import * as Options from "../options"
 import { hideTabPreview } from "./wtdom"
@@ -89,6 +90,10 @@ for (let i = 0; i < copyButtons.length; i++) {
         }, 2000);
     });
 }
+
+// Add event listener for recorder.js
+document.getElementById("save-for-later").addEventListener("click", saveForLater);
+document.getElementById("restore-now").addEventListener("click", recorderRestore);
 
 // Add event listener to listen for any messages from background.js
 if (!browser.runtime.onMessage.hasListener(onMessage)) {

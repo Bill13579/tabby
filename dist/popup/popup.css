@@ -131,33 +131,43 @@ html, body {
 }
 #store {
     width: 16%;
+    margin-left: 5.3px;
+    margin-right: 5.3px;
+    margin-top: 4.75px;
+    margin-bottom: 4.75px;
 }
 #save-for-later, #restore-now {
     width: 100%;
     height: 50%;
-    border-width: 1px;
+    border-width: 0.5px;
     border-style: solid;
     text-align: center;
     display: inline-block;
     vertical-align: middle;
-    margin-left: 5.3px;
-    margin-right: 5.3px;
     background-repeat: no-repeat;
     background-size: 60%;
     background-position: center;
 }
 #save-for-later {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
     background-image: url(../icons/archive.svg);
-    margin-top: 4.75px;
+    background-size: calc(18px * var(--scale));
+    background-color: #aeffc2;
+}
+#save-for-later:hover, #save-for-later:active {
+    box-shadow: 0 -1px 5px 0.4px #e0e0e0;
 }
 #restore-now {
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     border-top: none;
     background-image: url(../icons/restore.svg);
-    margin-bottom: 4.75px;
+    background-size: calc(18px * var(--scale));
+    background-color: #8bf1ff;
+}
+#restore-now:hover, #restore-now:active {
+    box-shadow: 0 1px 5px 0.4px #e0e0e0;
 }
 #search {
     vertical-align: middle;
