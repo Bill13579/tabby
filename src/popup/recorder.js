@@ -7,6 +7,18 @@ export async function lastRecord() {
     return browser.storage.local.get(["record"]).then(data => data.record);
 }
 
+export async function updateRecorderToolTip() {
+    let r = await lastRecord();
+    let restoreBtn = document.getElementById("restore-now");
+    if (r) {
+        restoreBtn.setAttribute("title", "Restore websites that have been saved on " + (new Date(r.timestamp)).toLocaleString())
+        restoreBtn.removeAttribute("disabled");
+    } else {
+        restoreBtn.setAttribute("title", "Restore websites that have been saved")
+        restoreBtn.setAttribute("disabled", "");
+    }
+}
+
 function tabInfoToRecord(info) {
     return {
         url: info.url,
@@ -14,7 +26,7 @@ function tabInfoToRecord(info) {
     };
 }
 export async function record() {
-    let record = [];
+    let recordArray = [];
     for (let windowEntry of G.tabsList.getElementsByClassName("window-entry")) {
         let windowRecord = [];
         for (let tabEntry of windowEntry.getElementsByClassName("tab-entry")) {
@@ -28,13 +40,17 @@ export async function record() {
                 }, tabInfoToRecord(await browser.tabs.get(getTabId(tabEntry)))));
             });
         }
-        record.push(windowRecord);
+        recordArray.push(windowRecord);
     }
-    return browser.storage.local.set({ record: record });
+    let record = {
+        timestamp: Date.now(),
+        record: recordArray
+    };
+    return browser.storage.local.set({ record: record }).then(() => updateRecorderToolTip());
 }
 
 export async function restore() {
-    let r = await lastRecord();
+    let { timestamp, record: r } = await lastRecord();
     for (let windowRecord of r) {
         browser.windows.create().then(w => {
             for (let tabRecord of windowRecord) {

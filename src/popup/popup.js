@@ -10,6 +10,7 @@ import { saveForLater, restore as recorderRestore } from "./event-listeners/reco
 import * as captureTab from "./captureTab"
 import * as Options from "../options"
 import { hideTabPreview } from "./wtdom"
+import { updateRecorderToolTip } from "./recorder";
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -54,6 +55,8 @@ async function main() {
     await getWrongToRight();
     // Populate tabs list with tabs
     await populateTabsList();
+    // Update recorder tooltip
+    await updateRecorderToolTip();
 }
 
 /* Add event listeners */

@@ -158,6 +158,10 @@ html, body {
 #save-for-later:hover, #save-for-later:active {
     box-shadow: 0 -1px 5px 0.4px #e0e0e0;
 }
+#save-for-later[disabled], #restore-now[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+}
 #restore-now {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
