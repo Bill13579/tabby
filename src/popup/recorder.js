@@ -4,7 +4,7 @@ import { getTabId } from "./wtdom"
 import { runAfterTabLoad } from "./wtutils";
 
 export async function lastRecord() {
-    return browser.storage.local.get(["record"]).then(data => data.record);
+    return browser.storage.sync.get(["record"]).then(data => data.record);
 }
 
 export async function updateRecorderToolTip() {
@@ -46,7 +46,7 @@ export async function record() {
         timestamp: Date.now(),
         record: recordArray
     };
-    return browser.storage.local.set({ record: record }).then(() => updateRecorderToolTip());
+    return browser.storage.sync.set({ record: record }).then(() => updateRecorderToolTip());
 }
 
 export async function restore() {
