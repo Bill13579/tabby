@@ -32,11 +32,9 @@ My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 `git clone https://github.com/Bill13579/tabby.git`
 3. Go into the Tabby directory  
 `cd tabby`
-4. Switch to the `v2.0-dev` branch  
-`git checkout v2.0-dev`
-5. Install dependencies with npm  
+4. Install dependencies with npm  
 `npm install`
-6. Build Tabby  
+5. Build Tabby  
 Firefox: `npm run build:firefox`  
 Chrome: `npm run build:chrome`  
 WebExtension: `npm run build:webext`
