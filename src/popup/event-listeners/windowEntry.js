@@ -1,7 +1,7 @@
 import "Polyfill"
 import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
-import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId } from "../wtdom"
+import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId, multiSelectToggle } from "../wtdom"
 
 let multiDragging = false, sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
@@ -29,8 +29,9 @@ function getMultiDragImage(target, clientX, clientY) {
 export function windowEntryDragStarted(e) {
     if (e.target.classList.contains("tab-entry")) {
         if (ctrlOrCmd()) {
-            multiSelect(e.target);
+            multiSelectToggle(e.target);
             G.slideSelection.sliding = true;
+            G.slideSelection.initiator = e.target;
             e.preventDefault();
         } else {
             sourceTab = e.target;

@@ -3,7 +3,7 @@ import G from "./globals"
 import { getImage } from "./net"
 import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
-import { getActualHeight } from "./domutils"
+import { getActualHeight, stopPropagation } from "./domutils"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
 import { tabEntryMouseOver, tabEntryMouseLeave, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
 
@@ -142,10 +142,12 @@ export function updateTabs(windows) {
                 // Create close button
                 closeBtn = TAB_CLOSE_BTN.cloneNode(false);
                 closeBtn.addEventListener("click", tabCloseClick);
+                closeBtn.addEventListener("mouseover", stopPropagation);
 
                 // Create pin button
                 let pinBtn = TAB_PIN_BTN.cloneNode(false);
                 pinBtn.addEventListener("click", tabPinClick);
+                pinBtn.addEventListener("mouseover", stopPropagation);
 
                 // Buttons wrapper
                 buttons = document.createElement("span");
@@ -193,6 +195,7 @@ export function updateTabs(windows) {
         tabsListFragment.appendChild(windowEntry);
     }
     G.tabsList.appendChild(tabsListFragment);
+    G.tabsList.addEventListener("click", stopPropagation);
     document.getElementById("tabs").style.display = "block";
     currentWindowEntry.scrollIntoView({ behavior: 'smooth' });
 }

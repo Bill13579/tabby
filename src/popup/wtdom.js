@@ -137,8 +137,25 @@ export function tabEntryIndex(tabEntry) {
     return -1;
 }
 
+// Get next tab entry
+export function getNextTabEntry(tabEntry) {
+
+}
+
 /* Multiselect */
 let selectedTabs = 0;
+// On multiselect start
+function onMultiselectStart() {
+
+}
+// On multiselect change
+function onMultiselectChange() {
+
+}
+// On multiselect end
+function onMultiselectEnd() {
+
+}
 // Get Selected Items
 export function getSelectedItems() {
     return Array.from(document.getElementsByClassName("multiselect"));
@@ -149,6 +166,7 @@ export function multiSelected(element) {
 }
 // Select
 export function multiSelect(element) {
+    console.log("multiselect");
     if (!element.classList.contains("multiselect")) {
         selectedTabs++;
         G.isSelecting = true;
@@ -157,6 +175,7 @@ export function multiSelect(element) {
 }
 // Cancel Selection
 export function multiSelectCancel(element) {
+    console.log("multiselect cancel");
     if (element.classList.contains("multiselect")) {
         if (--selectedTabs == 0) {
             G.isSelecting = false;
@@ -166,13 +185,16 @@ export function multiSelectCancel(element) {
 }
 // Reset multiselect
 export function multiSelectReset() {
+    console.log("multiselect reset");
     for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
         element.classList.remove("multiselect");
     }
+    selectedTabs = 0;
     G.isSelecting = false;
 }
 // Toggle Selection
 export function multiSelectToggle(element) {
+    console.log("multiselect toggle");
     if (element.classList.contains("multiselect")) {
         multiSelectCancel(element);
     } else {

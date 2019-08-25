@@ -87,10 +87,10 @@ html, body {
     background-color: #b7e7ff !important;
 }
 .multiselect {
-    background-color: #9edeff !important;
+    background-color: #62c9ff !important;
 }
 .current-tab.multiselect {
-    background-color: #75d0ff !important;
+    background-color: #38baff !important;
 }
 .current-window > span {
     background-color: #3592fc;
@@ -229,6 +229,12 @@ html, body {
     align-items: center;
     height: calc(28px * var(--scale));
     overflow: hidden;
+}
+.tab-entry[multiselected] {
+
+}
+.tab-entry[multiselect-cursorentry] {
+    background-color: #a3c6ff;
 }
 .tab-entry-favicon {
     vertical-align: middle;

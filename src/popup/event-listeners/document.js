@@ -1,9 +1,6 @@
 import "Polyfill"
 import G from "../globals"
-import { ctrlOrCmd } from "../keyutils"
-import { getLastFocusedWindow } from "../wtutils"
-import * as captureTab from "../captureTab"
-import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection, multiSelectReset, getTabId, getWindowId } from "../wtdom"
+import { resetSlideSelection, multiSelectReset, getTabId } from "../wtdom"
 
 export function documentMouseOver(e) {
     e.preventDefault();
@@ -20,6 +17,7 @@ export function documentClicked(e) {
             document.getElementById("tab-details").style.display = "none";
             browser.tabs.remove(getTabId(document.getElementById("tab-details")));
         } else {// Note: May cause some problems
+            console.log(e.target)
             if (G.isSelecting) multiSelectReset();
         }
     }

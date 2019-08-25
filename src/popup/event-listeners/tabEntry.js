@@ -3,12 +3,19 @@ import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { getLastFocusedWindow } from "../wtutils"
 import * as captureTab from "../captureTab"
-import { getWindowFromTab, multiSelect, multiSelectToggle, resetSlideSelection, multiSelectReset, getTabId, getWindowId } from "../wtdom"
+import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId } from "../wtdom"
+import { multiSelectCancel } from "../wtdom";
 
 export function tabEntryMouseOver(e) {
     e.target.getElementByClassName("tab-entry-pin-btn").style.display = "inline-block";
     if (ctrlOrCmd() && G.slideSelection.sliding) {
-        multiSelect(e.target);
+        if (G.slideSelection.initiator !== e.target) {
+            if (G.slideSelection.initiator.classList.contains("multiselect")) {
+                multiSelect(e.target);
+            } else {
+                multiSelectCancel(e.target);
+            }
+        }
     } else {
         let tabId = getTabId(e.target);
         captureTab.captureTab(tabId).then(dataUri => {
@@ -53,6 +60,7 @@ export function tabEntryClicked(e) {
     if (e.button === 0) {
         if (ctrlOrCmd()) {
             multiSelectToggle(e.target);
+            e.stopPropagation();
         } else {
             let tabId = getTabId(e.target);
             let parentWindowId = getWindowId(getWindowFromTab(e.target));
@@ -74,6 +82,7 @@ export function tabEntryClicked(e) {
 }
 
 export function tabCloseClick(e) {
+    e.stopPropagation();
     let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
     let tabDetails = document.getElementById("tab-details");
     if (tabDetails.getAttribute("data-tab_id") === tabId) {
@@ -84,6 +93,7 @@ export function tabCloseClick(e) {
 }
 
 export function tabPinClick(e) {
+    e.stopPropagation();
     let tabId = getTabId(e.target.parentElement.parentElement);
     browser.tabs.get(tabId).then(tab => {
         if (tab.pinned) {

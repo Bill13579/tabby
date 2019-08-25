@@ -1,5 +1,10 @@
 import "Polyfill"
 
+// Stop propagation event listener
+export function stopPropagation(e) {
+    e.stopPropagation();
+}
+
 // Toggle a class of an element
 export function toggleClass(element, c) {
     if (element.classList.contains(c)) {
