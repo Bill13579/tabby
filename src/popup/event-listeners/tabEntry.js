@@ -3,8 +3,7 @@ import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { getLastFocusedWindow } from "../wtutils"
 import * as captureTab from "../captureTab"
-import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId } from "../wtdom"
-import { multiSelectCancel } from "../wtdom";
+import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel } from "../wtdom"
 
 export function tabEntryMouseOver(e) {
     e.target.getElementByClassName("tab-entry-pin-btn").style.display = "inline-block";

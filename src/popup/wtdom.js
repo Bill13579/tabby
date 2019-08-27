@@ -161,7 +161,6 @@ export function multiSelected(element) {
 }
 // Select
 export function multiSelect(element) {
-    console.log("multiselect");
     if (!element.classList.contains("multiselect")) {
         selectedTabs++;
         G.isSelecting = true;
@@ -170,7 +169,6 @@ export function multiSelect(element) {
 }
 // Cancel Selection
 export function multiSelectCancel(element) {
-    console.log("multiselect cancel");
     if (element.classList.contains("multiselect")) {
         if (--selectedTabs == 0) {
             G.isSelecting = false;
@@ -180,7 +178,6 @@ export function multiSelectCancel(element) {
 }
 // Reset multiselect
 export function multiSelectReset() {
-    console.log("multiselect reset");
     for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
         element.classList.remove("multiselect");
     }
@@ -189,7 +186,6 @@ export function multiSelectReset() {
 }
 // Toggle Selection
 export function multiSelectToggle(element) {
-    console.log("multiselect toggle");
     if (element.classList.contains("multiselect")) {
         multiSelectCancel(element);
     } else {

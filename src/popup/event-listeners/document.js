@@ -17,7 +17,6 @@ export function documentClicked(e) {
             document.getElementById("tab-details").style.display = "none";
             browser.tabs.remove(getTabId(document.getElementById("tab-details")));
         } else {// Note: May cause some problems
-            console.log(e.target)
             if (G.isSelecting) multiSelectReset();
         }
     }

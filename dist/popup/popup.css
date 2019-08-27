@@ -230,12 +230,6 @@ html, body {
     height: calc(28px * var(--scale));
     overflow: hidden;
 }
-.tab-entry[multiselected] {
-
-}
-.tab-entry[multiselect-cursorentry] {
-    background-color: #a3c6ff;
-}
 .tab-entry-favicon {
     vertical-align: middle;
     padding-right: 7.5px;
