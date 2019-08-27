@@ -16,8 +16,9 @@ export function selectTabEntry(tabEntry) {
                 browser.windows.update(w.id, {
                     focused: true
                 });
+            } else {
+                if (G.hideAfterTabSelection) window.close();
             }
-            if (G.hideAfterTabSelection) window.close();
         });
     });
 }
