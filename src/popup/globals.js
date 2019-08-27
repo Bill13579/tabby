@@ -3,6 +3,7 @@ import "Polyfill"
 const globals = {
     tabsList: undefined,
     isSelecting: false,
+    selectedTabs: 0,
     slideSelection: {
         sliding: false,
         initiator: undefined,

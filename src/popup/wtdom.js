@@ -1,6 +1,26 @@
 import "Polyfill"
 import G from "./globals"
 import { getCorrectTabId } from "./wrong-to-right"
+import { getLastFocusedWindow } from "./wtutils";
+
+// Select tab and go to it
+export function selectTabEntry(tabEntry) {
+    let tabId = getTabId(tabEntry);
+    let parentWindowId = getWindowId(getWindowFromTab(tabEntry));
+    browser.tabs.update(tabId, {
+        active: true
+    });
+    browser.windows.get(parentWindowId).then(w => {
+        getLastFocusedWindow().then(cw => {
+            if (w.id !== cw.id) {
+                browser.windows.update(w.id, {
+                    focused: true
+                });
+            }
+            if (G.hideAfterTabSelection) window.close();
+        });
+    });
+}
 
 // Hides the tab preview
 export function hideTabPreview() {
@@ -106,6 +126,9 @@ export function removeWindow(windowId) {
 export function getWindowFromTab(tab) {
     return tab.parentElement.parentElement;
 }
+export function getTabEntriesFromWindow(windowEntry) {
+    return Array.from(windowEntry.getElementsByClassName("tab-entry"));
+}
 
 // Test if tab is draggable
 export function tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging) {
@@ -137,8 +160,28 @@ export function tabEntryIndex(tabEntry) {
     return -1;
 }
 
+// Get next tab
+export function getNextTabEntry(tabEntry) {
+    if (tabEntry.nextElementSibling !== null) {
+        return tabEntry.nextElementSibling;
+    } else if (getWindowFromTab(tabEntry).nextElementSibling !== null) {
+        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).nextElementSibling)[0];
+    } else {
+        return null;
+    }
+}
+// Get last tab
+export function getLastTabEntry(tabEntry) {
+    if (tabEntry.previousElementSibling !== null) {
+        return tabEntry.previousElementSibling;
+    } else if (getWindowFromTab(tabEntry).previousElementSibling !== null) {
+        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).previousElementSibling)[0];
+    } else {
+        return null;
+    }
+}
+
 /* Multiselect */
-let selectedTabs = 0;
 // On multiselect start
 function onMultiselectStart() {
 
@@ -162,7 +205,7 @@ export function multiSelected(element) {
 // Select
 export function multiSelect(element) {
     if (!element.classList.contains("multiselect")) {
-        selectedTabs++;
+        G.selectedTabs++;
         G.isSelecting = true;
         element.classList.add("multiselect");
     }
@@ -170,7 +213,7 @@ export function multiSelect(element) {
 // Cancel Selection
 export function multiSelectCancel(element) {
     if (element.classList.contains("multiselect")) {
-        if (--selectedTabs == 0) {
+        if (--G.selectedTabs == 0) {
             G.isSelecting = false;
         }
         element.classList.remove("multiselect");
@@ -181,7 +224,7 @@ export function multiSelectReset() {
     for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
         element.classList.remove("multiselect");
     }
-    selectedTabs = 0;
+    G.selectedTabs = 0;
     G.isSelecting = false;
 }
 // Toggle Selection

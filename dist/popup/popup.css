@@ -87,10 +87,13 @@ html, body {
     background-color: #b7e7ff !important;
 }
 .multiselect {
-    background-color: #62c9ff !important;
+    background-color: #7ad0ff !important;
+    border-style: none none none solid;
+    border-width: calc(3px * var(--scale));
+    border-color: #008cff;
 }
 .current-tab.multiselect {
-    background-color: #38baff !important;
+    background-color: #4fc1ff !important;
 }
 .current-window > span {
     background-color: #3592fc;

@@ -4,7 +4,7 @@ import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
 import { getActualWidth } from "./domutils"
 import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
-import { searchTextChanged } from "./event-listeners/search"
+import { searchTextChanged, initSearch } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
 import { saveForLater, restore as recorderRestore } from "./event-listeners/recorder"
 import * as captureTab from "./captureTab"
@@ -57,6 +57,8 @@ async function main() {
     await populateTabsList();
     // Update recorder tooltip
     await updateRecorderToolTip();
+    // Initialize components
+    initSearch();
 }
 
 /* Add event listeners */

@@ -3,7 +3,7 @@ import G from "../globals"
 import { ctrlOrCmd } from "../keyutils"
 import { getLastFocusedWindow } from "../wtutils"
 import * as captureTab from "../captureTab"
-import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel } from "../wtdom"
+import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel, selectTabEntry } from "../wtdom"
 
 export function tabEntryMouseOver(e) {
     e.target.getElementByClassName("tab-entry-pin-btn").style.display = "inline-block";
@@ -61,21 +61,7 @@ export function tabEntryClicked(e) {
             multiSelectToggle(e.target);
             e.stopPropagation();
         } else {
-            let tabId = getTabId(e.target);
-            let parentWindowId = getWindowId(getWindowFromTab(e.target));
-            browser.tabs.update(tabId, {
-                active: true
-            });
-            browser.windows.get(parentWindowId).then(w => {
-                getLastFocusedWindow().then(cw => {
-                    if (w.id !== cw.id) {
-                        browser.windows.update(w.id, {
-                            focused: true
-                        });
-                    }
-                    if (G.hideAfterTabSelection) window.close();
-                });
-            });
+            selectTabEntry(e.target);
         }
     }
 }

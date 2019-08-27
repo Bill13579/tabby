@@ -1,6 +1,12 @@
 import "Polyfill"
 import G from "../globals"
 import { getTabId } from "../wtdom"
+import { stopPropagation } from "../domutils";
+
+// Init
+export function initSearch() {
+    document.getElementById("search").addEventListener("keypress", stopPropagation);
+}
 
 function keywordSearch(s, key) {
     let keywords = key.trim().split(" "), count = 0;
