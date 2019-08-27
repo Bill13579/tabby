@@ -137,11 +137,6 @@ export function tabEntryIndex(tabEntry) {
     return -1;
 }
 
-// Get next tab entry
-export function getNextTabEntry(tabEntry) {
-
-}
-
 /* Multiselect */
 let selectedTabs = 0;
 // On multiselect start
