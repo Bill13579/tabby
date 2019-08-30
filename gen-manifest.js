@@ -15,6 +15,7 @@ switch (process.argv[2]) {
                 strict_min_version: "59.0"
             }
         };
+        manifest.permissions.push("<all_urls>");
         break;
     case "chrome":
         break;
