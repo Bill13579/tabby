@@ -60,7 +60,7 @@ This will install Tabby as a temporary add-on, so you will need to re-do this ev
 
 After you edit the code, you will need to build again.
 
-Re-do Step 6 of [Building Tabby](#building-tabby) and<br/>
+Re-do Step 5 of [Building Tabby](#building-tabby) and<br/>
 - on Firefox, press the `Reload` button in the Tabby section of the `about:debugging` page.<br/>
 - on Chrome, press the <img src="https://i.imgur.com/FcVtjot.png" alt="Chrome Reload Icon" width="23px" /><!-- https://imgur.com/a/VHMbJ4l --> button in the Tabby section of the `chrome://extensions` page.
 
