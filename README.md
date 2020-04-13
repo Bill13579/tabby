@@ -1,3 +1,5 @@
+UPDATE: Development for v2.1 has started! Checkout branch v2.1-dev
+
 # What is it?
 
 Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.
