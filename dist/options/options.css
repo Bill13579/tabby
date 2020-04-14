@@ -93,3 +93,8 @@ body {
     border-radius: 2px;
     box-shadow: 0.7px 0.7px 1.5px 1px #b6b6b6;
 }
+
+.beta {
+    color: #ff0000;
+    font-weight: bold;
+}

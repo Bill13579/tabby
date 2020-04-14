@@ -17,16 +17,14 @@ export function tabEntryMouseOver(e) {
         }
     } else {
         let tabId = getTabId(e.target);
+        document.getElementById("details").setAttribute("data-details-of", tabId);
         captureTab.captureTab(tabId).then(dataUri => {
             if (dataUri !== null) {
-                let detailsImage = document.getElementById("details-img");
-                detailsImage.src = dataUri;
+                document.getElementById("details-img").src = dataUri;
             }
-            let detailsTitle = document.getElementById("details-title");
-            let detailsURL = document.getElementById("details-url");
             browser.tabs.get(tabId).then(tab => {
-                detailsTitle.textContent = tab.title;
-                detailsURL.textContent = tab.url;
+                document.getElementById("details-title").textContent = tab.title;
+                document.getElementById("details-url").textContent = tab.url;
                 document.getElementById("details-placeholder").style.display = "none";
                 document.getElementById("tab-details").style.display = "inline-block";
                 document.getElementById("tab-details").setAttribute("data-tab_id", tabId);

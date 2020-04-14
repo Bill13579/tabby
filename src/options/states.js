@@ -14,6 +14,7 @@ export const INITIAL_OPTIONS = {
         scale: 1.0,
         showDetails: SWITCH_ON,
         showPreview: SWITCH_ON,
+        livePreview: SWITCH_OFF,
         hideAfterTabSelection: SWITCH_ON,
         searchInURLs: SWITCH_OFF
     }
@@ -21,4 +22,5 @@ export const INITIAL_OPTIONS = {
 if (TargetBrowser === "chrome") {
     INITIAL_OPTIONS.popup.showPreview = SWITCH_LOCKED_OFF;
     INITIAL_OPTIONS.popup.hideAfterTabSelection = SWITCH_LOCKED_ON;
+    INITIAL_OPTIONS.popup.livePreview = SWITCH_LOCKED_OFF;
 }

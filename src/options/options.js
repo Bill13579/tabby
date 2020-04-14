@@ -45,6 +45,7 @@ function readOptions() {
         document.getElementById("option-popup-scale").value = options.popup.scale;
         setSwitchState(document.getElementById("option-details"), options.popup.showDetails);
         setSwitchState(document.getElementById("option-preview"), options.popup.showPreview);
+        setSwitchState(document.getElementById("option-live-preview"), options.popup.livePreview);
         setSubOptionState(options.popup.showDetails, document.getElementById("option-preview").parentElement);
         setSwitchState(document.getElementById("option-hide-after-tab-switch"), options.popup.hideAfterTabSelection);
         setSwitchState(document.getElementById("option-search-urls"), options.popup.searchInURLs);
@@ -93,6 +94,13 @@ function addEventListeners() {
     document.getElementById("option-preview").addEventListener("input", e => {
         browser.storage.local.get(["options"]).then(data => {
             data.options.popup.showPreview = getSwitchState(e.target);
+            browser.storage.local.set(data);
+        });
+    });
+
+    document.getElementById("option-live-preview").addEventListener("input", e => {
+        browser.storage.local.get(["options"]).then(data => {
+            data.options.popup.livePreview = getSwitchState(e.target);
             browser.storage.local.set(data);
         });
     });

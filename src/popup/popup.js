@@ -11,6 +11,7 @@ import * as captureTab from "./captureTab"
 import * as Options from "../options"
 import { hideTabPreview } from "./wtdom"
 import { updateRecorderToolTip } from "./recorder";
+import { previewClick, enableRealTimePreview } from "./event-listeners/preview"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -37,6 +38,8 @@ async function fulfillOptions() {
     } else {
         // popup.showPreview
         if (!Options.stbool(popupOptions.showPreview)) hideTabPreview();
+        // popup.livePreview - Real Time Preview
+        if (Options.stbool(popupOptions.livePreview)) enableRealTimePreview();
     }
     // popup.hideAfterTabSelection
     G.hideAfterTabSelection = Options.stbool(popupOptions.hideAfterTabSelection);
@@ -79,6 +82,9 @@ document.addEventListener("keypress", documentKeyPressed);
 let search = document.getElementById("search");
 search.addEventListener("keyup", searchTextChanged);
 search.focus();
+
+// Detect left clicks on the preview and transfer it to the actual tab
+document.getElementById("details").addEventListener("click", previewClick);
 
 // Add event listeners to all copy buttons
 let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
