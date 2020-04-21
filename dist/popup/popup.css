@@ -226,6 +226,9 @@ html, body {
     border-style: solid;
     border-radius: 2px;
 }
+.tab-entry.non-matching {
+    display: none;
+}
 .tab-entry.selected-entry {
     border-color: #3381ff;
 }
@@ -237,6 +240,9 @@ html, body {
 }
 .tab-entry.current-tab {
     background-color: #b6d2ff;
+}
+.tab-entry.selected-entry.going-to-this-entry {
+    background-color: #ffffff;
 }
 .tab-entry-favicon {
     vertical-align: middle;

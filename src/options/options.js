@@ -4,20 +4,24 @@ import { stbool } from "../options"
 
 function setSwitchState(switchElement, state) {
     switch (state) {
-        case SWITCH_ON:
+        case SWITCH_ON: {
             switchElement.setAttribute("value", "on");
             break;
-        case SWITCH_LOCKED_ON:
+        }
+        case SWITCH_LOCKED_ON: {
             switchElement.setAttribute("value", "on");
             switchElement.setAttribute("disabled", "");
             break;
-        case SWITCH_OFF:
+        }
+        case SWITCH_OFF: {
             switchElement.setAttribute("value", "off");
             break;
-        case SWITCH_LOCKED_OFF:
+        }
+        case SWITCH_LOCKED_OFF: {
             switchElement.setAttribute("value", "off");
             switchElement.setAttribute("disabled", "");
             break;
+        }
     }
 }
 

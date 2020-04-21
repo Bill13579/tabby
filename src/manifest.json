@@ -54,7 +54,7 @@
         },
         "open-tabby": {
             "suggested_key": {
-                "default": "Alt+F"
+                "default": "Alt+X"
             }
         },
         "open-tabby-focus-current": {

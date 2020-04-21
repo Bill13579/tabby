@@ -1,6 +1,6 @@
 import "Polyfill"
 import G from "../globals"
-import { getTabId } from "../wtdom"
+import { getTabId, getInView } from "../wtdom"
 import { stopPropagation } from "../domutils";
 import { selectTab } from "./tabEntry";
 
@@ -37,15 +37,15 @@ export async function searchTextChanged(e) {
             let tabEntry = tabEntries[i];
             if (!search(tabEntry.getElementByClassName("tab-title").innerText, filter) &&
                 !(G.searchInURLs && search((await browser.tabs.get(getTabId(tabEntry))).url, filter))) {
-                tabEntry.style.display = "none";
+                tabEntry.classList.add("non-matching");
             } else {
-                tabEntry.style.display = "flex";
+                tabEntry.classList.remove("non-matching");
             }
         }
     } else {
         for (let i = 0; i < tabEntries.length; i++) {
             let tabEntry = tabEntries[i];
-            tabEntry.style.display = "flex";
+            tabEntry.classList.remove("non-matching");
         }
     }
 }
@@ -54,10 +54,11 @@ export async function searchTextChanged(e) {
 export function searchKeydown(e) {
     e.stopPropagation();
     if (e.code === "Enter") {
-        let remainingTabEntry = document.querySelector(".tab-entry:not([display=none])");
+        let remainingTabEntry = document.querySelector(".tab-entry:not(.non-matching)");
         if (remainingTabEntry !== null) {
             e.target.blur();
             selectTab(remainingTabEntry);
+            getInView(remainingTabEntry, true);
         }
     }
 }

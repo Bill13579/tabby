@@ -23,6 +23,17 @@ export function selectTabEntry(tabEntry) {
     });
 }
 
+// Close a tab and remove it's corresponding tab entry
+export function closeTabEntry(tabEntry) {
+    let tabId = tabEntry.getAttribute("data-tab_id");
+    let tabDetails = document.getElementById("tab-details");
+    if (tabDetails.getAttribute("data-tab_id") === tabId) {
+        tabDetails.style.display = "none";
+        document.getElementById("details-placeholder").style.display = "inline-block";
+    }
+    browser.tabs.remove(parseInt(tabId));
+}
+
 // Hides the tab preview
 export function hideTabPreview() {
     document.getElementById("details-img").style.display = "none";
@@ -160,23 +171,50 @@ export function tabEntryIndex(tabEntry) {
     return -1;
 }
 
+let dirGetAdjDict = {
+    "DOWN": e => e.nextElementSibling,
+    "UP": e => e.previousElementSibling
+};
+let dirGetCrossIndexDict = {
+    "DOWN": s => 0,
+    "UP": s => s-1
+};
+
 // Get next tab
-export function getNextTabEntry(tabEntry) {
-    if (tabEntry.nextElementSibling !== null) {
-        return tabEntry.nextElementSibling;
-    } else if (getWindowFromTab(tabEntry).nextElementSibling !== null) {
-        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).nextElementSibling)[0];
-    } else {
-        return null;
+export function getAdjTabEntry(tabEntry, dir) {
+    let getNextAdj = dirGetAdjDict[dir];
+    let getCrossIndex = dirGetCrossIndexDict[dir];
+    let next = null;
+    if (getNextAdj(tabEntry) !== null) {
+        let possibility = null;
+        while ((possibility = getNextAdj(tabEntry)) !== null) {
+            if (!possibility.classList.contains("non-matching")) {
+                next = possibility;
+                break;
+            }
+            tabEntry = possibility;
+        }
     }
+    if (next === null) {
+        let nextWindow = null;
+        while ((nextWindow = getNextAdj(getWindowFromTab(tabEntry))) !== null) {
+            let nextWindowTabEntries = getTabEntriesFromWindow(nextWindow).filter(t => !t.classList.contains("non-matching"));
+            if (nextWindowTabEntries.length > 0) {
+                next = nextWindowTabEntries[getCrossIndex(nextWindowTabEntries.length)];
+                break;
+            }
+        }
+    }
+    return next;
 }
-// Get last tab
-export function getLastTabEntry(tabEntry) {
-    if (tabEntry.previousElementSibling !== null) {
-        return tabEntry.previousElementSibling;
-    } else if (getWindowFromTab(tabEntry).previousElementSibling !== null) {
-        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).previousElementSibling)[0];
-    } else {
-        return null;
-    }
+
+export function getInView(e, alignToTop) {
+    let tbounding = document.querySelector("#tabs").getBoundingClientRect();
+    let bounding = e.getBoundingClientRect();
+    if (tbounding.y > bounding.y
+        || tbounding.y > (bounding.y + bounding.height)
+        || bounding.y >= (tbounding.y + tbounding.height)
+        || (bounding.y + bounding.height) >= (tbounding.y + tbounding.height)) {
+            e.scrollIntoView(alignToTop);
+        }
 }

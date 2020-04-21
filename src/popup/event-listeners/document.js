@@ -1,5 +1,6 @@
 import "Polyfill";
-import { getTabId } from "../wtdom";
+import { getTabId, getAdjTabEntry, getInView, selectTabEntry, closeTabEntry } from "../wtdom";
+import { selectTab } from "./tabEntry";
 
 export function documentMouseOver(e) {
     e.preventDefault();
@@ -15,16 +16,54 @@ export function documentClicked(e) {
     }
 }
 
-function isInlinePrintableKey(e) {
-    if (typeof e.which === "undefined") {
-        return true;
-    } else if (typeof e.which === "number" && e.which > 0) {
-        return !e.ctrlKey && !e.metaKey && !e.altKey && e.which !== 8 && e.which !== 13;
-    }
-}
-
 export function documentKeyPressed(e) {
-    if (isInlinePrintableKey(e)) {
-        document.getElementById("search").focus();
+    e.preventDefault();
+    switch (e.code) {
+        case "S": {
+            document.getElementById("search").focus();
+            break;
+        }
+        case "ArrowDown":
+        case "ArrowUp": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                let selectedTabEntry = selectedTabEntries[0];
+                let adjTabEntry = getAdjTabEntry(selectedTabEntry, {
+                    "ArrowDown": "DOWN",
+                    "ArrowUp": "UP"
+                }[e.code]);
+                if (adjTabEntry !== null) {
+                    selectTab(adjTabEntry);
+                    getInView(adjTabEntry, e.code === "ArrowUp");
+                }
+            }
+            break;
+        }
+        case "Enter": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                selectedTabEntries[0].classList.add("going-to-this-entry");
+                selectTabEntry(selectedTabEntries[0]);
+            }
+            break;
+        }
+        case "Delete": {
+            let selectedTabEntries = Array.from(document.getElementsByClassName("selected-entry"));
+            if (selectedTabEntries.length > 0) {
+                selectedTabEntries[0].classList.add("going-to-this-entry");
+                let newSelected = getAdjTabEntry(selectedTabEntries[0], "DOWN");
+                if (newSelected !== null) {
+                    selectTab(newSelected);
+                    newSelected = null;
+                } else {
+                    newSelected = getAdjTabEntry(selectedTabEntries[0], "UP");
+                }
+                if (newSelected !== null) {
+                    selectTab(newSelected);
+                }
+                closeTabEntry(selectedTabEntries[0]);
+            }
+            break;
+        }
     }
 }

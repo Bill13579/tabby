@@ -1,6 +1,6 @@
 import "Polyfill"
 import * as captureTab from "../captureTab"
-import { getTabId, selectTabEntry } from "../wtdom"
+import { getTabId, selectTabEntry, closeTabEntry } from "../wtdom"
 
 export function selectTab(tabEntry) {
     let tabId = getTabId(tabEntry);
@@ -50,13 +50,7 @@ export function tabEntryClicked(e) {
 
 export function tabCloseClick(e) {
     e.stopPropagation();
-    let tabId = e.target.parentElement.parentElement.getAttribute("data-tab_id");
-    let tabDetails = document.getElementById("tab-details");
-    if (tabDetails.getAttribute("data-tab_id") === tabId) {
-        tabDetails.style.display = "none";
-        document.getElementById("details-placeholder").style.display = "inline-block";
-    }
-    browser.tabs.remove(parseInt(tabId));
+    closeTabEntry(e.target.parentElement.parentElement);
 }
 
 export function tabPinClick(e) {

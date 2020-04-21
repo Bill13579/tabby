@@ -4,7 +4,7 @@ import { sendRuntimeMessage } from "../../popup/messaging";
 
 export function onCommand(name) {
     switch (name) {
-        case "last-used-tab":
+        case "last-used-tab": {
             if (G.lastTabId !== undefined) {
                 browser.tabs.update(G.lastTabId, {
                     active: true
@@ -21,22 +21,30 @@ export function onCommand(name) {
                 });
             }
             break;
-        case "last-used-window":
+        }
+        case "last-used-window": {
             if (G.lastWindowId !== undefined) {
                 browser.windows.update(G.lastWindowId, {
                     focused: true
                 });
             }
             break;
-        case "open-tabby":
+        }
+        case "open-tabby": {
             browser.browserAction.openPopup();
             break;
-        case "open-tabby-focus-current":
+        }
+        case "open-tabby-focus-current": {
             browser.browserAction.openPopup().then(() => {
                 G.events.onpopuploaded = () => {
                     sendRuntimeMessage("INIT__PUT_FOCUS_ON_CURRENT", {});
                 };
+                G.events.onpopupunloaded = () => {
+                    G.events.onpopuploaded = undefined;
+                    G.events.onpopupunloaded = undefined;
+                };
             });
             break;
+        }
     }
 }

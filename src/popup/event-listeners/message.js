@@ -5,16 +5,18 @@ import { findTabEntryById, getFavIconFromTabEntry, setActiveTab, removeTab, remo
 
 export function onMessage(request, sender) {
     switch (request.type) {
-        case "INIT__PUT_FOCUS_ON_CURRENT":
+        case "INIT__PUT_FOCUS_ON_CURRENT": {
             let e = document.getElementsByClassName("current-window")[0].getElementsByClassName("current-tab")[0];
             e.classList.add("selected-entry");
             e.scrollIntoView({ behavior: 'smooth' });
             e.focus();
             break;
-        case "ACTIVE_TAB_CHANGED":
+        }
+        case "ACTIVE_TAB_CHANGED": {
             setActiveTab(request.details.windowId, request.details.tabId);
             break;
-        case "TAB_FAV_ICON_CHANGED":
+        }
+        case "TAB_FAV_ICON_CHANGED": {
             browser.tabs.get(request.details.tabId).then(tab => {
                 let favIconPromise;
                 if (tab.incognito) {
@@ -27,7 +29,8 @@ export function onMessage(request, sender) {
                 });
             });
             break;
-        case "TAB_PINNED_STATUS_CHANGED":
+        }
+        case "TAB_PINNED_STATUS_CHANGED": {
             let tabEntry = findTabEntryById(request.details.tabId);
             let pinBtn = tabEntry.getElementByClassName("tab-entry-pin-btn");
             let windowEntryList = tabEntry.parentElement;
@@ -48,16 +51,20 @@ export function onMessage(request, sender) {
                 windowEntryList.insertBefore(tabEntry, windowEntryList.childNodes[0]);
             }
             break;
-        case "TAB_TITLE_CHANGED":
+        }
+        case "TAB_TITLE_CHANGED": {
             findTabEntryById(request.details.tabId).getElementByClassName("tab-title").textContent = request.details.title;
             break;
-        case "TAB_REMOVED":
+        }
+        case "TAB_REMOVED": {
             if (!request.details.windowClosing) {
                 removeTab(request.details.tabId, request.details.windowId);
             }
             break;
-        case "WINDOW_REMOVED":
+        }
+        case "WINDOW_REMOVED": {
             removeWindow(request.details.windowId);
             break;
+        }
     }
 }

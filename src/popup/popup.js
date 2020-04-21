@@ -2,7 +2,7 @@ import "Polyfill"
 import * as Options from "../options"
 import * as captureTab from "./captureTab"
 import { getActualWidth } from "./domutils"
-import { documentClicked, documentKeyPressed, documentMouseOver } from "./event-listeners/document"
+import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
 import { onMessage } from "./event-listeners/message"
 import { enableRealTimePreview, previewClick } from "./event-listeners/preview"
 import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
@@ -79,13 +79,7 @@ if (document.readyState === "loading") {
 function generalSetup() {
     document.addEventListener("mouseover", documentMouseOver);
     document.addEventListener("click", documentClicked);
-    document.addEventListener("keypress", documentKeyPressed);
-
-    // Add keyup event listener and put focus on search
-    let search = document.getElementById("search");
-    search.addEventListener("keydown", searchKeydown);
-    search.addEventListener("keyup", searchTextChanged);
-    search.focus();
+    document.addEventListener("keydown", documentKeyDown);
 
     // Detect left clicks on the preview and transfer it to the actual tab
     document.getElementById("details").addEventListener("click", previewClick);
@@ -115,10 +109,16 @@ function generalSetup() {
         browser.runtime.onMessage.addListener(onMessage);
     }
 
+    // Add keyup event listener and put focus on search
+    let search = document.getElementById("search");
+    search.addEventListener("keydown", searchKeydown);
+    search.addEventListener("keyup", searchTextChanged);
+    search.focus();
+
     // Tell background script that popup is being unloaded
-    document.addEventListener.onbeforeunload = () => {
+    window.addEventListener("unload", () => {
         sendRuntimeMessage("POPUP_UNLOADED", {});
-    };
+    });
 
     // Tell background script that everything is loaded now
     sendRuntimeMessage("INIT__POPUP_LOADED", {});
