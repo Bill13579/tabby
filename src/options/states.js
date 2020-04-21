@@ -16,7 +16,7 @@ export const INITIAL_OPTIONS = {
         showPreview: SWITCH_ON,
         livePreview: SWITCH_OFF,
         hideAfterTabSelection: SWITCH_ON,
-        searchInURLs: SWITCH_OFF
+        searchInURLs: SWITCH_ON
     }
 };
 if (TargetBrowser === "chrome") {
