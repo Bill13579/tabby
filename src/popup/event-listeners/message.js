@@ -6,7 +6,10 @@ import { findTabEntryById, getFavIconFromTabEntry, setActiveTab, removeTab, remo
 export function onMessage(request, sender) {
     switch (request.type) {
         case "INIT__PUT_FOCUS_ON_CURRENT":
-            document.getElementsByClassName("current-tab")[0].classList.add("selected-entry");
+            let e = document.getElementsByClassName("current-window")[0].getElementsByClassName("current-tab")[0];
+            e.classList.add("selected-entry");
+            e.scrollIntoView({ behavior: 'smooth' });
+            e.focus();
             break;
         case "ACTIVE_TAB_CHANGED":
             setActiveTab(request.details.windowId, request.details.tabId);

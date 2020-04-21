@@ -155,6 +155,9 @@ export function updateTabs(windows) {
                 buttons.appendChild(pinBtn);
                 buttons.appendChild(closeBtn);
 
+                // Make tab entries focusable
+                tabEntry.setAttribute("tabindex", "0");
+
                 // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id));
                 if (favicon !== undefined) {
