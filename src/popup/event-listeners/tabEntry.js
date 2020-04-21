@@ -1,9 +1,6 @@
 import "Polyfill"
-import G from "../globals"
-import { ctrlOrCmd } from "../keyutils"
-import { getLastFocusedWindow } from "../wtutils"
 import * as captureTab from "../captureTab"
-import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel, selectTabEntry } from "../wtdom"
+import { getTabId, selectTabEntry } from "../wtdom"
 
 export function selectTab(tabEntry) {
     let tabId = getTabId(tabEntry);
@@ -41,28 +38,13 @@ export function selectTab(tabEntry) {
 }
 
 export function tabEntryMouseOver(e) {
-    if (ctrlOrCmd() && G.slideSelection.sliding) {
-        if (G.slideSelection.initiator !== e.target) {
-            if (G.slideSelection.initiator.classList.contains("multiselect")) {
-                multiSelect(e.target);
-            } else {
-                multiSelectCancel(e.target);
-            }
-        }
-    } else {
-        selectTab(e.target);
-    }
+    selectTab(e.target);
     e.preventDefault();
 }
 
 export function tabEntryClicked(e) {
     if (e.button === 0) {
-        if (ctrlOrCmd()) {
-            multiSelectToggle(e.target);
-            e.stopPropagation();
-        } else {
-            selectTabEntry(e.target);
-        }
+        selectTabEntry(e.target);
     }
 }
 

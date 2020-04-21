@@ -1,49 +1,15 @@
-import "Polyfill"
-import G from "../globals"
-import { ctrlOrCmd } from "../keyutils"
-import { moveTab, attachTab, getWindowFromTab, tabDraggable, multiSelect, getSelectedItems, multiSelected, tabDraggableToWindow, getTabId, getWindowId, multiSelectToggle } from "../wtdom"
+import "Polyfill";
+import G from "../globals";
+import { attachTab, getTabId, getWindowFromTab, getWindowId, moveTab, tabDraggable, tabDraggableToWindow } from "../wtdom";
 
-let multiDragging = false, sourceTab, targetTab, under, sourceWindow, sourceWindowId;
-
-function getMultiDragImage(target, clientX, clientY) {
-    let dragImage = document.createElement("div"), x, y;
-    let selectedItems = getSelectedItems();
-    if (selectedItems.length === 1) return selectedItems[i];
-    for (let i = 0; i < selectedItems.length - 1; i++) {
-        let ref1 = selectedItems[i], ref2 = selectedItems[i+1];
-        let ref1br = ref1.getBoundingClientRect(), ref2br = ref2.getBoundingClientRect();
-        let distance = ref2br.top - (ref1br.top + ref1br.height);
-        let ref1Clone = ref1.cloneNode(true);
-        ref1Clone.style.marginBottom = distance + "px";
-        dragImage.appendChild(ref1Clone);
-    } dragImage.appendChild(selectedItems[selectedItems.length - 1].cloneNode(true));
-    dragImage.style.width = selectedItems[0].getBoundingClientRect().width + "px";
-    document.body.appendChild(dragImage);
-    return {
-        image: dragImage,
-        x: 0,
-        y: 0
-    };
-}
+let sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
 export function windowEntryDragStarted(e) {
     if (e.target.classList.contains("tab-entry")) {
-        if (ctrlOrCmd()) {
-            multiSelectToggle(e.target);
-            G.slideSelection.sliding = true;
-            G.slideSelection.initiator = e.target;
-            e.preventDefault();
-        } else {
-            sourceTab = e.target;
-            sourceWindow = getWindowFromTab(sourceTab);
-            sourceWindowId = getWindowId(sourceWindow);
-            e.dataTransfer.effectAllowed = "move";
-            if (G.isSelecting && multiSelected(e.target)) {
-                multiDragging = true;
-                let dragImage = getMultiDragImage();
-                e.dataTransfer.setDragImage(dragImage.image, dragImage.x, dragImage.y);
-            }
-        }
+        sourceTab = e.target;
+        sourceWindow = getWindowFromTab(sourceTab);
+        sourceWindowId = getWindowId(sourceWindow);
+        e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData('text/plain', null);
     }
 }
@@ -72,7 +38,7 @@ export function windowEntryDraggingOver(e) {
                 targetTab = e.target;
             }
         }
-        if (tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging)) {
+        if (tabDraggable(sourceTab, targetTab, under, sourceWindow)) {
             let cursor = document.createElement("div");
             cursor.classList.add("insert-cursor");
             if (under) {
@@ -115,7 +81,7 @@ export function windowEntryDropped(e) {
                 }
             }
         }
-        if (tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging)) {
+        if (tabDraggable(sourceTab, targetTab, under, sourceWindow)) {
             let destinationWindowId = getWindowId(getWindowFromTab(targetTab));
             let sourceTabIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, sourceTab);
             let destinationIndex = Array.prototype.indexOf.call(targetTab.parentElement.childNodes, targetTab);

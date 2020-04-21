@@ -1,18 +1,18 @@
 import "Polyfill"
-import G from "./globals"
-import { getWrongToRight } from "./wrong-to-right"
-import { populateTabsList, extendTabsList } from "./wtinit"
-import { getActualWidth } from "./domutils"
-import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
-import { searchTextChanged, initSearch, searchKeydown } from "./event-listeners/search"
-import { onMessage } from "./event-listeners/message"
-import { saveForLater, restore as recorderRestore } from "./event-listeners/recorder"
-import * as captureTab from "./captureTab"
 import * as Options from "../options"
-import { hideTabPreview } from "./wtdom"
-import { updateRecorderToolTip } from "./recorder";
-import { previewClick, enableRealTimePreview } from "./event-listeners/preview"
+import * as captureTab from "./captureTab"
+import { getActualWidth } from "./domutils"
+import { documentClicked, documentKeyPressed, documentMouseOver } from "./event-listeners/document"
+import { onMessage } from "./event-listeners/message"
+import { enableRealTimePreview, previewClick } from "./event-listeners/preview"
+import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
+import { initSearch, searchKeydown, searchTextChanged } from "./event-listeners/search"
+import G from "./globals"
 import { sendRuntimeMessage } from "./messaging"
+import { updateRecorderToolTip } from "./recorder"
+import { getWrongToRight } from "./wrong-to-right"
+import { hideTabPreview } from "./wtdom"
+import { extendTabsList, populateTabsList } from "./wtinit"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -78,7 +78,6 @@ if (document.readyState === "loading") {
 
 function generalSetup() {
     document.addEventListener("mouseover", documentMouseOver);
-    document.addEventListener("mouseup", documentMouseUp);
     document.addEventListener("click", documentClicked);
     document.addEventListener("keypress", documentKeyPressed);
 

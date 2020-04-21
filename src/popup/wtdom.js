@@ -1,6 +1,6 @@
-import "Polyfill"
-import G from "./globals"
-import { getCorrectTabId } from "./wrong-to-right"
+import "Polyfill";
+import G from "./globals";
+import { getCorrectTabId } from "./wrong-to-right";
 import { getLastFocusedWindow } from "./wtutils";
 
 // Select tab and go to it
@@ -132,9 +132,8 @@ export function getTabEntriesFromWindow(windowEntry) {
 }
 
 // Test if tab is draggable
-export function tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging) {
+export function tabDraggable(sourceTab, targetTab, under, sourceWindow) {
     return !sourceTab.isSameNode(targetTab)
-            && (!multiDragging || (multiSelected(sourceTab) && multiSelected(targetTab)))
             && ((!sourceTab.classList.contains("pinned-tab") && !targetTab.classList.contains("pinned-tab"))
                 || (sourceTab.classList.contains("pinned-tab") && targetTab.classList.contains("pinned-tab"))
                 || (under && !sourceTab.classList.contains("pinned-tab")))
@@ -180,64 +179,4 @@ export function getLastTabEntry(tabEntry) {
     } else {
         return null;
     }
-}
-
-/* Multiselect */
-// On multiselect start
-function onMultiselectStart() {
-
-}
-// On multiselect change
-function onMultiselectChange() {
-
-}
-// On multiselect end
-function onMultiselectEnd() {
-
-}
-// Get Selected Items
-export function getSelectedItems() {
-    return Array.from(document.getElementsByClassName("multiselect"));
-}
-// Multiselected
-export function multiSelected(element) {
-    return element.classList.contains("multiselect");
-}
-// Select
-export function multiSelect(element) {
-    if (!element.classList.contains("multiselect")) {
-        G.selectedTabs++;
-        G.isSelecting = true;
-        element.classList.add("multiselect");
-    }
-}
-// Cancel Selection
-export function multiSelectCancel(element) {
-    if (element.classList.contains("multiselect")) {
-        if (--G.selectedTabs == 0) {
-            G.isSelecting = false;
-        }
-        element.classList.remove("multiselect");
-    }
-}
-// Reset multiselect
-export function multiSelectReset() {
-    for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
-        element.classList.remove("multiselect");
-    }
-    G.selectedTabs = 0;
-    G.isSelecting = false;
-}
-// Toggle Selection
-export function multiSelectToggle(element) {
-    if (element.classList.contains("multiselect")) {
-        multiSelectCancel(element);
-    } else {
-        multiSelect(element);
-    }
-}
-// Reset slide selection
-export function resetSlideSelection() {
-    G.slideSelection.sliding = false;
-    G.slideSelection.initiator = undefined;
 }

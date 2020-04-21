@@ -1,13 +1,8 @@
-import "Polyfill"
-import G from "../globals"
-import { resetSlideSelection, multiSelectReset, getTabId, selectTabEntry } from "../wtdom"
+import "Polyfill";
+import { getTabId } from "../wtdom";
 
 export function documentMouseOver(e) {
     e.preventDefault();
-}
-
-export function documentMouseUp(e) {
-    if (G.slideSelection.sliding) resetSlideSelection();
 }
 
 export function documentClicked(e) {
@@ -16,8 +11,6 @@ export function documentClicked(e) {
             document.getElementById("details-placeholder").style.display = "inline-block";
             document.getElementById("tab-details").style.display = "none";
             browser.tabs.remove(getTabId(document.getElementById("tab-details")));
-        } else { // Note: May cause some problems
-            if (G.isSelecting) multiSelectReset();
         }
     }
 }
@@ -33,9 +26,5 @@ function isInlinePrintableKey(e) {
 export function documentKeyPressed(e) {
     if (isInlinePrintableKey(e)) {
         document.getElementById("search").focus();
-    } else if (e.key === "Enter") {
-        if (G.selectedTabs === 1) {
-            selectTabEntry(document.getElementsByClassName("multiselect")[0]);
-        }
     }
 }
