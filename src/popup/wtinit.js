@@ -5,7 +5,7 @@ import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
-import { tabEntryMouseOver, tabEntryMouseLeave, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
+import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
 
 // Update tabs
 export function updateTabs(windows) {
@@ -168,7 +168,6 @@ export function updateTabs(windows) {
                 tabEntry.appendChild(tabEntryFragment);
 
                 tabEntry.addEventListener("mouseover", tabEntryMouseOver);
-                tabEntry.addEventListener("mouseleave", tabEntryMouseLeave);
                 tabEntry.addEventListener("click", tabEntryClicked);
 
                 if (tab.pinned) {

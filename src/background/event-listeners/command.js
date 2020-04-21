@@ -1,5 +1,6 @@
 import "Polyfill"
 import G from "../globals"
+import { sendRuntimeMessage } from "../../popup/messaging";
 
 export function onCommand(name) {
     switch (name) {
@@ -26,6 +27,13 @@ export function onCommand(name) {
                     focused: true
                 });
             }
+            break;
+        case "open-tabby":
+            browser.browserAction.openPopup();
+            break;
+        case "open-tabby-focus-current":
+            browser.browserAction.openPopup();
+            sendRuntimeMessage("INIT__PUT_FOCUS_ON_CURRENT", {});
             break;
     }
 }

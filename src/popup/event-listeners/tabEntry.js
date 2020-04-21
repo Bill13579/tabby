@@ -6,7 +6,6 @@ import * as captureTab from "../captureTab"
 import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel, selectTabEntry } from "../wtdom"
 
 export function tabEntryMouseOver(e) {
-    e.target.getElementByClassName("tab-entry-pin-btn").style.display = "inline-block";
     if (ctrlOrCmd() && G.slideSelection.sliding) {
         if (G.slideSelection.initiator !== e.target) {
             if (G.slideSelection.initiator.classList.contains("multiselect")) {
@@ -17,6 +16,9 @@ export function tabEntryMouseOver(e) {
         }
     } else {
         let tabId = getTabId(e.target);
+        let currentSelected = document.getElementsByClassName("selected-entry");
+        if (currentSelected.length > 0) currentSelected[0].classList.remove("selected-entry");
+        e.target.classList.add("selected-entry");
         document.getElementById("details").setAttribute("data-details-of", tabId);
         captureTab.captureTab(tabId).then(dataUri => {
             if (dataUri !== null) {
@@ -47,10 +49,6 @@ export function tabEntryMouseOver(e) {
         });
     }
     e.preventDefault();
-}
-
-export function tabEntryMouseLeave(e) {
-    e.target.getElementByClassName("tab-entry-pin-btn").style.display = "none";
 }
 
 export function tabEntryClicked(e) {

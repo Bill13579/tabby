@@ -51,6 +51,16 @@
                 "mac": "MacCtrl+2"
             },
             "description": "Open last used window"
+        },
+        "open-tabby": {
+            "suggested_key": {
+                "default": "Alt+F"
+            }
+        },
+        "open-tabby-focus-current": {
+            "suggested_key": {
+                "default": "Alt+C"
+            }
         }
     }
 

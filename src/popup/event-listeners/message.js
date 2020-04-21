@@ -5,6 +5,9 @@ import { findTabEntryById, getFavIconFromTabEntry, setActiveTab, removeTab, remo
 
 export function onMessage(request, sender) {
     switch (request.type) {
+        case "INIT__PUT_FOCUS_ON_CURRENT":
+            console.log("I need to put focus on the current tab"); //TODO
+            break;
         case "ACTIVE_TAB_CHANGED":
             setActiveTab(request.details.windowId, request.details.tabId);
             break;
