@@ -36,6 +36,18 @@
     },
 
     "commands": {
+        "open-tabby": {
+            "suggested_key": {
+                "default": "Alt+X"
+            },
+            "description": "Open Tabby, with focus on the search bar"
+        },
+        "open-tabby-focus-current": {
+            "suggested_key": {
+                "default": "Alt+C"
+            },
+            "description": "Open Tabby, with focus on the current tab"
+        },
         "last-used-tab": {
             "suggested_key": {
                 "default": "Ctrl+1",
@@ -51,16 +63,6 @@
                 "mac": "MacCtrl+2"
             },
             "description": "Open last used window"
-        },
-        "open-tabby": {
-            "suggested_key": {
-                "default": "Alt+X"
-            }
-        },
-        "open-tabby-focus-current": {
-            "suggested_key": {
-                "default": "Alt+C"
-            }
         }
     }
 

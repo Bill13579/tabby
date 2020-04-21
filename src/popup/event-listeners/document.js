@@ -19,7 +19,7 @@ export function documentClicked(e) {
 export function documentKeyPressed(e) {
     e.preventDefault();
     switch (e.code) {
-        case "S": {
+        case "KeyS": {
             document.getElementById("search").focus();
             break;
         }
