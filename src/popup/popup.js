@@ -4,7 +4,7 @@ import { getWrongToRight } from "./wrong-to-right"
 import { populateTabsList, extendTabsList } from "./wtinit"
 import { getActualWidth } from "./domutils"
 import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
-import { searchTextChanged, initSearch } from "./event-listeners/search"
+import { searchTextChanged, initSearch, searchKeydown } from "./event-listeners/search"
 import { onMessage } from "./event-listeners/message"
 import { saveForLater, restore as recorderRestore } from "./event-listeners/recorder"
 import * as captureTab from "./captureTab"
@@ -84,6 +84,7 @@ function generalSetup() {
 
     // Add keyup event listener and put focus on search
     let search = document.getElementById("search");
+    search.addEventListener("keydown", searchKeydown);
     search.addEventListener("keyup", searchTextChanged);
     search.focus();
 

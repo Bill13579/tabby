@@ -2,6 +2,7 @@ import "Polyfill"
 import G from "../globals"
 import { getTabId } from "../wtdom"
 import { stopPropagation } from "../domutils";
+import { selectTab } from "./tabEntry";
 
 // Init
 export function initSearch() {
@@ -45,6 +46,18 @@ export async function searchTextChanged(e) {
         for (let i = 0; i < tabEntries.length; i++) {
             let tabEntry = tabEntries[i];
             tabEntry.style.display = "flex";
+        }
+    }
+}
+
+// Search keydown
+export function searchKeydown(e) {
+    e.stopPropagation();
+    if (e.code === "Enter") {
+        let remainingTabEntry = document.querySelector(".tab-entry:not([display=none])");
+        if (remainingTabEntry !== null) {
+            e.target.blur();
+            selectTab(remainingTabEntry);
         }
     }
 }

@@ -5,6 +5,41 @@ import { getLastFocusedWindow } from "../wtutils"
 import * as captureTab from "../captureTab"
 import { getWindowFromTab, multiSelect, multiSelectToggle, getTabId, getWindowId, multiSelectCancel, selectTabEntry } from "../wtdom"
 
+export function selectTab(tabEntry) {
+    let tabId = getTabId(tabEntry);
+    let currentSelected = document.getElementsByClassName("selected-entry");
+    if (currentSelected.length > 0) currentSelected[0].classList.remove("selected-entry");
+    tabEntry.classList.add("selected-entry");
+    document.getElementById("details").setAttribute("data-details-of", tabId);
+    captureTab.captureTab(tabId).then(dataUri => {
+        if (dataUri !== null) {
+            document.getElementById("details-img").src = dataUri;
+        }
+        browser.tabs.get(tabId).then(tab => {
+            document.getElementById("details-title").textContent = tab.title;
+            document.getElementById("details-url").textContent = tab.url;
+            document.getElementById("details-placeholder").style.display = "none";
+            document.getElementById("tab-details").style.display = "inline-block";
+            document.getElementById("tab-details").setAttribute("data-tab_id", tabId);
+            if (tab.pinned) {
+                document.getElementById("details-pinned").style.display = "inline";
+            } else {
+                document.getElementById("details-pinned").style.display = "none";
+            }
+            if (tab.hidden) {
+                document.getElementById("details-hidden").style.display = "inline";
+            } else {
+                document.getElementById("details-hidden").style.display = "none";
+            }
+            if (tab.pinned && tab.hidden) {
+                document.getElementById("details-comma").style.display = "inline";
+            } else {
+                document.getElementById("details-comma").style.display = "none";
+            }
+        });
+    });
+}
+
 export function tabEntryMouseOver(e) {
     if (ctrlOrCmd() && G.slideSelection.sliding) {
         if (G.slideSelection.initiator !== e.target) {
@@ -15,38 +50,7 @@ export function tabEntryMouseOver(e) {
             }
         }
     } else {
-        let tabId = getTabId(e.target);
-        let currentSelected = document.getElementsByClassName("selected-entry");
-        if (currentSelected.length > 0) currentSelected[0].classList.remove("selected-entry");
-        e.target.classList.add("selected-entry");
-        document.getElementById("details").setAttribute("data-details-of", tabId);
-        captureTab.captureTab(tabId).then(dataUri => {
-            if (dataUri !== null) {
-                document.getElementById("details-img").src = dataUri;
-            }
-            browser.tabs.get(tabId).then(tab => {
-                document.getElementById("details-title").textContent = tab.title;
-                document.getElementById("details-url").textContent = tab.url;
-                document.getElementById("details-placeholder").style.display = "none";
-                document.getElementById("tab-details").style.display = "inline-block";
-                document.getElementById("tab-details").setAttribute("data-tab_id", tabId);
-                if (tab.pinned) {
-                    document.getElementById("details-pinned").style.display = "inline";
-                } else {
-                    document.getElementById("details-pinned").style.display = "none";
-                }
-                if (tab.hidden) {
-                    document.getElementById("details-hidden").style.display = "inline";
-                } else {
-                    document.getElementById("details-hidden").style.display = "none";
-                }
-                if (tab.pinned && tab.hidden) {
-                    document.getElementById("details-comma").style.display = "inline";
-                } else {
-                    document.getElementById("details-comma").style.display = "none";
-                }
-            });
-        });
+        selectTab(e.target);
     }
     e.preventDefault();
 }
