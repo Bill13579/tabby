@@ -32,8 +32,11 @@ export function onCommand(name) {
             browser.browserAction.openPopup();
             break;
         case "open-tabby-focus-current":
-            browser.browserAction.openPopup();
-            sendRuntimeMessage("INIT__PUT_FOCUS_ON_CURRENT", {});
+            browser.browserAction.openPopup().then(() => {
+                G.events.onpopuploaded = () => {
+                    sendRuntimeMessage("INIT__PUT_FOCUS_ON_CURRENT", {});
+                };
+            });
             break;
     }
 }

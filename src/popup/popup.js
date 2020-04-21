@@ -12,6 +12,7 @@ import * as Options from "../options"
 import { hideTabPreview } from "./wtdom"
 import { updateRecorderToolTip } from "./recorder";
 import { previewClick, enableRealTimePreview } from "./event-listeners/preview"
+import { sendRuntimeMessage } from "./messaging"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -62,6 +63,8 @@ async function main() {
     await updateRecorderToolTip();
     // Initialize components
     initSearch();
+    // Event Listeners
+    generalSetup();
 }
 
 /* Add event listeners */
@@ -73,40 +76,50 @@ if (document.readyState === "loading") {
     main();
 }
 
-document.addEventListener("mouseover", documentMouseOver);
-document.addEventListener("mouseup", documentMouseUp);
-document.addEventListener("click", documentClicked);
-document.addEventListener("keypress", documentKeyPressed);
+function generalSetup() {
+    document.addEventListener("mouseover", documentMouseOver);
+    document.addEventListener("mouseup", documentMouseUp);
+    document.addEventListener("click", documentClicked);
+    document.addEventListener("keypress", documentKeyPressed);
 
-// Add keyup event listener and put focus on search
-let search = document.getElementById("search");
-search.addEventListener("keyup", searchTextChanged);
-search.focus();
+    // Add keyup event listener and put focus on search
+    let search = document.getElementById("search");
+    search.addEventListener("keyup", searchTextChanged);
+    search.focus();
 
-// Detect left clicks on the preview and transfer it to the actual tab
-document.getElementById("details").addEventListener("click", previewClick);
+    // Detect left clicks on the preview and transfer it to the actual tab
+    document.getElementById("details").addEventListener("click", previewClick);
 
-// Add event listeners to all copy buttons
-let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
-for (let i = 0; i < copyButtons.length; i++) {
-    copyButtons[i].addEventListener("click", e => {
-        document.oncopy = ce => {
-            ce.clipboardData.setData("text", document.getElementById(e.target.getAttribute("for")).innerText);
-            ce.preventDefault();
-        };
-        document.execCommand("copy", false, null);
-        e.target.innerText = "Copied!";
-        setTimeout(() => {
-            e.target.innerText = "Copy";
-        }, 2000);
-    });
-}
+    // Add event listeners to all copy buttons
+    let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
+    for (let i = 0; i < copyButtons.length; i++) {
+        copyButtons[i].addEventListener("click", e => {
+            document.oncopy = ce => {
+                ce.clipboardData.setData("text", document.getElementById(e.target.getAttribute("for")).innerText);
+                ce.preventDefault();
+            };
+            document.execCommand("copy", false, null);
+            e.target.innerText = "Copied!";
+            setTimeout(() => {
+                e.target.innerText = "Copy";
+            }, 2000);
+        });
+    }
 
-// Add event listener for recorder.js
-document.getElementById("save-for-later").addEventListener("click", saveForLater);
-document.getElementById("restore-now").addEventListener("click", recorderRestore);
+    // Add event listener for recorder.js
+    document.getElementById("save-for-later").addEventListener("click", saveForLater);
+    document.getElementById("restore-now").addEventListener("click", recorderRestore);
 
-// Add event listener to listen for any messages from background.js
-if (!browser.runtime.onMessage.hasListener(onMessage)) {
-    browser.runtime.onMessage.addListener(onMessage);
+    // Add event listener to listen for any messages from background.js
+    if (!browser.runtime.onMessage.hasListener(onMessage)) {
+        browser.runtime.onMessage.addListener(onMessage);
+    }
+
+    // Tell background script that popup is being unloaded
+    document.addEventListener.onbeforeunload = () => {
+        sendRuntimeMessage("POPUP_UNLOADED", {});
+    };
+
+    // Tell background script that everything is loaded now
+    sendRuntimeMessage("INIT__POPUP_LOADED", {});
 }
