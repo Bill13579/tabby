@@ -8,6 +8,7 @@ const globals = {
     currentWindowId: undefined,
     dropCurrentTabId: false,
     dropCurrentWindowId: false,
+    windowProperties: {},
     events: {
         onpopuploaded: undefined,
         onpopupunloaded: undefined

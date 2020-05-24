@@ -5,6 +5,18 @@
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body>
+        <div class="context-menu" id="window-entry-context-menu">
+            <ul>
+                <li id="window-entry-context-menu-rename">Give the window a purpose</li>
+            </ul>
+        </div>
+        <div class="context-menu" id="window-entry-context-menu-purpose">
+            <div style="display: flex; flex-flow: row; align-items: center; padding: 4px;">
+                <input type="text" id="window-entry-rename-box" style="display: inline-block;" />
+                <span class="inline-button img-button opacity-changing-button" id="window-entry-rename-btn"></span>
+                <span class="inline-button img-button opacity-changing-button" id="window-entry-rename-cancel-btn"></span>
+            </div>
+        </div>
         <div id="saved-for-later-tabs">
             <ul id="saved-for-later-tabs-list" class="categories-list"></ul>
         </div>

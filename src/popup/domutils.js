@@ -34,3 +34,9 @@ export function getActualWidth(element) {
 Element.prototype.getElementByClassName = function (classNames) {
     return this.getElementsByClassName(classNames)[0] || null;
 };
+
+export function showContextMenu(x, y, ctxMenu) {
+    ctxMenu.setAttribute("data-state", "on");
+    ctxMenu.style.top = y + "px";
+    ctxMenu.style.left = x + "px";
+}

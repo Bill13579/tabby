@@ -16,5 +16,20 @@ export function onMessage(request, sender) {
                 wrongToRight: G.wrongToRight
             });
         }
+        case "SET_WINDOW_PROPS": {
+            if (!G.windowProperties.hasOwnProperty(request.data.windowId)) {
+                G.windowProperties[request.data.windowId] = {};
+            }
+            if (request.data.name) {
+                G.windowProperties[request.data.windowId]["name"] = request.data.name;
+            } else {
+                G.windowProperties[request.data.windowId] = undefined;
+            }
+        }
+        case "GET_WINDOW_PROPS": {
+            return Promise.resolve({
+                windowProperties: G.windowProperties
+            });
+        }
     }
 }

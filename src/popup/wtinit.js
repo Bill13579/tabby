@@ -4,11 +4,14 @@ import { getImage } from "./net"
 import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
-import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
+import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick, windowEntryContextMenu } from "./event-listeners/windowEntry"
 import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
+import { sendRuntimeMessage } from "./messaging"
 
 // Update tabs
-export function updateTabs(windows) {
+export async function updateTabs(windows) {
+    let { windowProperties } = await sendRuntimeMessage("GET_WINDOW_PROPS", {});
+
     G.tabsList.innerHTML = "";
     let tabsListFragment = document.createDocumentFragment();
     let currentWindowEntry;
@@ -60,6 +63,7 @@ export function updateTabs(windows) {
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
         span.addEventListener("click", windowEntryTitleClicked);
+        span.addEventListener("contextmenu", windowEntryContextMenu);
 
         // Create close button
         let closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
@@ -73,7 +77,11 @@ export function updateTabs(windows) {
         // Create window name span
         let windowName = document.createElement("span");
         windowName.classList.add("window-title");
-        windowName.textContent += "Window " + (i+1);
+        if (windowProperties.hasOwnProperty(w.id) && windowProperties[w.id] !== undefined) {
+            windowName.textContent += windowProperties[w.id].name + " (" + (i+1) + ")";
+        } else {
+            windowName.textContent += "Window " + (i+1);
+        }
 
         // Check if window is focused
         if (w.focused) {
@@ -172,8 +180,8 @@ export function updateTabs(windows) {
                 // Buttons wrapper
                 buttons = document.createElement("span");
                 buttons.classList.add("tab-entry-buttons");
-                buttons.appendChild(speakerBtn);
                 buttons.appendChild(pinBtn);
+                buttons.appendChild(speakerBtn);
                 buttons.appendChild(closeBtn);
 
                 // Make tab entries focusable
@@ -227,7 +235,7 @@ export function updateTabs(windows) {
 export async function populateTabsList() {
     let windows = await getWindows();
     await correctFocused(windows);
-    updateTabs(windows);
+    await updateTabs(windows);
 }
 
 // Set tabs list height to any available height

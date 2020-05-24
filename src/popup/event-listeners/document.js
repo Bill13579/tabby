@@ -8,6 +8,7 @@ export function documentMouseOver(e) {
 }
 
 export function documentClicked(e) {
+    for (let menu of document.getElementsByClassName("context-menu")) menu.removeAttribute("data-state");
     if (e.button === 0) {
         if (e.target.id === "details-close") {
             document.getElementById("details-placeholder").style.display = "inline-block";
@@ -59,6 +60,9 @@ export function documentKeyPressed(e) {
             if (selectedTabEntries.length > 0) {
                 selectedTabEntries[0].classList.add("going-to-this-entry");
                 selectTabEntry(selectedTabEntries[0]);
+                setTimeout(() => {
+                    selectedTabEntries[0].classList.remove("going-to-this-entry");
+                }, 50);
             }
             break;
         }

@@ -57,7 +57,10 @@ export function onMessage(request, sender) {
             break;
         }
         case "TAB_AUDIBLE_CHANGED": {
-            findTabEntryById(request.details.tabId).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", "on");
+            browser.tabs.get(request.details.tabId).then(tab => {
+                findTabEntryById(tab.id).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", tab.mutedInfo.muted ? "off" : "on");
+                resolve();
+            });
             break;
         }
         case "TAB_MUTE_CHANGED": {

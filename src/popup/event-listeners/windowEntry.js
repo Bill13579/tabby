@@ -1,6 +1,7 @@
 import "Polyfill";
 import G from "../globals";
 import { attachTab, getTabId, getWindowFromTab, getWindowId, moveTab, tabDraggable, tabDraggableToWindow } from "../wtdom";
+import { showContextMenu } from "../domutils";
 
 let sourceTab, targetTab, under, sourceWindow, sourceWindowId;
 
@@ -115,6 +116,13 @@ export function windowEntryTitleClicked(e) {
     browser.windows.update(windowId, {
         focused: true
     });
+}
+
+export function windowEntryContextMenu(e) {
+    e.preventDefault();
+    let menu = document.getElementById("window-entry-context-menu");
+    menu.setAttribute("data-window-id", getWindowId(e.target.parentElement));
+    showContextMenu(e.pageX, e.pageY, menu);
 }
 
 export function windowCloseClick(e) {

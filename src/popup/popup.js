@@ -1,7 +1,7 @@
 import "Polyfill"
 import * as Options from "../options"
 import * as captureTab from "./captureTab"
-import { getActualWidth } from "./domutils"
+import { getActualWidth, showContextMenu } from "./domutils"
 import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
 import { onMessage } from "./event-listeners/message"
 import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
@@ -12,6 +12,7 @@ import { updateRecorderToolTip } from "./recorder"
 import { getWrongToRight } from "./wrong-to-right"
 import { hideTabPreview } from "./wtdom"
 import { extendTabsList, populateTabsList } from "./wtinit"
+import { windowEntryRenameContextMenu, windowEntryRename, windowEntryRenameCancel, windowEntryRenameBoxKeyDown } from "./event-listeners/windowEntryRename"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -108,6 +109,21 @@ function generalSetup() {
     search.addEventListener("keydown", searchKeydown);
     search.addEventListener("keyup", searchTextChanged);
     search.focus();
+
+    // Do stopPropagation for all clicks that happen within context menus
+    for (let menu of document.getElementsByClassName("context-menu")) {
+        menu.addEventListener("click", e => e.stopPropagation());
+        menu.addEventListener("keydown", e => e.stopPropagation());
+    }
+
+    // Rename context menu
+    document.getElementById("window-entry-context-menu-rename").addEventListener("click", windowEntryRenameContextMenu);
+    // Add event handler to handle cancellation of rename
+    document.getElementById("window-entry-rename-cancel-btn").addEventListener("click", windowEntryRenameCancel);
+    // Add event handler to handle rename
+    document.getElementById("window-entry-rename-btn").addEventListener("click", windowEntryRename);
+    // Add keydown handler to rename box
+    document.getElementById("window-entry-rename-box").addEventListener("keydown", windowEntryRenameBoxKeyDown);
 
     // Tell background script that popup is being unloaded
     window.addEventListener("unload", () => {

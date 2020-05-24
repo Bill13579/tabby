@@ -12,6 +12,42 @@ html, body {
     height: 450px;
     margin: 0;
 }
+.context-menu {
+    position: absolute;
+    display: none;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 3px;
+    box-shadow: 0 0 1px 1px rgb(92, 92, 92);
+    background-color: #fff;
+}
+.context-menu[data-state=on] {
+    display: block;
+}
+.context-menu ul {
+    list-style: none;
+}
+.context-menu li, .context-menu label {
+    line-height: 20px;
+    padding: 5px;
+    padding-left: 12px;
+    padding-right: 12px;
+    user-select: none;
+}
+.context-menu li:hover {
+    background-color: rgb(227, 227, 227);
+}
+.context-menu label {
+    color: rgb(108, 108, 108);
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding-left: 6px;
+    padding-top: 10px;
+    padding-bottom: 7px;
+    line-height: 2px;
+    display: block;
+}
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
@@ -220,6 +256,12 @@ html, body {
     border-style: solid;
     border-radius: 2px;
 }
+.tab-entry:hover {
+    background-color: #f2f2f2;
+}
+.incognito-window .tab-entry:hover {
+    background-color: #f2f2f2;
+}
 /*.incognito-window .tab-entry {
     background-color: rgb(255, 197, 255);
     border-color: rgb(255, 197, 255);
@@ -311,6 +353,24 @@ html, body {
 .tab-entry-speaker-btn[data-state=off] {
     background-image: url(../icons/volume-off.svg);
 }
+#window-entry-rename-btn, #window-entry-rename-cancel-btn {
+    width: calc(28px * var(--scale));
+    height: calc(28px * var(--scale));
+    margin-left: 3px;
+    vertical-align: middle;
+    mask-size: calc(32px * var(--scale));
+    mask-repeat: no-repeat;
+    min-width: calc(32px * var(--scale));
+    display: inline-block;
+}
+#window-entry-rename-btn {
+    mask-image: url(../icons/done.svg);
+    background-color: #006400;
+}
+#window-entry-rename-cancel-btn {
+    mask-image: url(../icons/close.svg);
+    background-color: #8b0000;
+}
 .details-tab-remove-btn {
     width: calc(25px * var(--scale));
     height: calc(25px * var(--scale));
@@ -336,11 +396,11 @@ html, body {
     display: -moz-flex;
     display: flex;
 }
-.tab-entry-buttons *:not(.tab-entry-remove-btn) {
+.tab-entry-buttons .tab-entry-pin-btn {
     display: none;
 }
-.tab-entry.pinned-tab .tab-entry-buttons *:not(.tab-entry-remove-btn) {
-    display: inline-block !important;
+.tab-entry.pinned-tab .tab-entry-buttons .tab-entry-pin-btn {
+    display: inline-block;
 }
 .tab-details {
     font-size: calc(15.5px * var(--scale));
