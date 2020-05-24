@@ -220,10 +220,10 @@ html, body {
     border-style: solid;
     border-radius: 2px;
 }
-.incognito-window .tab-entry {
+/*.incognito-window .tab-entry {
     background-color: rgb(255, 197, 255);
     border-color: rgb(255, 197, 255);
-}
+}*/
 .tab-entry.non-matching {
     display: none;
 }
@@ -242,9 +242,9 @@ html, body {
 .tab-entry.selected-entry {
     background-color: #f2f2f2;
 }
-.incognito-window .tab-entry.selected-entry {
+/*.incognito-window .tab-entry.selected-entry {
     background-color: rgb(255, 197, 255);
-}
+}*/
 .tab-entry.selected-entry.going-to-this-entry {
     background-color: #ffffff;
 }
