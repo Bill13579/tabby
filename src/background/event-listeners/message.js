@@ -1,5 +1,6 @@
 import "Polyfill"
 import G from "../globals"
+import { updateContextMenu } from "../contextMenu";
 
 export function onMessage(request, sender) {
     switch (request.type) {
@@ -23,8 +24,9 @@ export function onMessage(request, sender) {
             if (request.data.name) {
                 G.windowProperties[request.data.windowId]["name"] = request.data.name;
             } else {
-                G.windowProperties[request.data.windowId] = undefined;
+                delete G.windowProperties[request.data.windowId];
             }
+            return updateContextMenu();
         }
         case "GET_WINDOW_PROPS": {
             return Promise.resolve({

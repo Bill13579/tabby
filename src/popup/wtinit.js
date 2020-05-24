@@ -77,7 +77,7 @@ export async function updateTabs(windows) {
         // Create window name span
         let windowName = document.createElement("span");
         windowName.classList.add("window-title");
-        if (windowProperties.hasOwnProperty(w.id) && windowProperties[w.id] !== undefined) {
+        if (windowProperties.hasOwnProperty(w.id)) {
             windowName.textContent += windowProperties[w.id].name + " (" + (i+1) + ")";
         } else {
             windowName.textContent += "Window " + (i+1);

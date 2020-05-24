@@ -5,6 +5,7 @@ import { tabActivated, tabUpdated, tabRemoved } from "./event-listeners/tab"
 import { windowFocusChanged, windowRemoved } from "./event-listeners/window"
 import { onCommand } from "./event-listeners/command"
 import { onInstalled } from "./event-listeners/installed"
+import { updateContextMenu } from "./contextMenu"
 
 if (!browser.runtime.onInstalled.hasListener(onInstalled)) {
     browser.runtime.onInstalled.addListener(onInstalled);
@@ -37,3 +38,6 @@ browser.commands.onCommand.addListener(onCommand);
 
 // Watch out for any messages
 browser.runtime.onMessage.addListener(onMessage);
+
+// Update context menus
+updateContextMenu();
