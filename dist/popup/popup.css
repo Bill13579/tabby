@@ -403,6 +403,7 @@ html, body {
     margin-bottom: 7.5px;
     border: 0.2px solid black;
     border-radius: 2px;
+    pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;

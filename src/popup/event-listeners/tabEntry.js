@@ -7,7 +7,6 @@ export function selectTab(tabEntry) {
     let currentSelected = document.getElementsByClassName("selected-entry");
     if (currentSelected.length > 0) currentSelected[0].classList.remove("selected-entry");
     tabEntry.classList.add("selected-entry");
-    document.getElementById("details").setAttribute("data-details-of", tabId);
     captureTab.captureTab(tabId).then(dataUri => {
         if (dataUri !== null) {
             document.getElementById("details-img").src = dataUri;

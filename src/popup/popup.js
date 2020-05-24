@@ -4,7 +4,6 @@ import * as captureTab from "./captureTab"
 import { getActualWidth } from "./domutils"
 import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
 import { onMessage } from "./event-listeners/message"
-import { enableRealTimePreview, previewClick } from "./event-listeners/preview"
 import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
 import { initSearch, searchKeydown, searchTextChanged } from "./event-listeners/search"
 import G from "./globals"
@@ -39,8 +38,6 @@ async function fulfillOptions() {
     } else {
         // popup.showPreview
         if (!Options.stbool(popupOptions.showPreview)) hideTabPreview();
-        // popup.livePreview - Real Time Preview
-        if (Options.stbool(popupOptions.livePreview)) enableRealTimePreview();
     }
     // popup.hideAfterTabSelection
     G.hideAfterTabSelection = Options.stbool(popupOptions.hideAfterTabSelection);
@@ -80,9 +77,6 @@ function generalSetup() {
     document.addEventListener("mouseover", documentMouseOver);
     document.addEventListener("click", documentClicked);
     document.addEventListener("keydown", documentKeyDown);
-
-    // Detect left clicks on the preview and transfer it to the actual tab
-    document.getElementById("details").addEventListener("click", previewClick);
 
     // Add event listeners to all copy buttons
     let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
