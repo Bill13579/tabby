@@ -92,12 +92,6 @@ html, body {
 .incognito-window > span:hover, .incognito-window > span:active {
     background-color: rgb(128, 0, 128);
 }
-.incognito-window > ul > li {
-    background-color: rgb(255, 197, 255) !important;
-}
-.incognito-window > ul > li:hover, .incognito-window > ul > li:active {
-    background-color: rgb(255, 124, 255) !important;
-}
 #details-pinned, #details-hidden {
     display: none;
 }
@@ -226,11 +220,21 @@ html, body {
     border-style: solid;
     border-radius: 2px;
 }
+.incognito-window .tab-entry {
+    background-color: rgb(255, 197, 255);
+    border-color: rgb(255, 197, 255);
+}
 .tab-entry.non-matching {
     display: none;
 }
-.tab-entry.selected-entry {
-    border-color: #3381ff;
+.tab-entry.current-tab {
+    border-color: #b6d2ff;
+}
+.incognito-window .tab-entry.current-tab {
+    border-color: rgb(255, 151, 255);
+}
+.tab-entry.selected-entry, .incognito-window .tab-entry.selected-entry {
+    border-color: #000000;
 }
 .tab-entry.selected-entry .tab-entry-pin-btn {
     display: inline-block;
@@ -238,11 +242,20 @@ html, body {
 .tab-entry.selected-entry {
     background-color: #f2f2f2;
 }
-.tab-entry.current-tab {
-    background-color: #b6d2ff;
+.incognito-window .tab-entry.selected-entry {
+    background-color: rgb(255, 197, 255);
 }
 .tab-entry.selected-entry.going-to-this-entry {
     background-color: #ffffff;
+}
+.incognito-window .tab-entry.selected-entry.going-to-this-entry {
+    background-color: #fde1ff;
+}
+.tab-entry.current-tab {
+    background-color: #b6d2ff;
+}
+.incognito-window .tab-entry.current-tab {
+    background-color: rgb(255, 151, 255);
 }
 .tab-entry-favicon {
     vertical-align: middle;
