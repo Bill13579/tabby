@@ -1,6 +1,7 @@
 import "Polyfill"
 import * as captureTab from "../captureTab"
 import { getTabId, selectTabEntry, closeTabEntry } from "../wtdom"
+import { togglePinned, toggleMuted } from "../wtutils";
 
 export function selectTab(tabEntry) {
     let tabId = getTabId(tabEntry);
@@ -54,32 +55,10 @@ export function tabCloseClick(e) {
 
 export function tabPinClick(e) {
     e.stopPropagation();
-    let tabId = getTabId(e.target.parentElement.parentElement);
-    browser.tabs.get(tabId).then(tab => {
-        if (tab.pinned) {
-            browser.tabs.update(tab.id, {
-                pinned: false
-            });
-        } else {
-            browser.tabs.update(tab.id, {
-                pinned: true
-            });
-        }
-    });
+    togglePinned(getTabId(e.target.parentElement.parentElement));
 }
 
 export function tabSpeakerControlClick(e) {
     e.stopPropagation();
-    let tabId = getTabId(e.target.parentElement.parentElement);
-    browser.tabs.get(tabId).then(tab => {
-        if (tab.mutedInfo.muted) {
-            browser.tabs.update(tab.id, {
-                muted: false
-            });
-        } else {
-            browser.tabs.update(tab.id, {
-                muted: true
-            });
-        }
-    });
+    toggleMuted(getTabId(e.target.parentElement.parentElement));
 }

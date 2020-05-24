@@ -1,6 +1,7 @@
 import "Polyfill";
 import { getTabId, getAdjTabEntry, getInView, selectTabEntry, closeTabEntry } from "../wtdom";
 import { selectTab } from "./tabEntry";
+import { toggleMuted, togglePinned } from "../wtutils";
 
 export function documentMouseOver(e) {
     e.preventDefault();
@@ -19,8 +20,22 @@ export function documentClicked(e) {
 export function documentKeyPressed(e) {
     e.preventDefault();
     switch (e.code) {
-        case "KeyS": {
+        case "KeyX": {
             document.getElementById("search").focus();
+            break;
+        }
+        case "KeyM": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                toggleMuted(getTabId(selectedTabEntries[0]));
+            }
+            break;
+        }
+        case "KeyP": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                togglePinned(getTabId(selectedTabEntries[0]));
+            }
             break;
         }
         case "ArrowDown":

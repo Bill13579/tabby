@@ -54,3 +54,31 @@ export function runAfterTabLoad(tabId, f) {
         browser.tabs.onUpdated.addListener(listener);
     });
 }
+
+export function togglePinned(tabId) {
+    browser.tabs.get(tabId).then(tab => {
+        if (tab.pinned) {
+            browser.tabs.update(tab.id, {
+                pinned: false
+            });
+        } else {
+            browser.tabs.update(tab.id, {
+                pinned: true
+            });
+        }
+    });
+}
+
+export function toggleMuted(tabId) {
+    browser.tabs.get(tabId).then(tab => {
+        if (tab.mutedInfo.muted) {
+            browser.tabs.update(tab.id, {
+                muted: false
+            });
+        } else {
+            browser.tabs.update(tab.id, {
+                muted: true
+            });
+        }
+    });
+}
