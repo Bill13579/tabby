@@ -56,6 +56,14 @@ export function onMessage(request, sender) {
             findTabEntryById(request.details.tabId).getElementByClassName("tab-title").textContent = request.details.title;
             break;
         }
+        case "TAB_AUDIBLE_CHANGED": {
+            findTabEntryById(request.details.tabId).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", "on");
+            break;
+        }
+        case "TAB_MUTE_CHANGED": {
+            findTabEntryById(request.details.tabId).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", request.details.mutedInfo.muted ? "off" : "on");
+            break;
+        }
         case "TAB_REMOVED": {
             if (!request.details.windowClosing) {
                 removeTab(request.details.tabId, request.details.windowId);

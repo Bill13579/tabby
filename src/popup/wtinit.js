@@ -5,7 +5,7 @@ import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
-import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
+import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
 
 // Update tabs
 export function updateTabs(windows) {
@@ -37,6 +37,12 @@ export function updateTabs(windows) {
     TAB_PIN_BTN.classList.add("opacity-changing-button");
     TAB_PIN_BTN.classList.add("tab-entry-pin-btn");
     TAB_PIN_BTN.style.backgroundImage = "url(../icons/pin.svg)";
+    // Tab speaker control button
+    let TAB_SPEAKER_BTN = document.createElement("span");
+    TAB_SPEAKER_BTN.classList.add("inline-button");
+    TAB_SPEAKER_BTN.classList.add("img-button");
+    TAB_SPEAKER_BTN.classList.add("opacity-changing-button");
+    TAB_SPEAKER_BTN.classList.add("tab-entry-speaker-btn");
     // Loop through windows
     for (let i = 0; i < windows.length; i++) {
         // Set w to window
@@ -149,9 +155,24 @@ export function updateTabs(windows) {
                 pinBtn.addEventListener("click", tabPinClick);
                 pinBtn.addEventListener("mouseover", stopPropagation);
 
+                // Create speaker button
+                let speakerBtn = TAB_SPEAKER_BTN.cloneNode(false);
+                speakerBtn.addEventListener("click", tabSpeakerControlClick);
+                speakerBtn.addEventListener("mouseover", stopPropagation);
+                if (!tab.audible) {
+                    speakerBtn.setAttribute("data-state", "none");
+                } else {
+                    if (tab.muted) {
+                        speakerBtn.setAttribute("data-state", "off");
+                    } else {
+                        speakerBtn.setAttribute("data-state", "on");
+                    }
+                }
+
                 // Buttons wrapper
                 buttons = document.createElement("span");
                 buttons.classList.add("tab-entry-buttons");
+                buttons.appendChild(speakerBtn);
                 buttons.appendChild(pinBtn);
                 buttons.appendChild(closeBtn);
 

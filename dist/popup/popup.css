@@ -296,11 +296,20 @@ html, body {
     height: calc(19px * var(--scale));
     display: block;
 }
-.tab-entry-pin-btn {
+.tab-entry-pin-btn, .tab-entry-speaker-btn {
     width: calc(18px * var(--scale));
     height: calc(18px * var(--scale));
     margin-right: 5px;
     vertical-align: middle;
+}
+.tab-entry-speaker-btn[data-state=none] {
+    display: none;
+}
+.tab-entry-speaker-btn[data-state=on] {
+    background-image: url(../icons/volume-up.svg);
+}
+.tab-entry-speaker-btn[data-state=off] {
+    background-image: url(../icons/volume-off.svg);
 }
 .details-tab-remove-btn {
     width: calc(25px * var(--scale));

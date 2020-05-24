@@ -67,3 +67,19 @@ export function tabPinClick(e) {
         }
     });
 }
+
+export function tabSpeakerControlClick(e) {
+    e.stopPropagation();
+    let tabId = getTabId(e.target.parentElement.parentElement);
+    browser.tabs.get(tabId).then(tab => {
+        if (tab.mutedInfo.muted) {
+            browser.tabs.update(tab.id, {
+                muted: false
+            });
+        } else {
+            browser.tabs.update(tab.id, {
+                muted: true
+            });
+        }
+    });
+}
