@@ -30,10 +30,6 @@ export function onCommand(name) {
             }
             break;
         }
-        case "open-tabby": {
-            browser.browserAction.openPopup();
-            break;
-        }
         case "open-tabby-focus-current": {
             browser.browserAction.openPopup().then(() => {
                 G.events.onpopuploaded = () => {
