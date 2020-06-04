@@ -39,15 +39,15 @@
     "commands": {
         "_execute_browser_action": {
             "suggested_key": {
-                "default": "Ctrl+Alt+Space",
-                "mac": "MacCtrl+Alt+Space"
+                "default": "Ctrl+Shift+Space",
+                "mac": "MacCtrl+Shift+Space"
             },
             "description": "Open Tabby, with focus on the search bar"
         },
         "open-tabby-focus-current": {
             "suggested_key": {
-                "default": "Ctrl+Alt+C",
-                "mac": "MacCtrl+Alt+C"
+                "default": "Ctrl+Shift+C",
+                "mac": "MacCtrl+Shift+C"
             },
             "description": "Open Tabby, with focus on the current tab"
         },
