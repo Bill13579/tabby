@@ -37,6 +37,9 @@ export async function record(ids=undefined, name=null, channelName="Default") {
     if (data["save-for-later"]["channels"][channelName] !== undefined) {
         data["save-for-later"]["last-modified-channel"] = channelName;
         data["save-for-later"]["channels"][channelName]["records"].push(newRecord);
+        if (data["save-for-later"]["channels"][channelName]["records"].length > data["save-for-later"]["channels"][channelName]["maximum-number-of-records"]) {
+            data["save-for-later"]["channels"][channelName]["records"].shift();
+        }
     }
     return browser.storage.sync.set(data);
 }

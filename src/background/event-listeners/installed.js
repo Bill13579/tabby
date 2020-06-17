@@ -19,6 +19,7 @@ export function onInstalled(details) {
                     "last-modified-channel": "Default",
                     channels: {
                         "Default": {
+                            "maximum-number-of-records": 1,
                             "records": [ ]
                         }
                     }

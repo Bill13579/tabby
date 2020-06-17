@@ -3,6 +3,7 @@
     "last-modified-channel": "Default",
     "channels": {
         "Default": {
+            "maximum-number-of-records": 1,
             "records": [
                 {
                     "name": "IMPORTANT RECORD",
