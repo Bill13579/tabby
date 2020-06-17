@@ -2,7 +2,7 @@ import "Polyfill"
 import G from "./globals"
 import { onMessage } from "./event-listeners/message"
 import { tabActivated, tabUpdated, tabRemoved } from "./event-listeners/tab"
-import { windowFocusChanged, windowRemoved } from "./event-listeners/window"
+import { windowFocusChanged, windowRemoved, windowCreated } from "./event-listeners/window"
 import { onCommand } from "./event-listeners/command"
 import { onInstalled } from "./event-listeners/installed"
 import { updateContextMenu } from "./contextMenu"
@@ -32,6 +32,7 @@ browser.tabs.onActivated.addListener(tabActivated);
 browser.tabs.onRemoved.addListener(tabRemoved);
 browser.windows.onRemoved.addListener(windowRemoved);
 browser.windows.onFocusChanged.addListener(windowFocusChanged);
+browser.windows.onCreated.addListener(windowCreated);
 
 // Watch out for any commands
 browser.commands.onCommand.addListener(onCommand);

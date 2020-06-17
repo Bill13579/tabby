@@ -1,4 +1,5 @@
-import { lastRecord, record, restore } from "../recorder"
+import "Polyfill"
+import { record, restore } from "../recorder"
 
 let saveForLaterBtn = document.getElementById("save-for-later");
 let sflTimeout = () => {

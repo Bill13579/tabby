@@ -6,7 +6,9 @@ import { togglePinned, toggleMuted } from "../wtutils";
 export function selectTab(tabEntry) {
     let tabId = getTabId(tabEntry);
     let currentSelected = document.getElementsByClassName("selected-entry");
-    if (currentSelected.length > 0) currentSelected[0].classList.remove("selected-entry");
+    if (currentSelected.length > 0) {
+        currentSelected[0].classList.remove("selected-entry");
+    }
     tabEntry.classList.add("selected-entry");
     captureTab.captureTab(tabId).then(dataUri => {
         if (dataUri !== null) {

@@ -1,0 +1,43 @@
+{
+    "version": 2.1,
+    "last-modified-channel": "Default",
+    "channels": {
+        "Default": {
+            "records": [
+                {
+                    "name": "IMPORTANT RECORD",
+                    "timestamp": 1590342912063,
+                    "windows": [
+                        {
+                            "name": "Work",
+                            "incognito": false,
+                            "tabs": [
+                                {
+                                    "pack": {},
+                                    "url": "google.com",
+                                    "title": "Google",
+                                    "active": true,
+                                    "muted": true,
+                                    "pinned": false,
+                                    "container": {
+                                        "id": "firefox-container-6",
+                                        "name": "Work"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "School",
+                            "incognito": false,
+                            "tabs": [
+                                {
+
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

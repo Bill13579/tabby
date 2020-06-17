@@ -1,6 +1,7 @@
 import "Polyfill"
 import G from "../globals"
-import { updateContextMenu } from "../contextMenu";
+import { setWindowProp, getWindowProps } from "../windowProps";
+import { record, restoreWindow } from "../sfl";
 
 export function onMessage(request, sender) {
     switch (request.type) {
@@ -18,20 +19,18 @@ export function onMessage(request, sender) {
             });
         }
         case "SET_WINDOW_PROPS": {
-            if (!G.windowProperties.hasOwnProperty(request.data.windowId)) {
-                G.windowProperties[request.data.windowId] = {};
-            }
-            if (request.data.name) {
-                G.windowProperties[request.data.windowId]["name"] = request.data.name;
-            } else {
-                delete G.windowProperties[request.data.windowId];
-            }
-            return updateContextMenu();
+            return setWindowProp(request.data.windowId, request.data.name);
         }
         case "GET_WINDOW_PROPS": {
             return Promise.resolve({
-                windowProperties: G.windowProperties
+                windowProperties: getWindowProps()
             });
+        }
+        case "RESTORE_WINDOW": {
+            return restoreWindow(request.data["windowRecord"]);
+        }
+        case "RECORD": {
+            return record(request.data["id"], request.data["name"], request.data["channelName"]);
         }
     }
 }

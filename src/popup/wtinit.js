@@ -170,7 +170,7 @@ export async function updateTabs(windows) {
                 if (!tab.audible) {
                     speakerBtn.setAttribute("data-state", "none");
                 } else {
-                    if (tab.muted) {
+                    if (tab.mutedInfo.muted) {
                         speakerBtn.setAttribute("data-state", "off");
                     } else {
                         speakerBtn.setAttribute("data-state", "on");
@@ -186,6 +186,16 @@ export async function updateTabs(windows) {
 
                 // Make tab entries focusable
                 tabEntry.setAttribute("tabindex", "0");
+
+                // Add contextual identity indicator
+                if (browser.contextualIdentities && !["firefox-default", "firefox-private"].includes(tab.cookieStoreId)) {
+                    await browser.contextualIdentities.get(tab.cookieStoreId).then(ci => {
+                        let contextualIdentityIndicator = document.createElement("div");
+                        contextualIdentityIndicator.classList.add("contextual-identity-indicator");
+                        contextualIdentityIndicator.style.backgroundColor = ci.colorCode;
+                        tabEntryFragment.appendChild(contextualIdentityIndicator);
+                    });
+                }
 
                 // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id));

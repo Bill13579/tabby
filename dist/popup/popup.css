@@ -20,6 +20,7 @@ html, body {
     border-radius: 3px;
     box-shadow: 0 0 1px 1px rgb(92, 92, 92);
     background-color: #fff;
+    z-index: 1001;
 }
 .context-menu[data-state=on] {
     display: block;
@@ -255,6 +256,9 @@ html, body {
     border-color: #f2f2f2;
     border-style: solid;
     border-radius: 2px;
+
+    /* added for contextual identity indicator */
+    position: relative;
 }
 .tab-entry:hover {
     background-color: #f2f2f2;
@@ -310,6 +314,12 @@ html, body {
     -khtml-user-select: none;
     -ms-user-select: none;
     vertical-align: middle;
+}
+.contextual-identity-indicator {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: calc(5px * var(--scale));
 }
 .tab-title, .tab-title-wrapper {
     width: 100%;

@@ -8,7 +8,7 @@ import { restore as recorderRestore, saveForLater } from "./event-listeners/reco
 import { initSearch, searchKeydown, searchTextChanged } from "./event-listeners/search"
 import G from "./globals"
 import { sendRuntimeMessage } from "./messaging"
-import { updateRecorderToolTip } from "./recorder"
+import { restore } from "./recorder"
 import { getWrongToRight } from "./wrong-to-right"
 import { hideTabPreview } from "./wtdom"
 import { extendTabsList, populateTabsList } from "./wtinit"
@@ -57,8 +57,6 @@ async function main() {
     await getWrongToRight();
     // Populate tabs list with tabs
     await populateTabsList();
-    // Update recorder tooltip
-    await updateRecorderToolTip();
     // Initialize components
     initSearch();
     // Event Listeners
@@ -97,7 +95,12 @@ function generalSetup() {
 
     // Add event listener for recorder.js
     document.getElementById("save-for-later").addEventListener("click", saveForLater);
-    document.getElementById("restore-now").addEventListener("click", recorderRestore);
+    document.getElementById("restore-now").addEventListener("click", async () => {
+        let saveForLater = (await browser.storage.sync.get("save-for-later"))["save-for-later"];
+        let lastModified = saveForLater["last-modified-channel"];
+        let recentChannelRecords = saveForLater["channels"][lastModified]["records"];
+        restore(recentChannelRecords[recentChannelRecords.length - 1]);
+    });
 
     // Add event listener to listen for any messages from background.js
     if (!browser.runtime.onMessage.hasListener(onMessage)) {
