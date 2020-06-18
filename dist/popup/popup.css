@@ -151,6 +151,15 @@ html, body {
 .saving-for-later {
     border-style: solid !important;
 }
+#settings-btn {
+    width: 23px;
+    height: 23px;
+    align-self: center;
+    background-image: url(../icons/settings.svg);
+    background-position: center;
+    margin-left: 6px;
+    margin-right: 1px;
+}
 #store {
     width: 16%;
     margin-left: 5.3px;

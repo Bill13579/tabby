@@ -128,6 +128,11 @@ function generalSetup() {
     // Add keydown handler to rename box
     document.getElementById("window-entry-rename-box").addEventListener("keydown", windowEntryRenameBoxKeyDown);
 
+    document.getElementById("settings-btn").addEventListener("click", () => {
+        browser.runtime.openOptionsPage();
+        window.close();
+    });
+
     // Tell background script that popup is being unloaded
     window.addEventListener("unload", () => {
         sendRuntimeMessage("POPUP_UNLOADED", {});
