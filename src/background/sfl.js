@@ -35,11 +35,11 @@ export async function record(ids=undefined, name=null, channelName="Default") {
     let newRecord = await serializeSession(ids, name);
     let data = await browser.storage.sync.get(["save-for-later"]);
     if (data["save-for-later"]["channels"][channelName] !== undefined) {
-        data["save-for-later"]["last-modified-channel"] = channelName;
-        data["save-for-later"]["channels"][channelName]["records"].push(newRecord);
-        if (data["save-for-later"]["channels"][channelName]["records"].length > data["save-for-later"]["channels"][channelName]["maximum-number-of-records"]) {
+        if (data["save-for-later"]["channels"][channelName]["records"].length >= data["save-for-later"]["channels"][channelName]["maximum-number-of-records"]) {
             data["save-for-later"]["channels"][channelName]["records"].shift();
         }
+        data["save-for-later"]["last-modified-channel"] = channelName;
+        data["save-for-later"]["channels"][channelName]["records"].push(newRecord);
     }
     return browser.storage.sync.set(data);
 }
