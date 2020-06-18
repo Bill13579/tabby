@@ -2,7 +2,7 @@
 
 Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.
 
-This is the development branch for Tabby v2.0.
+This is the development branch for Tabby v2.1.
 
 You can install the latest stable version of Tabby on it's Firefox Add-on page: https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/<br/>
 Or, to install the newest development version, see the [Building, Installing, and Editing](#building-installing-and-editing) section.

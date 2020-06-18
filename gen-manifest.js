@@ -4,6 +4,7 @@ if (process.argv.length < 3) {
 const fs = require("fs");
 const path = require("path");
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, "src", "manifest.json"), "utf8").toString())
+const Ext = require("./ext-info");
 let indent = undefined;
 if (process.argv.length === 4 && process.argv[3] === "--pretty") indent = 4;
 switch (process.argv[2]) {
@@ -22,4 +23,5 @@ switch (process.argv[2]) {
     case "chrome":
         break;
 }
+manifest.version = Ext.EXT_VERSION;
 fs.writeFileSync(path.join(__dirname, "dist", "manifest.json"), JSON.stringify(manifest, undefined, indent));

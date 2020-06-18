@@ -2,7 +2,7 @@
 
     "manifest_version": 2,
     "name": "Tabby - Window and Tab Manager",
-    "version": "2.0.3",
+    "version": "<this will be filled in when `gen-manifest` gets run>",
 
     "description": "Manage great amounts of windows and tabs at ease.",
     "icons": {

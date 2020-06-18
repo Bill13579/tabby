@@ -2,6 +2,10 @@ import "Polyfill"
 import { SWITCH_ON, SWITCH_LOCKED_ON, SWITCH_OFF, SWITCH_LOCKED_OFF, INITIAL_OPTIONS } from "./states"
 import { stbool } from "../options"
 
+function fillInVersion() {
+    document.getElementById("version").innerText = "Tabby " + require("../../ext-info").EXT_VERSION;
+}
+
 function setSwitchState(switchElement, state) {
     switch (state) {
         case SWITCH_ON: {
@@ -117,6 +121,7 @@ function addEventListeners() {
 }
 
 function main() {
+    fillInVersion();
     readOptions();
     addEventListeners();
 }
