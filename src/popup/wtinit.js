@@ -139,14 +139,19 @@ export async function updateTabs(windows) {
                 if (tab.active) {
                     tabEntry.classList.add("current-tab");
                 }
+                
                 if (tab.favIconUrl) {
                     favicon = document.createElement("img");
                     favicon.classList.add("tab-entry-favicon");
                     let favIconPromise;
-                    if (w.incognito) {
-                        favIconPromise = getImage(tab.favIconUrl, true);
+                    if (!tab.favIconUrl.startsWith("chrome://")) {
+                        if (w.incognito) {
+                            favIconPromise = getImage(tab.favIconUrl, true);
+                        } else {
+                            favIconPromise = getImage(tab.favIconUrl);
+                        }
                     } else {
-                        favIconPromise = getImage(tab.favIconUrl);
+                        favIconPromise = Promise.resolve(tab.favIconUrl);
                     }
                     favIconPromise.then(base64Image => {
                         favicon.src = base64Image;
