@@ -46,24 +46,22 @@
         },
         "open-tabby-focus-current": {
             "suggested_key": {
-                "default": "Ctrl+Shift+C",
-                "mac": "MacCtrl+Shift+C"
+                "default": "Ctrl+Shift+X",
+                "mac": "MacCtrl+Shift+X"
             },
             "description": "Open Tabby, with focus on the current tab"
         },
         "last-used-tab": {
             "suggested_key": {
-                "default": "Ctrl+1",
-                "windows": "Alt+1",
-                "mac": "MacCtrl+1"
+                "default": "Ctrl+Shift+L",
+                "mac": "MacCtrl+Shift+L"
             },
             "description": "Open last used tab"
         },
         "last-used-window": {
             "suggested_key": {
-                "default": "Ctrl+2",
-                "windows": "Alt+2",
-                "mac": "MacCtrl+2"
+                "default": "Ctrl+Shift+0",
+                "mac": "MacCtrl+Shift+0"
             },
             "description": "Open last used window"
         }
