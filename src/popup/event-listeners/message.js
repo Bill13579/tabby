@@ -19,13 +19,21 @@ export function onMessage(request, sender) {
         case "TAB_FAV_ICON_CHANGED": {
             browser.tabs.get(request.details.tabId).then(tab => {
                 let favIconPromise;
-                if (tab.incognito) {
-                    favIconPromise = getImage(request.details.favIconUrl, true);
+                if (!tab.favIconUrl.startsWith("chrome://")) {
+                    if (tab.incognito) {
+                        favIconPromise = getImage(request.details.favIconUrl, true);
+                    } else {
+                        favIconPromise = getImage(request.details.favIconUrl);
+                    }
                 } else {
-                    favIconPromise = getImage(request.details.favIconUrl);
+                    favIconPromise = Promise.resolve(tab.favIconUrl);
                 }
                 favIconPromise.then(function (base64Image){
-                    getFavIconFromTabEntry(findTabEntryById(request.details.tabId)).src = base64Image;
+                    let tabEntry = findTabEntryById(request.details.tabId);
+                    tabEntry.classList.remove("noicon");
+                    let favIcon = getFavIconFromTabEntry(tabEntry);
+                    favIcon.src = base64Image;
+                    favIcon.style.display = "";
                 });
             });
             break;

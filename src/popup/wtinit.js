@@ -140,9 +140,9 @@ export async function updateTabs(windows) {
                     tabEntry.classList.add("current-tab");
                 }
                 
+                favicon = document.createElement("img");
+                favicon.classList.add("tab-entry-favicon");
                 if (tab.favIconUrl) {
-                    favicon = document.createElement("img");
-                    favicon.classList.add("tab-entry-favicon");
                     let favIconPromise;
                     if (!tab.favIconUrl.startsWith("chrome://")) {
                         if (w.incognito) {
@@ -204,10 +204,10 @@ export async function updateTabs(windows) {
 
                 // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id));
-                if (favicon !== undefined) {
-                    tabEntryFragment.appendChild(favicon);
-                } else {
+                tabEntryFragment.appendChild(favicon);
+                if (favicon === undefined) {
                     tabEntry.classList.add("noicon");
+                    favicon.style.display = "none";
                 }
                 tabEntryFragment.appendChild(titleWrapper);
                 tabEntryFragment.appendChild(buttons);
