@@ -1,6 +1,7 @@
 import "Polyfill"
 import G from "../globals"
 import { sendTabMessage } from "../messaging"
+import { updateContextMenu } from "../contextMenu";
 
 export function windowFocusChanged(windowId) {
     if (windowId !== browser.windows.WINDOW_ID_NONE) {
@@ -37,4 +38,9 @@ export function windowRemoved(windowId) {
         G.currentWindowId = undefined;
         G.dropCurrentWindowId = false;
     }
+    updateContextMenu();
+}
+
+export function windowCreated(w) {
+    updateContextMenu();
 }

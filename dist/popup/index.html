@@ -5,6 +5,18 @@
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body>
+        <div class="context-menu" id="window-entry-context-menu">
+            <ul>
+                <li id="window-entry-context-menu-rename">Give the window a purpose</li>
+            </ul>
+        </div>
+        <div class="context-menu" id="window-entry-context-menu-purpose">
+            <div style="display: flex; flex-flow: row; align-items: center; padding: 4px;">
+                <input type="text" id="window-entry-rename-box" style="display: inline-block;" />
+                <span class="inline-button img-button opacity-changing-button" id="window-entry-rename-btn"></span>
+                <span class="inline-button img-button opacity-changing-button" id="window-entry-rename-cancel-btn"></span>
+            </div>
+        </div>
         <div id="saved-for-later-tabs">
             <ul id="saved-for-later-tabs-list" class="categories-list"></ul>
         </div>
@@ -41,6 +53,7 @@
                         <div id="restore-now" title="Restore websites that have been saved for later"></div>
                     </div>
                     <input id="search" type="text" placeholder="Search Tabs" />
+                    <span id="settings-btn" class="inline-button img-button opacity-changing-button"></span>
                 </div>
                 <div id="tabs">
                     <ul id="tabs-list" class="categories-list"></ul>

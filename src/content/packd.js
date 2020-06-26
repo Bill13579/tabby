@@ -29,14 +29,15 @@ function setVideoStats(data) {
 
 module("packd", data => {
     switch (data.action) {
-        case "pack":
+        case "pack": {
             return Promise.resolve(Object.assign({
                 packContents: {
                     scroll: true,
                     videoStats: true
                 }
             }, getScroll(), getVideoStats()));
-        case "unpack":
+        }
+        case "unpack": {
             return new Promise((resolve, reject) => {
                 let unpack = () => {
                     console.log("Unpacking");
@@ -51,5 +52,6 @@ module("packd", data => {
                     unpack();
                 }
             });
+        }
     }
 });

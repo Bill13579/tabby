@@ -1,6 +1,6 @@
-import "Polyfill"
-import G from "./globals"
-import { getCorrectTabId } from "./wrong-to-right"
+import "Polyfill";
+import G from "./globals";
+import { getCorrectTabId } from "./wrong-to-right";
 import { getLastFocusedWindow } from "./wtutils";
 
 // Select tab and go to it
@@ -21,6 +21,17 @@ export function selectTabEntry(tabEntry) {
             }
         });
     });
+}
+
+// Close a tab and remove it's corresponding tab entry
+export function closeTabEntry(tabEntry) {
+    let tabId = tabEntry.getAttribute("data-tab_id");
+    let tabDetails = document.getElementById("tab-details");
+    if (tabDetails.getAttribute("data-tab_id") === tabId) {
+        tabDetails.style.display = "none";
+        document.getElementById("details-placeholder").style.display = "inline-block";
+    }
+    browser.tabs.remove(parseInt(tabId));
 }
 
 // Hides the tab preview
@@ -132,9 +143,8 @@ export function getTabEntriesFromWindow(windowEntry) {
 }
 
 // Test if tab is draggable
-export function tabDraggable(sourceTab, targetTab, under, sourceWindow, multiDragging) {
+export function tabDraggable(sourceTab, targetTab, under, sourceWindow) {
     return !sourceTab.isSameNode(targetTab)
-            && (!multiDragging || (multiSelected(sourceTab) && multiSelected(targetTab)))
             && ((!sourceTab.classList.contains("pinned-tab") && !targetTab.classList.contains("pinned-tab"))
                 || (sourceTab.classList.contains("pinned-tab") && targetTab.classList.contains("pinned-tab"))
                 || (under && !sourceTab.classList.contains("pinned-tab")))
@@ -161,83 +171,50 @@ export function tabEntryIndex(tabEntry) {
     return -1;
 }
 
+let dirGetAdjDict = {
+    "DOWN": e => e.nextElementSibling,
+    "UP": e => e.previousElementSibling
+};
+let dirGetCrossIndexDict = {
+    "DOWN": s => 0,
+    "UP": s => s-1
+};
+
 // Get next tab
-export function getNextTabEntry(tabEntry) {
-    if (tabEntry.nextElementSibling !== null) {
-        return tabEntry.nextElementSibling;
-    } else if (getWindowFromTab(tabEntry).nextElementSibling !== null) {
-        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).nextElementSibling)[0];
-    } else {
-        return null;
-    }
-}
-// Get last tab
-export function getLastTabEntry(tabEntry) {
-    if (tabEntry.previousElementSibling !== null) {
-        return tabEntry.previousElementSibling;
-    } else if (getWindowFromTab(tabEntry).previousElementSibling !== null) {
-        return getTabEntriesFromWindow(getWindowFromTab(tabEntry).previousElementSibling)[0];
-    } else {
-        return null;
-    }
-}
-
-/* Multiselect */
-// On multiselect start
-function onMultiselectStart() {
-
-}
-// On multiselect change
-function onMultiselectChange() {
-
-}
-// On multiselect end
-function onMultiselectEnd() {
-
-}
-// Get Selected Items
-export function getSelectedItems() {
-    return Array.from(document.getElementsByClassName("multiselect"));
-}
-// Multiselected
-export function multiSelected(element) {
-    return element.classList.contains("multiselect");
-}
-// Select
-export function multiSelect(element) {
-    if (!element.classList.contains("multiselect")) {
-        G.selectedTabs++;
-        G.isSelecting = true;
-        element.classList.add("multiselect");
-    }
-}
-// Cancel Selection
-export function multiSelectCancel(element) {
-    if (element.classList.contains("multiselect")) {
-        if (--G.selectedTabs == 0) {
-            G.isSelecting = false;
+export function getAdjTabEntry(tabEntry, dir) {
+    let getNextAdj = dirGetAdjDict[dir];
+    let getCrossIndex = dirGetCrossIndexDict[dir];
+    let next = null;
+    if (getNextAdj(tabEntry) !== null) {
+        let possibility = null;
+        while ((possibility = getNextAdj(tabEntry)) !== null) {
+            if (!possibility.classList.contains("non-matching")) {
+                next = possibility;
+                break;
+            }
+            tabEntry = possibility;
         }
-        element.classList.remove("multiselect");
     }
-}
-// Reset multiselect
-export function multiSelectReset() {
-    for (let element of Array.from(document.getElementsByClassName("multiselect"))) {
-        element.classList.remove("multiselect");
+    if (next === null) {
+        let nextWindow = null;
+        while ((nextWindow = getNextAdj(getWindowFromTab(tabEntry))) !== null) {
+            let nextWindowTabEntries = getTabEntriesFromWindow(nextWindow).filter(t => !t.classList.contains("non-matching"));
+            if (nextWindowTabEntries.length > 0) {
+                next = nextWindowTabEntries[getCrossIndex(nextWindowTabEntries.length)];
+                break;
+            }
+        }
     }
-    G.selectedTabs = 0;
-    G.isSelecting = false;
+    return next;
 }
-// Toggle Selection
-export function multiSelectToggle(element) {
-    if (element.classList.contains("multiselect")) {
-        multiSelectCancel(element);
-    } else {
-        multiSelect(element);
-    }
-}
-// Reset slide selection
-export function resetSlideSelection() {
-    G.slideSelection.sliding = false;
-    G.slideSelection.initiator = undefined;
+
+export function getInView(e, alignToTop) {
+    let tbounding = document.querySelector("#tabs").getBoundingClientRect();
+    let bounding = e.getBoundingClientRect();
+    if (tbounding.y > bounding.y
+        || tbounding.y > (bounding.y + bounding.height)
+        || bounding.y >= (tbounding.y + tbounding.height)
+        || (bounding.y + bounding.height) >= (tbounding.y + tbounding.height)) {
+            e.scrollIntoView(alignToTop);
+        }
 }

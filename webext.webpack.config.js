@@ -3,8 +3,7 @@ const {DefinePlugin} = require("webpack");
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
-    mode: "development",
-    devtool: "inline-source-map",
+    mode: "production",
     resolve: {
         alias: {
             Polyfill: path.resolve(__dirname, "src/polyfill.js")

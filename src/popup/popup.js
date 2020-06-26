@@ -1,16 +1,18 @@
 import "Polyfill"
-import G from "./globals"
-import { getWrongToRight } from "./wrong-to-right"
-import { populateTabsList, extendTabsList } from "./wtinit"
-import { getActualWidth } from "./domutils"
-import { documentMouseOver, documentMouseUp, documentClicked, documentKeyPressed } from "./event-listeners/document"
-import { searchTextChanged, initSearch } from "./event-listeners/search"
-import { onMessage } from "./event-listeners/message"
-import { saveForLater, restore as recorderRestore } from "./event-listeners/recorder"
-import * as captureTab from "./captureTab"
 import * as Options from "../options"
+import * as captureTab from "./captureTab"
+import { getActualWidth, showContextMenu } from "./domutils"
+import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
+import { onMessage } from "./event-listeners/message"
+import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
+import { initSearch, searchKeydown, searchTextChanged } from "./event-listeners/search"
+import G from "./globals"
+import { sendRuntimeMessage } from "./messaging"
+import { restore } from "./recorder"
+import { getWrongToRight } from "./wrong-to-right"
 import { hideTabPreview } from "./wtdom"
-import { updateRecorderToolTip } from "./recorder";
+import { extendTabsList, populateTabsList } from "./wtinit"
+import { windowEntryRenameContextMenu, windowEntryRename, windowEntryRenameCancel, windowEntryRenameBoxKeyDown } from "./event-listeners/windowEntryRename"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -55,10 +57,10 @@ async function main() {
     await getWrongToRight();
     // Populate tabs list with tabs
     await populateTabsList();
-    // Update recorder tooltip
-    await updateRecorderToolTip();
     // Initialize components
     initSearch();
+    // Event Listeners
+    generalSetup();
 }
 
 /* Add event listeners */
@@ -70,37 +72,72 @@ if (document.readyState === "loading") {
     main();
 }
 
-document.addEventListener("mouseover", documentMouseOver);
-document.addEventListener("mouseup", documentMouseUp);
-document.addEventListener("click", documentClicked);
-document.addEventListener("keypress", documentKeyPressed);
+function generalSetup() {
+    document.addEventListener("mouseover", documentMouseOver);
+    document.addEventListener("click", documentClicked);
+    document.addEventListener("keydown", documentKeyDown);
 
-// Add keyup event listener and put focus on search
-let search = document.getElementById("search");
-search.addEventListener("keyup", searchTextChanged);
-search.focus();
+    // Add event listeners to all copy buttons
+    let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
+    for (let i = 0; i < copyButtons.length; i++) {
+        copyButtons[i].addEventListener("click", e => {
+            document.oncopy = ce => {
+                ce.clipboardData.setData("text", document.getElementById(e.target.getAttribute("for")).innerText);
+                ce.preventDefault();
+            };
+            document.execCommand("copy", false, null);
+            e.target.innerText = "Copied!";
+            setTimeout(() => {
+                e.target.innerText = "Copy";
+            }, 2000);
+        });
+    }
 
-// Add event listeners to all copy buttons
-let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
-for (let i = 0; i < copyButtons.length; i++) {
-    copyButtons[i].addEventListener("click", e => {
-        document.oncopy = ce => {
-            ce.clipboardData.setData("text", document.getElementById(e.target.getAttribute("for")).innerText);
-            ce.preventDefault();
-        };
-        document.execCommand("copy", false, null);
-        e.target.innerText = "Copied!";
-        setTimeout(() => {
-            e.target.innerText = "Copy";
-        }, 2000);
+    // Add event listener for recorder.js
+    document.getElementById("save-for-later").addEventListener("click", saveForLater);
+    document.getElementById("restore-now").addEventListener("click", async () => {
+        let saveForLater = (await browser.storage.sync.get("save-for-later"))["save-for-later"];
+        let lastModified = saveForLater["last-modified-channel"];
+        let recentChannelRecords = saveForLater["channels"][lastModified]["records"];
+        restore(recentChannelRecords[recentChannelRecords.length - 1]);
     });
-}
 
-// Add event listener for recorder.js
-document.getElementById("save-for-later").addEventListener("click", saveForLater);
-document.getElementById("restore-now").addEventListener("click", recorderRestore);
+    // Add event listener to listen for any messages from background.js
+    if (!browser.runtime.onMessage.hasListener(onMessage)) {
+        browser.runtime.onMessage.addListener(onMessage);
+    }
 
-// Add event listener to listen for any messages from background.js
-if (!browser.runtime.onMessage.hasListener(onMessage)) {
-    browser.runtime.onMessage.addListener(onMessage);
+    // Add keyup event listener and put focus on search
+    let search = document.getElementById("search");
+    search.addEventListener("keydown", searchKeydown);
+    search.addEventListener("keyup", searchTextChanged);
+    search.focus();
+
+    // Do stopPropagation for all clicks that happen within context menus
+    for (let menu of document.getElementsByClassName("context-menu")) {
+        menu.addEventListener("click", e => e.stopPropagation());
+        menu.addEventListener("keydown", e => e.stopPropagation());
+    }
+
+    // Rename context menu
+    document.getElementById("window-entry-context-menu-rename").addEventListener("click", windowEntryRenameContextMenu);
+    // Add event handler to handle cancellation of rename
+    document.getElementById("window-entry-rename-cancel-btn").addEventListener("click", windowEntryRenameCancel);
+    // Add event handler to handle rename
+    document.getElementById("window-entry-rename-btn").addEventListener("click", windowEntryRename);
+    // Add keydown handler to rename box
+    document.getElementById("window-entry-rename-box").addEventListener("keydown", windowEntryRenameBoxKeyDown);
+
+    document.getElementById("settings-btn").addEventListener("click", () => {
+        browser.runtime.openOptionsPage();
+        window.close();
+    });
+
+    // Tell background script that popup is being unloaded
+    window.addEventListener("unload", () => {
+        sendRuntimeMessage("POPUP_UNLOADED", {});
+    });
+
+    // Tell background script that everything is loaded now
+    sendRuntimeMessage("INIT__POPUP_LOADED", {});
 }

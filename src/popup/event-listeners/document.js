@@ -1,41 +1,88 @@
-import "Polyfill"
-import G from "../globals"
-import { resetSlideSelection, multiSelectReset, getTabId, selectTabEntry } from "../wtdom"
+import "Polyfill";
+import { getTabId, getAdjTabEntry, getInView, selectTabEntry, closeTabEntry } from "../wtdom";
+import { selectTab } from "./tabEntry";
+import { toggleMuted, togglePinned } from "../wtutils";
 
 export function documentMouseOver(e) {
     e.preventDefault();
 }
 
-export function documentMouseUp(e) {
-    if (G.slideSelection.sliding) resetSlideSelection();
-}
-
 export function documentClicked(e) {
+    for (let menu of document.getElementsByClassName("context-menu")) menu.removeAttribute("data-state");
     if (e.button === 0) {
         if (e.target.id === "details-close") {
             document.getElementById("details-placeholder").style.display = "inline-block";
             document.getElementById("tab-details").style.display = "none";
             browser.tabs.remove(getTabId(document.getElementById("tab-details")));
-        } else { // Note: May cause some problems
-            if (G.isSelecting) multiSelectReset();
         }
     }
 }
 
-function isInlinePrintableKey(e) {
-    if (typeof e.which === "undefined") {
-        return true;
-    } else if (typeof e.which === "number" && e.which > 0) {
-        return !e.ctrlKey && !e.metaKey && !e.altKey && e.which !== 8 && e.which !== 13;
-    }
-}
-
 export function documentKeyPressed(e) {
-    if (isInlinePrintableKey(e)) {
-        document.getElementById("search").focus();
-    } else if (e.key === "Enter") {
-        if (G.selectedTabs === 1) {
-            selectTabEntry(document.getElementsByClassName("multiselect")[0]);
+    e.preventDefault();
+    switch (e.code) {
+        case "KeyS": {
+            document.getElementById("search").focus();
+            break;
+        }
+        case "KeyM": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                toggleMuted(getTabId(selectedTabEntries[0]));
+            }
+            break;
+        }
+        case "KeyP": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                togglePinned(getTabId(selectedTabEntries[0]));
+            }
+            break;
+        }
+        case "ArrowDown":
+        case "ArrowUp": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                let selectedTabEntry = selectedTabEntries[0];
+                let adjTabEntry = getAdjTabEntry(selectedTabEntry, {
+                    "ArrowDown": "DOWN",
+                    "ArrowUp": "UP"
+                }[e.code]);
+                if (adjTabEntry !== null) {
+                    selectTab(adjTabEntry);
+                    getInView(adjTabEntry, e.code === "ArrowUp");
+                }
+            }
+            break;
+        }
+        case "Enter": {
+            let selectedTabEntries = document.getElementsByClassName("selected-entry");
+            if (selectedTabEntries.length > 0) {
+                selectedTabEntries[0].classList.add("going-to-this-entry");
+                selectTabEntry(selectedTabEntries[0]);
+                setTimeout(() => {
+                    selectedTabEntries[0].classList.remove("going-to-this-entry");
+                }, 50);
+            }
+            break;
+        }
+        case "Delete": {
+            let selectedTabEntries = Array.from(document.getElementsByClassName("selected-entry"));
+            if (selectedTabEntries.length > 0) {
+                selectedTabEntries[0].classList.add("going-to-this-entry");
+                let newSelected = getAdjTabEntry(selectedTabEntries[0], "DOWN");
+                if (newSelected !== null) {
+                    selectTab(newSelected);
+                    newSelected = null;
+                } else {
+                    newSelected = getAdjTabEntry(selectedTabEntries[0], "UP");
+                }
+                if (newSelected !== null) {
+                    selectTab(newSelected);
+                }
+                closeTabEntry(selectedTabEntries[0]);
+            }
+            break;
         }
     }
 }

@@ -12,6 +12,43 @@ html, body {
     height: 450px;
     margin: 0;
 }
+.context-menu {
+    position: absolute;
+    display: none;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 3px;
+    box-shadow: 0 0 1px 1px rgb(92, 92, 92);
+    background-color: #fff;
+    z-index: 1001;
+}
+.context-menu[data-state=on] {
+    display: block;
+}
+.context-menu ul {
+    list-style: none;
+}
+.context-menu li, .context-menu label {
+    line-height: 20px;
+    padding: 5px;
+    padding-left: 12px;
+    padding-right: 12px;
+    user-select: none;
+}
+.context-menu li:hover {
+    background-color: rgb(227, 227, 227);
+}
+.context-menu label {
+    color: rgb(108, 108, 108);
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding-left: 6px;
+    padding-top: 10px;
+    padding-bottom: 7px;
+    line-height: 2px;
+    display: block;
+}
 .button:hover, .button:active {
     background-color: #a3c6ff;
 }
@@ -78,22 +115,10 @@ html, body {
 #container {
     width: calc(100% - 28.5px * var(--scale));
     height: calc(100% - 28.5px * var(--scale));
-    padding-top: calc(8.5px * var(--scale));
-    padding-bottom: calc(8.5px * var(--scale));
-    padding-left: calc(14.25px * var(--scale));
+    padding-top: calc(10px * var(--scale));
+    padding-bottom: calc(10px * var(--scale));
+    padding-left: calc(14.75px * var(--scale));
     padding-right: calc(14.25px * var(--scale));
-}
-.current-tab {
-    background-color: #b7e7ff !important;
-}
-.multiselect {
-    background-color: #7ad0ff !important;
-    border-style: none none none solid;
-    border-width: calc(3px * var(--scale));
-    border-color: #008cff;
-}
-.current-tab.multiselect {
-    background-color: #4fc1ff !important;
 }
 .current-window > span {
     background-color: #3592fc;
@@ -103,12 +128,6 @@ html, body {
 }
 .incognito-window > span:hover, .incognito-window > span:active {
     background-color: rgb(128, 0, 128);
-}
-.incognito-window > ul > li {
-    background-color: rgb(255, 197, 255) !important;
-}
-.incognito-window > ul > li:hover, .incognito-window > ul > li:active {
-    background-color: rgb(255, 124, 255) !important;
 }
 #details-pinned, #details-hidden {
     display: none;
@@ -131,6 +150,15 @@ html, body {
 }
 .saving-for-later {
     border-style: solid !important;
+}
+#settings-btn {
+    width: 23px;
+    height: 23px;
+    align-self: center;
+    background-image: url(../icons/settings.svg);
+    background-position: center;
+    margin-left: 6px;
+    margin-right: 1px;
 }
 #store {
     width: 16%;
@@ -232,6 +260,57 @@ html, body {
     align-items: center;
     height: calc(28px * var(--scale));
     overflow: hidden;
+
+    border-width: 2px;
+    border-color: #f2f2f2;
+    border-style: solid;
+    border-radius: 2px;
+
+    /* added for contextual identity indicator */
+    position: relative;
+}
+.tab-entry:hover {
+    background-color: #f2f2f2;
+}
+.incognito-window .tab-entry:hover {
+    background-color: #f2f2f2;
+}
+/*.incognito-window .tab-entry {
+    background-color: rgb(255, 197, 255);
+    border-color: rgb(255, 197, 255);
+}*/
+.tab-entry.non-matching {
+    display: none;
+}
+.tab-entry.current-tab {
+    border-color: #b6d2ff;
+}
+.incognito-window .tab-entry.current-tab {
+    border-color: rgb(255, 151, 255);
+}
+.tab-entry.selected-entry, .incognito-window .tab-entry.selected-entry {
+    border-color: #000000;
+}
+.tab-entry.selected-entry .tab-entry-pin-btn {
+    display: inline-block;
+}
+.tab-entry.selected-entry {
+    background-color: #f2f2f2;
+}
+/*.incognito-window .tab-entry.selected-entry {
+    background-color: rgb(255, 197, 255);
+}*/
+.tab-entry.selected-entry.going-to-this-entry {
+    background-color: #ffffff;
+}
+.incognito-window .tab-entry.selected-entry.going-to-this-entry {
+    background-color: #fde1ff;
+}
+.tab-entry.current-tab {
+    background-color: #b6d2ff;
+}
+.incognito-window .tab-entry.current-tab {
+    background-color: rgb(255, 151, 255);
 }
 .tab-entry-favicon {
     vertical-align: middle;
@@ -244,6 +323,12 @@ html, body {
     -khtml-user-select: none;
     -ms-user-select: none;
     vertical-align: middle;
+}
+.contextual-identity-indicator {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: calc(5px * var(--scale));
 }
 .tab-title, .tab-title-wrapper {
     width: 100%;
@@ -272,11 +357,38 @@ html, body {
     height: calc(19px * var(--scale));
     display: block;
 }
-.tab-entry-pin-btn {
+.tab-entry-pin-btn, .tab-entry-speaker-btn {
     width: calc(18px * var(--scale));
     height: calc(18px * var(--scale));
     margin-right: 5px;
     vertical-align: middle;
+}
+.tab-entry-speaker-btn[data-state=none] {
+    display: none;
+}
+.tab-entry-speaker-btn[data-state=on] {
+    background-image: url(../icons/volume-up.svg);
+}
+.tab-entry-speaker-btn[data-state=off] {
+    background-image: url(../icons/volume-off.svg);
+}
+#window-entry-rename-btn, #window-entry-rename-cancel-btn {
+    width: calc(28px * var(--scale));
+    height: calc(28px * var(--scale));
+    margin-left: 3px;
+    vertical-align: middle;
+    mask-size: calc(32px * var(--scale));
+    mask-repeat: no-repeat;
+    min-width: calc(32px * var(--scale));
+    display: inline-block;
+}
+#window-entry-rename-btn {
+    mask-image: url(../icons/done.svg);
+    background-color: #006400;
+}
+#window-entry-rename-cancel-btn {
+    mask-image: url(../icons/close.svg);
+    background-color: #8b0000;
 }
 .details-tab-remove-btn {
     width: calc(25px * var(--scale));
@@ -303,11 +415,11 @@ html, body {
     display: -moz-flex;
     display: flex;
 }
-.tab-entry-buttons *:not(.tab-entry-remove-btn) {
+.tab-entry-buttons .tab-entry-pin-btn {
     display: none;
 }
-.tab-entry.pinned-tab .tab-entry-buttons *:not(.tab-entry-remove-btn) {
-    display: inline-block !important;
+.tab-entry.pinned-tab .tab-entry-buttons .tab-entry-pin-btn {
+    display: inline-block;
 }
 .tab-details {
     font-size: calc(15.5px * var(--scale));
@@ -350,7 +462,7 @@ html, body {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    padding-right: 10px;
+    padding-right: 4px;
     box-sizing: border-box;
 }
 #actions {
@@ -367,7 +479,7 @@ html, body {
     text-align: center;
 }
 #tabs-container {
-    height: inherit;
+    height: 99%;
     width: 45%;
 }
 #tabs, #tab-details {

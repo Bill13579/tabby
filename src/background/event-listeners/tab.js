@@ -35,6 +35,18 @@ export function tabUpdated(tabId, changeInfo, tab) {
             title: changeInfo.title
         }, "TAB_TITLE_CHANGED");
     }
+    if (changeInfo.audible !== undefined) {
+        sendTabMessage({
+            tabId: getCorrectTabId(tabId),
+            audible: changeInfo.audible
+        }, "TAB_AUDIBLE_CHANGED");
+    }
+    if (changeInfo.mutedInfo !== undefined) {
+        sendTabMessage({
+            tabId: getCorrectTabId(tabId),
+            mutedInfo: changeInfo.mutedInfo
+        }, "TAB_MUTE_CHANGED");
+    }
 }
 
 export function tabRemoved(tabId, removeInfo) {

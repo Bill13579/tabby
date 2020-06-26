@@ -7,6 +7,11 @@ const globals = {
     lastWindowId: undefined,
     currentWindowId: undefined,
     dropCurrentTabId: false,
-    dropCurrentWindowId: false
+    dropCurrentWindowId: false,
+    windowProperties: {},
+    events: {
+        onpopuploaded: undefined,
+        onpopupunloaded: undefined
+    }
 };
 export default globals;

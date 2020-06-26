@@ -8,14 +8,14 @@ export const SWITCH_LOCKED_OFF = -1;
 export const INITIAL_OPTIONS = {
     popup: {
         size: {
-            width: 730,
-            height: 450
+            width: 760,
+            height: 465
         },
-        scale: 1.0,
+        scale: 0.9,
         showDetails: SWITCH_ON,
         showPreview: SWITCH_ON,
         hideAfterTabSelection: SWITCH_ON,
-        searchInURLs: SWITCH_OFF
+        searchInURLs: SWITCH_ON
     }
 };
 if (TargetBrowser === "chrome") {

@@ -4,11 +4,14 @@ import { getImage } from "./net"
 import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
-import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick } from "./event-listeners/windowEntry"
-import { tabEntryMouseOver, tabEntryMouseLeave, tabEntryClicked, tabCloseClick, tabPinClick } from "./event-listeners/tabEntry"
+import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick, windowEntryContextMenu } from "./event-listeners/windowEntry"
+import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
+import { sendRuntimeMessage } from "./messaging"
 
 // Update tabs
-export function updateTabs(windows) {
+export async function updateTabs(windows) {
+    let { windowProperties } = await sendRuntimeMessage("GET_WINDOW_PROPS", {});
+
     G.tabsList.innerHTML = "";
     let tabsListFragment = document.createDocumentFragment();
     let currentWindowEntry;
@@ -37,6 +40,12 @@ export function updateTabs(windows) {
     TAB_PIN_BTN.classList.add("opacity-changing-button");
     TAB_PIN_BTN.classList.add("tab-entry-pin-btn");
     TAB_PIN_BTN.style.backgroundImage = "url(../icons/pin.svg)";
+    // Tab speaker control button
+    let TAB_SPEAKER_BTN = document.createElement("span");
+    TAB_SPEAKER_BTN.classList.add("inline-button");
+    TAB_SPEAKER_BTN.classList.add("img-button");
+    TAB_SPEAKER_BTN.classList.add("opacity-changing-button");
+    TAB_SPEAKER_BTN.classList.add("tab-entry-speaker-btn");
     // Loop through windows
     for (let i = 0; i < windows.length; i++) {
         // Set w to window
@@ -54,6 +63,7 @@ export function updateTabs(windows) {
         windowEntry.setAttribute("data-window_id", w.id);
         let span = document.createElement("span");
         span.addEventListener("click", windowEntryTitleClicked);
+        span.addEventListener("contextmenu", windowEntryContextMenu);
 
         // Create close button
         let closeBtn = WINDOW_CLOSE_BTN.cloneNode(true);
@@ -67,7 +77,11 @@ export function updateTabs(windows) {
         // Create window name span
         let windowName = document.createElement("span");
         windowName.classList.add("window-title");
-        windowName.textContent += "Window " + (i+1);
+        if (windowProperties.hasOwnProperty(w.id)) {
+            windowName.textContent += windowProperties[w.id].name + " (" + (i+1) + ")";
+        } else {
+            windowName.textContent += "Window " + (i+1);
+        }
 
         // Check if window is focused
         if (w.focused) {
@@ -125,14 +139,19 @@ export function updateTabs(windows) {
                 if (tab.active) {
                     tabEntry.classList.add("current-tab");
                 }
+                
+                favicon = document.createElement("img");
+                favicon.classList.add("tab-entry-favicon");
                 if (tab.favIconUrl) {
-                    favicon = document.createElement("img");
-                    favicon.classList.add("tab-entry-favicon");
                     let favIconPromise;
-                    if (w.incognito) {
-                        favIconPromise = getImage(tab.favIconUrl, true);
+                    if (!tab.favIconUrl.startsWith("chrome://")) {
+                        if (w.incognito) {
+                            favIconPromise = getImage(tab.favIconUrl, true);
+                        } else {
+                            favIconPromise = getImage(tab.favIconUrl);
+                        }
                     } else {
-                        favIconPromise = getImage(tab.favIconUrl);
+                        favIconPromise = Promise.resolve(tab.favIconUrl);
                     }
                     favIconPromise.then(base64Image => {
                         favicon.src = base64Image;
@@ -149,18 +168,46 @@ export function updateTabs(windows) {
                 pinBtn.addEventListener("click", tabPinClick);
                 pinBtn.addEventListener("mouseover", stopPropagation);
 
+                // Create speaker button
+                let speakerBtn = TAB_SPEAKER_BTN.cloneNode(false);
+                speakerBtn.addEventListener("click", tabSpeakerControlClick);
+                speakerBtn.addEventListener("mouseover", stopPropagation);
+                if (!tab.audible) {
+                    speakerBtn.setAttribute("data-state", "none");
+                } else {
+                    if (tab.mutedInfo.muted) {
+                        speakerBtn.setAttribute("data-state", "off");
+                    } else {
+                        speakerBtn.setAttribute("data-state", "on");
+                    }
+                }
+
                 // Buttons wrapper
                 buttons = document.createElement("span");
                 buttons.classList.add("tab-entry-buttons");
                 buttons.appendChild(pinBtn);
+                buttons.appendChild(speakerBtn);
                 buttons.appendChild(closeBtn);
+
+                // Make tab entries focusable
+                tabEntry.setAttribute("tabindex", "0");
+
+                // Add contextual identity indicator
+                if (browser.contextualIdentities && !["firefox-default", "firefox-private"].includes(tab.cookieStoreId)) {
+                    await browser.contextualIdentities.get(tab.cookieStoreId).then(ci => {
+                        let contextualIdentityIndicator = document.createElement("div");
+                        contextualIdentityIndicator.classList.add("contextual-identity-indicator");
+                        contextualIdentityIndicator.style.backgroundColor = ci.colorCode;
+                        tabEntryFragment.appendChild(contextualIdentityIndicator);
+                    });
+                }
 
                 // Set tab entry tab id
                 tabEntry.setAttribute("data-tab_id", getCorrectTabId(tab.id));
-                if (favicon !== undefined) {
-                    tabEntryFragment.appendChild(favicon);
-                } else {
+                tabEntryFragment.appendChild(favicon);
+                if (favicon === undefined) {
                     tabEntry.classList.add("noicon");
+                    favicon.style.display = "none";
                 }
                 tabEntryFragment.appendChild(titleWrapper);
                 tabEntryFragment.appendChild(buttons);
@@ -168,7 +215,6 @@ export function updateTabs(windows) {
                 tabEntry.appendChild(tabEntryFragment);
 
                 tabEntry.addEventListener("mouseover", tabEntryMouseOver);
-                tabEntry.addEventListener("mouseleave", tabEntryMouseLeave);
                 tabEntry.addEventListener("click", tabEntryClicked);
 
                 if (tab.pinned) {
@@ -204,7 +250,7 @@ export function updateTabs(windows) {
 export async function populateTabsList() {
     let windows = await getWindows();
     await correctFocused(windows);
-    updateTabs(windows);
+    await updateTabs(windows);
 }
 
 // Set tabs list height to any available height
