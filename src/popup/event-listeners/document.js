@@ -21,7 +21,7 @@ export function documentClicked(e) {
 export function documentKeyPressed(e) {
     e.preventDefault();
     switch (e.code) {
-        case "KeyX": {
+        case "KeyS": {
             document.getElementById("search").focus();
             break;
         }
