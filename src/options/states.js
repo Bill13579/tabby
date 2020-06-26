@@ -9,7 +9,7 @@ export const INITIAL_OPTIONS = {
     popup: {
         size: {
             width: 760,
-            height: 477
+            height: 465
         },
         scale: 0.9,
         showDetails: SWITCH_ON,

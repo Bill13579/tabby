@@ -117,7 +117,7 @@ html, body {
     height: calc(100% - 28.5px * var(--scale));
     padding-top: calc(10px * var(--scale));
     padding-bottom: calc(10px * var(--scale));
-    padding-left: calc(14.25px * var(--scale));
+    padding-left: calc(14.75px * var(--scale));
     padding-right: calc(14.25px * var(--scale));
 }
 .current-window > span {
@@ -479,7 +479,7 @@ html, body {
     text-align: center;
 }
 #tabs-container {
-    height: inherit;
+    height: 99%;
     width: 45%;
 }
 #tabs, #tab-details {
