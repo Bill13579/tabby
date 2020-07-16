@@ -511,6 +511,18 @@ html, body {
     -khtml-user-select: none;
     -ms-user-select: none;
 }
+#unloaded-tab-preview-placeholder {
+    display: none;
+    width: 100%;
+    height: 150px;
+    color: #d4d4d4;
+}
+#unloaded-tab-preview-placeholder-text::before {
+    content: 'THIS TAB IS UNLOADED. CLICK TO RELOAD';
+}
+#unloaded-tab-preview-placeholder-text[data-loading]::before {
+    content: 'LOADING...';
+}
 #details-title, #details-url, label[for="details-title"], label[for="details-url"] {
     font-size: calc(17.1px * var(--scale));
 }

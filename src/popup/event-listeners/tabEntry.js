@@ -10,32 +10,39 @@ export function selectTab(tabEntry) {
         currentSelected[0].classList.remove("selected-entry");
     }
     tabEntry.classList.add("selected-entry");
-    captureTab.captureTab(tabId).then(dataUri => {
-        if (dataUri !== null) {
-            document.getElementById("details-img").src = dataUri;
+    browser.tabs.get(tabId).then(tab => {
+        if (tab.discarded) {
+            document.getElementById("unloaded-tab-preview-placeholder").style.display = "block";
+            document.getElementById("details-img").style.display = "none";
+        } else {
+            document.getElementById("unloaded-tab-preview-placeholder").style.display = "";
+            document.getElementById("details-img").style.display = "";
+            captureTab.captureTab(tabId).then(dataUri => {
+                if (dataUri !== null) {
+                    document.getElementById("details-img").src = dataUri;
+                }
+            });
         }
-        browser.tabs.get(tabId).then(tab => {
-            document.getElementById("details-title").textContent = tab.title;
-            document.getElementById("details-url").textContent = tab.url;
-            document.getElementById("details-placeholder").style.display = "none";
-            document.getElementById("tab-details").style.display = "inline-block";
-            document.getElementById("tab-details").setAttribute("data-tab_id", tabId);
-            if (tab.pinned) {
-                document.getElementById("details-pinned").style.display = "inline";
-            } else {
-                document.getElementById("details-pinned").style.display = "none";
-            }
-            if (tab.hidden) {
-                document.getElementById("details-hidden").style.display = "inline";
-            } else {
-                document.getElementById("details-hidden").style.display = "none";
-            }
-            if (tab.pinned && tab.hidden) {
-                document.getElementById("details-comma").style.display = "inline";
-            } else {
-                document.getElementById("details-comma").style.display = "none";
-            }
-        });
+        document.getElementById("details-title").textContent = tab.title;
+        document.getElementById("details-url").textContent = tab.url;
+        document.getElementById("details-placeholder").style.display = "none";
+        document.getElementById("tab-details").style.display = "inline-block";
+        document.getElementById("tab-details").setAttribute("data-tab_id", tabId);
+        if (tab.pinned) {
+            document.getElementById("details-pinned").style.display = "inline";
+        } else {
+            document.getElementById("details-pinned").style.display = "none";
+        }
+        if (tab.hidden) {
+            document.getElementById("details-hidden").style.display = "inline";
+        } else {
+            document.getElementById("details-hidden").style.display = "none";
+        }
+        if (tab.pinned && tab.hidden) {
+            document.getElementById("details-comma").style.display = "inline";
+        } else {
+            document.getElementById("details-comma").style.display = "none";
+        }
     });
 }
 

@@ -13,6 +13,7 @@ import { getWrongToRight } from "./wrong-to-right"
 import { hideTabPreview } from "./wtdom"
 import { extendTabsList, populateTabsList } from "./wtinit"
 import { windowEntryRenameContextMenu, windowEntryRename, windowEntryRenameCancel, windowEntryRenameBoxKeyDown } from "./event-listeners/windowEntryRename"
+import { selectTab } from "./event-listeners/tabEntry"
 
 G.tabsList = document.getElementById("tabs-list");
 
@@ -92,6 +93,15 @@ function generalSetup() {
             }, 2000);
         });
     }
+
+    // Add event listener for clicks on the reload tab button
+    document.getElementById("unloaded-tab-preview-placeholder-text").addEventListener("click", e => {
+        e.target.setAttribute("data-loading", "");
+        let tabId = document.getElementById("tab-details").getAttribute("data-tab_id");
+        browser.tabs.reload(parseInt(tabId)).then(() => {
+            selectTab(document.querySelector(".tab-entry[data-tab_id='" + tabId + "']"));
+        });
+    });
 
     // Add event listener for recorder.js
     document.getElementById("save-for-later").addEventListener("click", saveForLater);
