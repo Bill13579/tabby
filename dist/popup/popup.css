@@ -138,6 +138,9 @@ html, body {
 #tabs {
     overflow-y: auto;
 }
+#tabs[data-keyboard-first] {
+    pointer-events: none;
+}
 #tabs, #tabs-list {
     display: block;
 }

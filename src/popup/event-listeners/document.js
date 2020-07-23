@@ -18,6 +18,10 @@ export function documentClicked(e) {
     }
 }
 
+export function mouseActivate(e) {
+    document.getElementById("tabs").removeAttribute("data-keyboard-first");
+}
+
 export function documentKeyPressed(e) {
     e.preventDefault();
     switch (e.code) {
@@ -41,6 +45,7 @@ export function documentKeyPressed(e) {
         }
         case "ArrowDown":
         case "ArrowUp": {
+            document.getElementById("tabs").setAttribute("data-keyboard-first", "");
             let selectedTabEntries = document.getElementsByClassName("selected-entry");
             if (selectedTabEntries.length > 0) {
                 let selectedTabEntry = selectedTabEntries[0];

@@ -2,7 +2,7 @@ import "Polyfill"
 import * as Options from "../options"
 import * as captureTab from "./captureTab"
 import { showContextMenu } from "./domutils"
-import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
+import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver, mouseActivate } from "./event-listeners/document"
 import { onMessage } from "./event-listeners/message"
 import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
 import { initSearch, searchKeydown, searchTextChanged } from "./event-listeners/search"
@@ -77,6 +77,7 @@ function generalSetup() {
     document.addEventListener("mouseover", documentMouseOver);
     document.addEventListener("click", documentClicked);
     document.addEventListener("keydown", documentKeyDown);
+    document.addEventListener("mousemove", mouseActivate);
 
     // Add event listeners to all copy buttons
     let copyButtons = Array.from(document.getElementsByClassName("copy-button"));
