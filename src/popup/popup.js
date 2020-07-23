@@ -143,8 +143,8 @@ function generalSetup() {
         window.close();
     });
 
-    // Tell background script that popup is being unloaded
-    window.addEventListener("unload", () => {
+    // Tell background script that popup is being unloaded (SEEMS TO BE UNRELIABLE)
+    window.addEventListener("beforeunload", () => {
         sendRuntimeMessage("POPUP_UNLOADED", {});
     });
 
