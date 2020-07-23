@@ -1,7 +1,7 @@
 import "Polyfill"
 import * as Options from "../options"
 import * as captureTab from "./captureTab"
-import { getActualWidth, showContextMenu } from "./domutils"
+import { showContextMenu } from "./domutils"
 import { documentClicked, documentKeyPressed as documentKeyDown, documentMouseOver } from "./event-listeners/document"
 import { onMessage } from "./event-listeners/message"
 import { restore as recorderRestore, saveForLater } from "./event-listeners/recorder"
@@ -33,7 +33,7 @@ async function fulfillOptions() {
     // popup.showDetails
     if (!Options.stbool(popupOptions.showDetails)) {
         let leftContainer = document.getElementById("left-container");
-        popupOptions.size.width = popupOptions.size.width - getActualWidth(leftContainer);
+        popupOptions.size.width = popupOptions.size.width;
         setPopupSize(popupOptions.size.width, popupOptions.size.height);
         leftContainer.style.display = "none";
         document.getElementById("tabs-container").style.width = "100%";
