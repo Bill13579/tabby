@@ -1,13 +1,13 @@
 import "Polyfill"
 import G from "../globals"
-import { sendTabMessage } from "../messaging"
+import { sendRuntimeMessage } from "../../messaging"
 import { getCorrectTabId } from "../wrong-to-right"
 
 export function tabActivated(activeInfo) {
-    sendTabMessage({
+    sendRuntimeMessage("ACTIVE_TAB_CHANGED", {
         windowId: activeInfo.windowId,
         tabId: activeInfo.tabId
-    }, "ACTIVE_TAB_CHANGED");
+    }).catch(() => {});
     if (G.dropCurrentTabId) {
         G.lastTabId = G.currentTabId;
     } else {
@@ -18,43 +18,43 @@ export function tabActivated(activeInfo) {
 
 export function tabUpdated(tabId, changeInfo, tab) {
     if (changeInfo.favIconUrl !== undefined) {
-        sendTabMessage({
+        sendRuntimeMessage("TAB_FAV_ICON_CHANGED", {
             tabId: getCorrectTabId(tabId),
             favIconUrl: changeInfo.favIconUrl
-        }, "TAB_FAV_ICON_CHANGED");
+        }).catch(() => {});
     }
     if (changeInfo.pinned !== undefined) {
-        sendTabMessage({
+        sendRuntimeMessage("TAB_PINNED_STATUS_CHANGED", {
             tabId: getCorrectTabId(tabId),
             pinned: changeInfo.pinned
-        }, "TAB_PINNED_STATUS_CHANGED");
+        }).catch(() => {});
     }
     if (changeInfo.title !== undefined) {
-        sendTabMessage({
+        sendRuntimeMessage("TAB_TITLE_CHANGED", {
             tabId: getCorrectTabId(tabId),
             title: changeInfo.title
-        }, "TAB_TITLE_CHANGED");
+        }).catch(() => {});
     }
     if (changeInfo.audible !== undefined) {
-        sendTabMessage({
+        sendRuntimeMessage("TAB_AUDIBLE_CHANGED", {
             tabId: getCorrectTabId(tabId),
             audible: changeInfo.audible
-        }, "TAB_AUDIBLE_CHANGED");
+        }).catch(() => {});
     }
     if (changeInfo.mutedInfo !== undefined) {
-        sendTabMessage({
+        sendRuntimeMessage("TAB_MUTE_CHANGED", {
             tabId: getCorrectTabId(tabId),
             mutedInfo: changeInfo.mutedInfo
-        }, "TAB_MUTE_CHANGED");
+        }).catch(() => {});
     }
 }
 
 export function tabRemoved(tabId, removeInfo) {
-    sendTabMessage({
+    sendRuntimeMessage("TAB_REMOVED", {
         tabId: tabId,
         windowId: removeInfo.windowId,
         windowClosing: removeInfo.isWindowClosing
-    }, "TAB_REMOVED");
+    }).catch(() => {});
     if (G.lastTabId === tabId) {
         G.lastTabId = undefined;
     }

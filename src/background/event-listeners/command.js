@@ -1,6 +1,6 @@
 import "Polyfill"
 import G from "../globals"
-import { sendRuntimeMessage } from "../../popup/messaging";
+import { sendRuntimeMessage } from "../../messaging";
 
 export function onCommand(name) {
     switch (name) {

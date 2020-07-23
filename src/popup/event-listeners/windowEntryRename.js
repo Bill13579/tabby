@@ -1,4 +1,4 @@
-import { sendRuntimeMessage } from "../messaging";
+import { sendRuntimeMessage } from "../../messaging";
 import { populateTabsList } from "../wtinit";
 import { showContextMenu } from "../domutils";
 

@@ -1,6 +1,6 @@
 import "Polyfill"
 import G from "../globals"
-import { sendTabMessage } from "../messaging"
+import { sendRuntimeMessage } from "../../messaging"
 import { updateContextMenu } from "../contextMenu";
 
 export function windowFocusChanged(windowId) {
@@ -28,9 +28,9 @@ export function windowFocusChanged(windowId) {
 }
 
 export function windowRemoved(windowId) {
-    sendTabMessage({
+    sendRuntimeMessage("WINDOW_REMOVED", {
         windowId: windowId
-    }, "WINDOW_REMOVED");
+    }).catch(() => {});
     if (G.lastWindowId === windowId) {
         G.lastWindowId = undefined;
     }

@@ -6,7 +6,7 @@ import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick, windowEntryContextMenu } from "./event-listeners/windowEntry"
 import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
-import { sendRuntimeMessage } from "./messaging"
+import { sendRuntimeMessage } from "../messaging"
 
 // Update tabs
 export async function updateTabs(windows) {

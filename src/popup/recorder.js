@@ -1,5 +1,5 @@
 import "Polyfill"
-import { sendRuntimeMessage } from "./messaging";
+import { sendRuntimeMessage } from "../messaging";
 
 export async function restoreWindow(windowRecord) {
     await sendRuntimeMessage("RESTORE_WINDOW", { windowRecord });

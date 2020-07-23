@@ -1,5 +1,5 @@
 import "Polyfill"
-import { sendRuntimeMessage } from "./messaging"
+import { sendRuntimeMessage } from "../messaging"
 
 let wrongToRight;
 

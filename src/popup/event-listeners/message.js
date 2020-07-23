@@ -13,23 +13,23 @@ export function onMessage(request, sender) {
             break;
         }
         case "ACTIVE_TAB_CHANGED": {
-            setActiveTab(request.details.windowId, request.details.tabId);
+            setActiveTab(request.data.windowId, request.data.tabId);
             break;
         }
         case "TAB_FAV_ICON_CHANGED": {
-            browser.tabs.get(request.details.tabId).then(tab => {
+            browser.tabs.get(request.data.tabId).then(tab => {
                 let favIconPromise;
                 if (!tab.favIconUrl.startsWith("chrome://")) {
                     if (tab.incognito) {
-                        favIconPromise = getImage(request.details.favIconUrl, true);
+                        favIconPromise = getImage(request.data.favIconUrl, true);
                     } else {
-                        favIconPromise = getImage(request.details.favIconUrl);
+                        favIconPromise = getImage(request.data.favIconUrl);
                     }
                 } else {
                     favIconPromise = Promise.resolve(tab.favIconUrl);
                 }
                 favIconPromise.then(function (base64Image){
-                    let tabEntry = findTabEntryById(request.details.tabId);
+                    let tabEntry = findTabEntryById(request.data.tabId);
                     tabEntry.classList.remove("noicon");
                     let favIcon = getFavIconFromTabEntry(tabEntry);
                     favIcon.src = base64Image;
@@ -39,11 +39,11 @@ export function onMessage(request, sender) {
             break;
         }
         case "TAB_PINNED_STATUS_CHANGED": {
-            let tabEntry = findTabEntryById(request.details.tabId);
+            let tabEntry = findTabEntryById(request.data.tabId);
             let pinBtn = tabEntry.getElementByClassName("tab-entry-pin-btn");
             let windowEntryList = tabEntry.parentElement;
             let pinnedTabs;
-            if (request.details.pinned) {
+            if (request.data.pinned) {
                 pinnedTabs = Array.from(windowEntryList.getElementsByClassName("pinned-tab"));
                 tabEntry.classList.add("pinned-tab");
                 pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
@@ -61,28 +61,28 @@ export function onMessage(request, sender) {
             break;
         }
         case "TAB_TITLE_CHANGED": {
-            findTabEntryById(request.details.tabId).getElementByClassName("tab-title").textContent = request.details.title;
+            findTabEntryById(request.data.tabId).getElementByClassName("tab-title").textContent = request.data.title;
             break;
         }
         case "TAB_AUDIBLE_CHANGED": {
-            browser.tabs.get(request.details.tabId).then(tab => {
+            browser.tabs.get(request.data.tabId).then(tab => {
                 findTabEntryById(tab.id).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", tab.mutedInfo.muted ? "off" : "on");
                 resolve();
             });
             break;
         }
         case "TAB_MUTE_CHANGED": {
-            findTabEntryById(request.details.tabId).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", request.details.mutedInfo.muted ? "off" : "on");
+            findTabEntryById(request.data.tabId).getElementByClassName("tab-entry-speaker-btn").setAttribute("data-state", request.data.mutedInfo.muted ? "off" : "on");
             break;
         }
         case "TAB_REMOVED": {
-            if (!request.details.windowClosing) {
-                removeTab(request.details.tabId, request.details.windowId);
+            if (!request.data.windowClosing) {
+                removeTab(request.data.tabId, request.data.windowId);
             }
             break;
         }
         case "WINDOW_REMOVED": {
-            removeWindow(request.details.windowId);
+            removeWindow(request.data.windowId);
             break;
         }
     }
