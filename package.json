@@ -5,8 +5,11 @@
     "private": true,
     "scripts": {
         "build:chrome": "webpack --display-modules --config chrome.webpack.config.js && npm run gen-manifest:chrome",
+        "build:chrome.dev": "webpack --display-modules --config chrome.webpack.dev.config.js && npm run gen-manifest:chrome",
         "build:webext": "webpack --display-modules --config webext.webpack.config.js && npm run gen-manifest:webext",
+        "build:webext.dev": "webpack --display-modules --config webext.webpack.dev.config.js && npm run gen-manifest:webext",
         "build:firefox": "npm run build:webext",
+        "build:firefox.dev": "npm run build:webext.dev",
         "gen-manifest:chrome": "node gen-manifest.js chrome",
         "gen-manifest:webext": "node gen-manifest.js webext",
         "gen-manifest:firefox": "npm run gen-manifest:webext",
