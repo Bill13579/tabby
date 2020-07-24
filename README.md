@@ -13,12 +13,26 @@ Tabby is an open-source project and is in active development, so feel free to su
 
 My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 
+# File Structure
+
+From version 3.0 and onwards, Tabby is structured as a monorepo. The `tabby` package is the main one.
+
+tabby/dist/ - Distribution directory<br/>
+tabby/src/ - Source code directory (for more info, go to the [README.md](tabby/src/README.md) file in that directory)<br/>
+
+~icons/ - Directory for storing Tabby icons<br/>
+~icons/tabby.svg - Tabby icon (Vector)<br/>
+~icons/tabby.png - Tabby icon (Raster)<br/>
+
+~releases/ - Release zip files<br/>
+~releases/screenshots-archive - Screenshots of Tabby<br/>
+
 # Building, Installing, and Editing
 
 ## Prerequisites
 
 - Git
-- Node.js
+- Yarn
 - Firefox >= 59 (recommended)<br/>
   or<br/>
   Chrome >= 49 (fully tested on Chrome 72)
@@ -29,13 +43,13 @@ My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
 2. Get the source code  
 `git clone https://github.com/Bill13579/tabby.git`
 3. Go into the Tabby directory  
-`cd tabby`
+`cd tabby/tabby/`
 4. Install dependencies with npm  
-`npm install`
+`yarn install`
 5. Build Tabby  
-Firefox: `npm run build:firefox`  
-Chrome: `npm run build:chrome`  
-WebExtension: `npm run build:webext`
+Firefox: `yarn build:firefox.dev` (get rid of the `.dev` to produce a production build)  
+Chrome: `yarn build:chrome.dev`  
+WebExtension: `yarn build:webext.dev`
 
 ## Installation
 
@@ -63,20 +77,3 @@ Re-do Step 5 of [Building Tabby](#building-tabby) and<br/>
 - on Chrome, press the <img src="https://i.imgur.com/FcVtjot.png" alt="Chrome Reload Icon" width="23px" /><!-- https://imgur.com/a/VHMbJ4l --> button in the Tabby section of the `chrome://extensions` page.
 
 Note: Content Scripts will only be reloaded for each tab once that tab is refreshed.
-
-# File Structure
-
-icons/ - Directory for storing Tabby icons<br/>
-icons/tabby.svg - Tabby icon (Vector)<br/>
-icons/tabby.png - Tabby icon (Raster)<br/>
-
-release/ - Release zip files<br/>
-
-screenshots/ - Screenshots<br/>
-screenshots-archive/ - Old screenshots of old releases<br/>
-
-dist/ - Distribution directory<br/>
-src/ - Source code directory (for more info, go to the [README.md](src/README.md) file in that directory)<br/>
-
-LICENSE - License file<br/>
-README&#46;md - README file

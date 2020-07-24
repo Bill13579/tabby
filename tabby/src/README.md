@@ -4,6 +4,6 @@ Note: Because of how Webpack works, all non JavaScript files are in the `dist` f
 
 # File Structure
 
+background/ - Tabby background scripts<br/>
 content/ - Tabby content scripts<br/>
 popup/ - Tabby popup scripts<br/>
-background/ - Tabby background script<br/>
