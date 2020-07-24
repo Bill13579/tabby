@@ -1,6 +1,6 @@
 {
     "name": "tabby",
-    "version": "2.1.0",
+    "version": "3.0.0dev1",
     "description": "Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.",
     "private": true,
     "scripts": {
