@@ -18,6 +18,7 @@
     "tabby": "file:tabby"
   },
   "workspaces": [
-    "tabby"
+    "tabby",
+    "extension-configurator"
   ]
 }

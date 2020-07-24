@@ -8,22 +8,22 @@ import { onInstalled } from "./event-listeners/installed"
 import { updateContextMenu } from "./contextMenu"
 
 if (!browser.runtime.onInstalled.hasListener(onInstalled)) {
-    browser.runtime.onInstalled.addListener(onInstalled);
+  browser.runtime.onInstalled.addListener(onInstalled);
 }
 
 // Set initial tab id
 browser.tabs.query({
-    active: true,
-    currentWindow: true
+  active: true,
+  currentWindow: true
 }).then(tabs => {
-    G.currentTabId = tabs[0].id;
-    G.dropCurrentTabId = true;
+  G.currentTabId = tabs[0].id;
+  G.dropCurrentTabId = true;
 });
 
 // Set initial window id
 browser.windows.getLastFocused({}).then(w => {
-    G.currentWindowId = w.id;
-    G.dropCurrentWindowId = true;
+  G.currentWindowId = w.id;
+  G.dropCurrentWindowId = true;
 });
 
 // Watch out for any changes in tabs & windows

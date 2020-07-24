@@ -2,33 +2,33 @@ import "Polyfill"
 
 // Stop propagation event listener
 export function stopPropagation(e) {
-    e.stopPropagation();
+  e.stopPropagation();
 }
 
 // Toggle a class of an element
 export function toggleClass(element, c) {
-    if (element.classList.contains(c)) {
-        element.classList.remove(c);
-    } else {
-        element.classList.add(c);
-    }
+  if (element.classList.contains(c)) {
+    element.classList.remove(c);
+  } else {
+    element.classList.add(c);
+  }
 }
 
 // Get actual height of an element
 export function getActualHeight(element) {
-    let styles = window.getComputedStyle(element);
-    let margin = parseFloat(styles['marginTop']) +
-               parseFloat(styles['marginBottom']);
-    return element.offsetHeight + margin;
+  let styles = window.getComputedStyle(element);
+  let margin = parseFloat(styles['marginTop']) +
+    parseFloat(styles['marginBottom']);
+  return element.offsetHeight + margin;
 }
 
 // getElementByClassName
 Element.prototype.getElementByClassName = function (classNames) {
-    return this.getElementsByClassName(classNames)[0] || null;
+  return this.getElementsByClassName(classNames)[0] || null;
 };
 
 export function showContextMenu(x, y, ctxMenu) {
-    ctxMenu.setAttribute("data-state", "on");
-    ctxMenu.style.top = y + "px";
-    ctxMenu.style.left = x + "px";
+  ctxMenu.setAttribute("data-state", "on");
+  ctxMenu.style.top = y + "px";
+  ctxMenu.style.left = x + "px";
 }
