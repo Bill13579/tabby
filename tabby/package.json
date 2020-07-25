@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/Bill13579/tabby/issues"
   },
-  "homepage": "https://github.com/Bill13579/tabby#readme"
+  "homepage": "https://github.com/Bill13579/tabby#readme",
+  "dependencies": {
+    "extension-configurator": "^1.0.0"
+  }
 }

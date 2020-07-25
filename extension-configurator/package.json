@@ -1,0 +1,17 @@
+{
+  "name": "extension-configurator",
+  "version": "1.0.0",
+  "description": "Configuration manager for browser extensions",
+  "main": "index.js",
+  "repository": "https://github.com/Bill13579/tabby",
+  "author": "Bill Kudo <bluesky42624@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --display-modules --config webpack.config.js",
+    "build.dev": "webpack --display-modules --config webpack.dev.config.js"
+  },
+  "devDependencies": {
+    "circular-dependency-plugin": "^5.2.0",
+    "webextension-polyfill": "^0.6.0"
+  }
+}
