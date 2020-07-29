@@ -91,123 +91,124 @@ var ec =
 /*!******************!*\
   !*** ./index.js ***!
   \******************/
-/*! exports provided: local, sync, getRawOptions, setRawOptions */
+/*! exports provided: local, sync */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "local", function() { return local; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sync", function() { return sync; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRawOptions", function() { return getRawOptions; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRawOptions", function() { return setRawOptions; });
 let browser = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 
-const ECKEY = "ec-options";
-
-function __init(data) {
-  if (!data.hasOwnProperty(ECKEY)) data[ECKEY] = {};
+function special(type, id) {
+  return "__" + type + "_$" + id;
+}
+function isSpecial(type, id) {
+  return id.startsWith("__" + type + "_$");
+}
+function normal(type, id) {
+  return id.substring(4 + type.length, id.length);
 }
 
 class StorageSpace {
   constructor(type) {
     this.type = type;
+    this.__fulfillers = {};
   }
-  has(optionID, ...optionIDs) {
-    return getRawOptions(this.type).then(data => {
-      __init(data);
-      let re;
-      if (optionIDs.length > 0) {
-        re = {};
-        re[optionID] = data[ECKEY].hasOwnProperty(optionID);
-        for (let id of optionIDs) {
-          re[id] = data[ECKEY].hasOwnProperty(id);
-        }
-      } else {
-        re = data[ECKEY].hasOwnProperty(optionID);
-      }
-      return re;
-    });
+  async hasOne(optionID) {
+    optionID = special("conf", optionID);
+    return (await browser.storage[this.type].get(optionID)).hasOwnProperty(optionID);
   }
+  async has(...optionIDs) {
+    let re = {};
+    for (let optionID of optionIDs) {
+      re[optionID] = await this.hasOne(optionID);
+    }
+    return re;
+  }
+  /* alternative implementation of `has`
+  async has(...optionIDs) {
+    let re = {};
+    let data = await browser.storage[this.type].get(optionIDs.map(id => special("conf", id)));
+    for (let optionID of optionIDs) {
+      re[optionID] = data.hasOwnProperty(special("conf", optionID));
+    }
+    return re;
+  }
+  */
   unset(...optionIDs) {
-    return getRawOptions(this.type).then(data => {
-      __init(data);
-      for (let id of optionIDs) {
-        if (data[ECKEY].hasOwnProperty(id)) {
-          delete data[ECKEY][id];
-        }
-      }
-      return setRawOptions(this.type, data);
-    });
+    return browser.storage[this.type].remove(optionIDs.map(id => special("conf", id)));
   }
-  set(optionID, val) {
-    return getRawOptions(this.type).then(data => {
-      __init(data);
-      data[ECKEY][optionID] = val;
-      return setRawOptions(this.type, data);
-    });
-  }
-  completelyOverwrite(options) {
-    return getRawOptions(this.type).then(data => {
-      //__init is not necessary here since we immediately overwrite it with `options`
-      data[ECKEY] = options;
-      return setRawOptions(this.type, data);
-    });
+  set(optionID, value) {
+    let data = {};
+    data[special("conf", optionID)] = value;
+    return browser.storage[this.type].set(data);
   }
   async setAll(options, overwriteExistingOptions=false) {
-    let currentOptions = await this.getAll();
-    for (const [optionID, val] of Object.entries(options)) {
-      if (currentOptions.hasOwnProperty(optionID)) {
-        if (overwriteExistingOptions) currentOptions[optionID] = val;
-      } else {
-        currentOptions[optionID] = val;
+    for (let key in options) {
+      if (options.hasOwnProperty(key)) {
+        if (overwriteExistingOptions || !(await this.hasOne(key))) {
+          await this.set(key, options[key]);
+        }
       }
     }
-    await this.completelyOverwrite(currentOptions);
   }
-  get(optionID, ...optionIDs) {
-    return getRawOptions(this.type).then(data => {
-      __init(data);
-      let re;
-      if (optionIDs.length > 0) {
-        re = {};
-        re[optionID] = data[ECKEY][optionID];
-        for (let id of optionIDs) {
-          re[id] = data[ECKEY][id];
-        }
-      } else {
-        re = data[ECKEY][optionID];
+  async getOne(optionID) {
+    optionID = special("conf", optionID);
+    return (await browser.storage[this.type].get(optionID))[optionID];
+  }
+  async get(...optionIDs) {
+    let re = {};
+    for (let optionID of optionIDs) {
+      re[optionID] = await this.getOne(optionID);
+    }
+    return re;
+  }
+  /* alternative incomplete implementation of `get`
+  async get(...optionIDs) {
+    return await browser.storage[this.type].get(optionIDs.map(id => special("conf", id)));
+  }
+  */
+  __manual_fulfill(optionValue, fulfiller) {
+    return Promise.resolve(fulfiller(optionValue));
+  }
+  async __fulfill(optionID, fulfiller) {
+    return this.__manual_fulfill(await this.getOne(optionID), fulfiller);
+  }
+  fulfillOnce(optionID, fulfiller) {
+    return this.__fulfill(optionID, fulfiller);
+  }
+  setFulfiller(optionID, fulfiller) {
+    if (!this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID] = [];
+    this.__fulfillers[optionID].push(fulfiller);
+  }
+  fulfill(optionID, fulfiller) {
+    this.setFulfiller(optionID, fulfiller);
+    return this.fulfillOnce(optionID, fulfiller);
+  }
+  async __onChange(changes) {
+    for (let key in changes) {
+      if (changes.hasOwnProperty(key) && isSpecial("conf", key)) {
+        let optionID = normal("conf", key);
+        if (this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID].forEach(fulfiller => this.__manual_fulfill(changes[key].newValue, fulfiller));
       }
-      return re;
-    });
-  }
-  getAll() {
-    return getRawOptions(this.type).then(data => {
-      __init(data);
-      return data[ECKEY];
-    });
-  }
-  clear() {
-    return browser.storage[this.type].remove(ECKEY);
+    }
   }
 }
 
 const local = new StorageSpace("local");
 const sync = new StorageSpace("sync");
-local.migrateToSync = async function (clearOutLocal=true, overwriteExistingOptions=true) {
-  await sync.setAll(await this.getAll(), overwriteExistingOptions);
-  if (clearOutLocal) await this.clear();
-};
-sync.migrateToLocal = async function (clearOutSync=true, overwriteExistingOptions=true) {
-  await local.setAll(await this.getAll(), overwriteExistingOptions);
-  if (clearOutSync) await this.clear();
-};
 
-function getRawOptions(storageSpace) {
-  return browser.storage[storageSpace].get(ECKEY);
-}
-function setRawOptions(storageSpace, data) {
-  return browser.storage[storageSpace].set(data);
-}
+browser.storage.onChanged.addListener(async (changes, areaName) => {
+  switch (areaName) {
+    case "local":
+      await local.__onChange(changes);
+      break;
+    case "sync":
+      await sync.__onChange(changes);
+      break;
+  }
+});
 
 
 
