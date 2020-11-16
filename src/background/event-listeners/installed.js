@@ -4,9 +4,10 @@ import { INITIAL_OPTIONS } from "../../options/states"
 // On Installed
 export function onInstalled(details) {
     if (details.reason === "update") {
-        browser.windows.create({
-            url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-2.1"
-        });
+        // Show introduction page in case of a big release with major changes!
+        //browser.windows.create({
+        //    url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-2.1"
+        //});
     }
     if (details.reason === "install" || details.reason === "update") {
         // Initialize options
