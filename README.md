@@ -11,8 +11,6 @@ If you like this project, please share it. Your support is always welcomed!
 
 Tabby is an open-source project and is in active development, so feel free to submit any issues that you are experiencing and I will do my best to fix it. And if you can fix the issue altogether, feel free to submit a pull request!
 
-My Website: [http://www.WhatsYourIdea.com](http://www.WhatsYourIdea.com)
-
 # Building, Installing, and Editing
 
 ## Prerequisites
