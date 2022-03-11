@@ -57,6 +57,12 @@ export function tabEntryClicked(e) {
     }
 }
 
+export function tabEntryAuxClicked(e) {
+    if (e.button === 1) {
+        closeTabEntry(e.target);
+    }
+}
+
 export function tabCloseClick(e) {
     e.stopPropagation();
     closeTabEntry(e.target.parentElement.parentElement);
