@@ -45,6 +45,8 @@ async function fulfillOptions() {
     G.hideAfterTabSelection = Options.stbool(popupOptions.hideAfterTabSelection);
     // popup.searchInURLs
     G.searchInURLs = Options.stbool(popupOptions.searchInURLs);
+    // popup.sortByLastAccessed
+    G.sortByLastAccessed = Options.stbool(popupOptions.sortByLastAccessed);
 }
 
 async function main() {
