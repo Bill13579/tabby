@@ -4,76 +4,15 @@ import { TSession, TSessionListener } from "tapi/tsession";
 import { TTabActions } from "../tapi/taction";
 import { DetailsController } from "./details";
 
-(async () => {
-    let sess = await TSession.read_from_current();
-    sess.enableBrowserHooks();
-    sess.addListener({
-        onTabCreated(tab) {
-            let w = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${tab.windowId}"]`);
-            if (w === null) {
-                tabsList.append(0, {
-                    id: tab.windowId
-                });
-            }
-            addTab(tab);
-        },
-        onWindowClosed(windowId) {
-            let w = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${windowId}"]`);
-            if (w) {
-                w.parentElement.removeChild(w);
-            }
-        }
-    });
-    let all = sess.getAllAs2DArray();
-    let detailsController = new DetailsController();
-    let tabsList = new TUIList(undefined, new TUITabsList(sess, detailsController));
-    tabsList.root.setAttribute("data-live", "true");
-    let addTab = (tab) => {
-        let e = tabsList.append(1, tab);
-
-        // Hook the tab up with its respective TTab object
-        tab.proxy((prop, value) => {
-            console.log("Tab " + tab.id + "'s property " + prop + " has been set to '" + value + "'")
-
-            if (prop === "#position") {
-                let after = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${value.newWindowId}"]`);
-                after.parentElement.removeChild(e);
-                let i = value.newPosition;
-                while (i > 0) {
-                    after = after.nextElementSibling;
-                    i--;
-                }
-                after.parentElement.insertBefore(e, after.nextElementSibling);
-            }
-            if (prop === "active") {
-                if (value) e.setAttribute("data-current", "");
-                else e.removeAttribute("data-current");
-            }
-        }, () => {
-            e.parentElement.removeChild(e);
-        });
-    };
-    let addWindow = (tabs) => {
-        tabsList.append(0, {
-            id: tabs[0].windowId
-        });
-        for (let tab of tabs) {
-            addTab(tab);
-        }
-    };
-    for (let tabs of all) {
-        addWindow(tabs);
-    }
-    // === MULTISELECT TEST ===
-    //tabsList.enableMultiselect();
-})();
-
 class TUIList {
-    constructor(data, dataInterpret, allowMultiselect=true) {
-        this.dataInterpret = dataInterpret;
-        let rootContainer = this.dataInterpret.createRoot(data);
+    static makeRoot(dataInterpret, data) {
+        let rootContainer = dataInterpret.createRoot(data);
         rootContainer.classList.add("-tui-list-container");
-        this.root = rootContainer;
+        return rootContainer;
+    }
+    constructor(root, dataInterpret, allowMultiselect=true) {
+        this.dataInterpret = dataInterpret;
+        this.root = root;
         this.multiselect = false;
         this.multiselectDragging = false;
         this.lastSelected = undefined;
@@ -92,7 +31,7 @@ class TUIList {
             });
         }
     }
-    append(level, data) {
+    create(level, data) {
         let e = this.dataInterpret.createElement(level, data);
         e.setAttribute("draggable", "true");
         e.setAttribute("tabindex", "0");
@@ -257,7 +196,6 @@ class TUIList {
         e.addEventListener("mouseover", (evt) => {
             this.dataInterpret.handleHover(e);
         });
-        this.root.appendChild(e);
         return e;
     }
     enableMultiselect() {
@@ -265,6 +203,139 @@ class TUIList {
     }
     disableMultiselect() {
         this.multiselect = false;
+    }
+    static clearRoot(root) {
+        root.innerHTML = "";
+    }
+}
+
+class TUIListView extends TUIList {
+}
+
+class TUISessionView extends TUIListView {
+    /**
+     * Initializes the view unsorted, call resort if necessary, since
+     *  after the constructor's execution, the list should be in a sorted state
+     * Also, insert any event listeners here to listen for new items that need to be inserted, use `put` to insert
+     * @param {TSession} sess 
+     */
+    constructor(root, sess, dataInterpret, hookPos=true) {
+        super(root, dataInterpret);
+        this.sess = sess;
+        let all = sess.getAllAs2DArray();
+        let addWindow = (tabs) => {
+            root.appendChild(this.create(0, {
+                id: tabs[0].windowId
+            }));
+            for (let tab of tabs) {
+                root.appendChild(TUISessionView.createTab(tab, this, true, hookPos));
+            }
+        };
+        for (let tabs of all) {
+            addWindow(tabs);
+        }
+        this.sessionListener = {
+            onTabCreated: (tab) => {
+                this.put(tab, TUISessionView.createTab(tab, this, true, hookPos));
+            },
+            onWindowClosed: (windowId) => {
+                console.log("testt");
+                let w = root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
+                if (w) {
+                    w.parentElement.removeChild(w);
+                }
+            }
+        };
+        sess.addListener(this.sessionListener);
+    }
+    /**
+     * Resort the view completely, as well as any heavy operations concerning going through the entire list,
+     *  in order to fix the list's order
+     */
+    resort() {  }
+    /**
+     * A new item is inserted into the list, or an existing item is modified so that its position should now be different
+     */
+    async put(tab, tabElement) {
+        let windowId = tab.windowId;
+        let w = this.root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
+        if (w === null) {
+            this.root.appendChild(this.create(0, {
+                id: windowId
+            }));
+            this.root.appendChild(tabElement);
+        } else {
+            let before = w;
+            let index = (await tab.index) + 1;
+            for (let i = 0; i < index; i++) {
+                before = before.nextElementSibling;
+            }
+            this.root.insertBefore(tabElement, before);
+        }
+    }
+    cleanUp() {
+        let all = this.sess.getAllAs2DArray();
+        for (let tabs of all) {
+            for (let tab of tabs) {
+                tab.clearProxies();
+            }
+        }
+        TUISessionView.clearRoot(this.root);
+        this.sess.removeListener(this.sessionListener);
+        return this.root;
+    }
+    static addWindow(windowId, list) {
+        list.root.appendChild(list.create(0, {
+            id: windowId
+        }));
+    }
+    static createTab(tab, list, hook=true, hookPos=true) {
+        let e = list.create(1, tab);
+    
+        // Hook the tab up with its respective TTab object
+        if (hook) {
+            tab.proxy((prop, value) => {
+                console.log("Tab " + tab.id + "'s property " + prop + " has been set to '" + value + "'")
+    
+                if (prop === "#position" && hookPos) {//TODO
+                    console.log(value);
+                    let after = list.root.querySelector(`.window-entry[data-window-id="${value.newWindowId}"]`);
+                    after.parentElement.removeChild(e);
+                    let i = value.newPosition;
+                    while (i > 0) {
+                        after = after.nextElementSibling;
+                        i--;
+                    }
+                    after.parentElement.insertBefore(e, after.nextElementSibling);
+                } else if (prop === "active") {
+                    if (value) e.setAttribute("data-current", "");
+                    else e.removeAttribute("data-current");
+                } else if (prop === "title") {
+                    //TODO
+                } else if (prop === "url") {
+                    //TODO
+                } else if (prop === "favIconUrl") {
+                    //TODO
+                }// TODO: isArticle, status?
+            }, () => {
+                e.parentElement.removeChild(e);
+            });
+        }
+
+        return e;
+    }
+}
+
+/**
+ * TUISessionView, with the window entries removed, leaving a plain tab list
+ */
+class TUISessionNoWindowsView extends TUISessionView {
+    create(level, data) {
+        let ele = super.create(level, data);
+        if (level === 0) {
+            ele.classList.add("hidden");
+        }
+        return ele;
     }
 }
 
@@ -282,6 +353,7 @@ class TUIListDataInterpret {
 
 /**
  * Extends TUIListDataInterpret to connect the list to the tab data
+ *  (Never call any methods from this class directly! They are called automatically by TUIList)
  */
 class TUITabsList extends TUIListDataInterpret {
     constructor(sess, detailsController) {
@@ -418,3 +490,16 @@ class TUITabsList extends TUIListDataInterpret {
         TTabActions.move(toMove, targetWindowId, pos);
     }
 }
+
+(async () => {
+    let sess = await TSession.read_from_current();
+    sess.enableBrowserHooks();
+    let detailsController = new DetailsController();
+    let dataInterpret = new TUITabsList(sess, detailsController);
+    let root = TUIList.makeRoot(dataInterpret, undefined);
+    let tabsList = new TUISessionView(root, sess, dataInterpret);
+    tabsList.root.setAttribute("data-live", "true");
+    tabsList = new TUISessionView(tabsList.cleanUp(), sess, dataInterpret);
+    // === MULTISELECT TEST ===
+    //tabsList.enableMultiselect();
+})();

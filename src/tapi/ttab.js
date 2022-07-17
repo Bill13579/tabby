@@ -67,13 +67,13 @@ export class TTab {
             }
         }
     }
-    clear_proxies() {
+    clearProxies() {
         if (this._proxies) {
             for (let {proxy, revoked} of this._proxies) {
                 revoked();
                 proxy.revoke();
             }
-            this._proxies.length = 0;
+            this._proxies = undefined;
         }
     }
     /**
@@ -93,7 +93,7 @@ export class TTab {
     /**
      * Event listener called by a browser-hooked TSession when the tab is closed
      */
-    onClosed() { this.clear_proxies(); }
+    onClosed() { this.clearProxies(); }
     /**
      * Event listener called by a browser-hooked TSession when the tab is moved (both within a window and across windows)
      */
@@ -125,6 +125,18 @@ export class TTab {
             return browser.contextualIdentities.get(this.cookieStoreId)
         else
             return Promise.resolve(false)
+    }
+    /**
+     * Promise returning the full tabs.Tab object
+     */
+    get full() {
+        return browser.tabs.get(this.id);
+    }
+    /**
+     * Promise returning the tab's index
+     */
+    get index() {
+        return this.full.then(tab => tab.index);
     }
     /**
      * Create an instance of TTab from a Tab object

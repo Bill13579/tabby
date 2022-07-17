@@ -22,6 +22,10 @@ input[type="text"]:focus {
 
 /* Class-based declarations, specifically reusable widgets */
 
+.hidden {
+    display: none !important;
+}
+
 .inline-button {
     font-weight: normal;
     font-size: calc(15.5px * var(--scale));

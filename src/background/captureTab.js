@@ -18,7 +18,7 @@ async function captureTab(tabId, quality) {
         } else {
             return undefined;
         }
-    } catch (e) { throw new AbortError(e.message); }
+    } catch (e) { throw new AbortError("captureTab aborted"); }
 }
 
 browser.runtime.onMessage.addListener(message => {

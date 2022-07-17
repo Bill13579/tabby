@@ -63,6 +63,16 @@ export class TSession {
         this._listeners.push(listener);
     }
     /**
+     * Remove a session listener
+     * @param {TSessionListener} listener 
+     */
+    removeListener(listener) {
+        let index = this._listeners.indexOf(listener);
+        if (index !== -1) {
+            this._listeners.splice(index, 1);
+        }
+    }
+    /**
      * Get TTab by ID, undefined if otherwise
      * @returns {TTab}
      */
