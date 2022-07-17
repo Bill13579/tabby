@@ -1,0 +1,70 @@
+{
+
+    "manifest_version": 2,
+    "name": "Tabby - Window and Tab Manager",
+    "version": "<this will be filled in when `gen-manifest` gets run>",
+
+    "description": "Manage great amounts of windows and tabs at ease.",
+    "icons": {
+        "48": "icons/tabby-48.png",
+        "96": "icons/tabby-96.png"
+    },
+
+    "permissions": [
+        "tabs",
+        "storage",
+        "contextMenus"
+    ],
+
+    "options_ui": {
+        "page": "options/options.html",
+        "open_in_tab": true
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content/content.js"]
+        }
+    ],
+    "browser_action": {
+        "default_icon": "icons/tabby-32.png",
+        "default_title": "Tabby",
+        "default_popup": "popup/index.html"
+    },
+    "background": {
+        "scripts": ["background/background.js"]
+    },
+
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Space",
+                "mac": "MacCtrl+Shift+Space"
+            },
+            "description": "Open Tabby, with focus on the search bar"
+        },
+        "open-tabby-focus-current": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+X",
+                "mac": "MacCtrl+Shift+X"
+            },
+            "description": "Open Tabby, with focus on the current tab"
+        },
+        "last-used-tab": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+L",
+                "mac": "MacCtrl+Shift+L"
+            },
+            "description": "Open last used tab"
+        },
+        "last-used-window": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+0",
+                "mac": "MacCtrl+Shift+0"
+            },
+            "description": "Open last used window"
+        }
+    }
+
+}

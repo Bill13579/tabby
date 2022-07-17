@@ -1,0 +1,51 @@
+"favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "attention", "audible", "hidden", "status", "discarded"
+
+onUpdated
+- favIconUrl *
+- isArticle *
+- mutedInfo *
+- pinned *
+- title *
+- url *
+- attention
+- audible
+- hidden
+- status
+- discarded
+
+onActivated
+- active *
+
+onMoved
+- index (strip since it could change) *
+
+onAttached
+- index (strip since it could change) *
+- windowId *
+
+STATIC FOR LIFETIME OF TAB
+- cookieStoreId *
+- incognito *
+- openerTabId *
+- id
+
+https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/toggleReaderMode
+MANUALLY CHECK ON EVERY onUpdated
+- isInReaderMode *
+- lastAccessed *
+
+
+
+Standard Order
+Order by Last Accessed Time
++ Search Order
+
+
+image-rendering: pixelated; on favicon
+
+
+onRemoved => onClosed TTab
+onActivated => mergeChanges
+onUpdated => mergeChanges
+onAttached => mergeChanges
+onRemoved (window)

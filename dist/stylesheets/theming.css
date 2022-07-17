@@ -1,0 +1,18 @@
+:root {
+    --bg: #131313;
+    --bg-indented: #3f3f3f;
+    --bg-indented-1: #555555;
+    --bg-indented-2: #5e5e5e;
+    --fg: #e6e6e6;
+    --fg-label: #c1c1c1;
+    --fg-user-content: #ebebeb;
+
+    --input-border: #dadada;
+    --input-focus: #91c3ec;
+    --btn-inline-text: rgb(0, 153, 255);
+    --btn-inline-text-hover: #0062ff;
+    --selected: rgb(48, 97, 255);
+    --selected-2: rgb(37, 81, 224);
+
+    --svg-filter: invert(100%) sepia(5%) saturate(0%) hue-rotate(289deg) brightness(104%) contrast(107%); /* generate here: https://codepen.io/sosuke/pen/Pjoqqp */
+}
