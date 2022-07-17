@@ -67,7 +67,7 @@ import { TTabActions } from "../tapi/taction";
 })();
 
 class TUIList {
-    constructor(data, dataInterpret) {
+    constructor(data, dataInterpret, allowMultiselect=true) {
         this.dataInterpret = dataInterpret;
         let rootContainer = this.dataInterpret.createRoot(data);
         rootContainer.classList.add("-tui-list-container");
@@ -77,15 +77,18 @@ class TUIList {
         this.lastSelected = undefined;
         this.documentHookInPlace_mouseUp = false;
         this.draggedElements = [];
-        document.addEventListener("keypress", (evt) => {
-            if (evt.key === 'm') {
-                if (this.multiselect) {
-                    this.disableMultiselect();
-                } else {
+        if (allowMultiselect) {
+            document.addEventListener("keydown", (evt) => {
+                if (evt.key === 'Shift') {
                     this.enableMultiselect();
                 }
-            }
-        });
+            });
+            document.addEventListener("keyup", (evt) => {
+                if (evt.key === 'Shift') {
+                    this.disableMultiselect();
+                }
+            });
+        }
     }
     append(level, data) {
         let e = this.dataInterpret.createElement(level, data);
