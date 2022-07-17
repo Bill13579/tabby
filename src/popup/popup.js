@@ -25,6 +25,7 @@ import { TTabActions } from "../tapi/taction";
     });
     let all = sess.getAllAs2DArray();
     let tabsList = new TUIList(undefined, new TUITabsList(sess));
+    tabsList.root.setAttribute("data-live", "true");
     let addTab = (tab) => {
         let e = tabsList.append(1, tab);
 
@@ -388,10 +389,12 @@ class TUITabsList extends TUIListDataInterpret {
     handleDrop(elements, dropTarget, relation) {
         let movingDownwards = () => elements[0].compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
         let toMove = elements.filter(ele => ele.classList.contains("tab-entry")).map(ele => parseInt(ele.getAttribute("data-tab-id")));
-        let pos = Array.from(dropTarget.parentElement.children).indexOf(dropTarget) - 1;
+        let listElements = Array.from(dropTarget.parentElement.children);
+        let pos = listElements.indexOf(dropTarget) - 1;
         if (relation === "below" && !movingDownwards()) pos++;
         if (relation === "above" && movingDownwards()) pos--;
         let targetWindowId = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id"))).windowId;
+        pos = pos - listElements.indexOf(dropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`));
         TTabActions.move(toMove, targetWindowId, pos);
     }
 }
