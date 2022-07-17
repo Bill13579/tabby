@@ -8,51 +8,58 @@ import { TTabActions } from "../tapi/taction";
     sess.enableBrowserHooks();
     sess.addListener({
         onTabCreated(tab) {
-            console.log("tabcreated");
-            console.log(tab);
-        },
-        onWindowCreated(window) {
-            console.log("windowcreated");
-            console.log(window);
-
+            let w = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${tab.windowId}"]`);
+            if (w === null) {
+                tabsList.append(0, {
+                    id: tab.windowId
+                });
+            }
+            addTab(tab);
         },
         onWindowClosed(windowId) {
-            console.log("windowclosed");
-            console.log(windowId);
-
+            let w = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${windowId}"]`);
+            if (w) {
+                w.parentElement.removeChild(w);
+            }
         }
     });
     let all = sess.getAllAs2DArray();
     let tabsList = new TUIList(undefined, new TUITabsList(sess));
-    for (let tabs of all) {
+    let addTab = (tab) => {
+        let e = tabsList.append(1, tab);
+
+        // Hook the tab up with its respective TTab object
+        tab.proxy((prop, value) => {
+            console.log("Tab " + tab.id + "'s property " + prop + " has been set to '" + value + "'")
+
+            if (prop === "#position") {
+                let after = document.querySelector(`#tab-list[data-live] .window-entry[data-window-id="${value.newWindowId}"]`);
+                after.parentElement.removeChild(e);
+                let i = value.newPosition;
+                while (i > 0) {
+                    after = after.nextElementSibling;
+                    i--;
+                }
+                after.parentElement.insertBefore(e, after.nextElementSibling);
+            }
+            if (prop === "active") {
+                if (value) e.setAttribute("data-current", "");
+                else e.removeAttribute("data-current");
+            }
+        }, () => {
+            e.parentElement.removeChild(e);
+        });
+    };
+    let addWindow = (tabs) => {
         tabsList.append(0, {
             id: tabs[0].windowId
         });
         for (let tab of tabs) {
-            let e = tabsList.append(1, tab);
-
-            // Hook the tab up with its respective TTab object
-            tab.proxy((prop, value) => {
-                console.log("Tab " + tab.id + "'s property " + prop + " has been set to '" + value + "'")
-
-                if (prop === "#position") {
-                    let after = document.querySelector(`.window-entry[data-window-id="${value.newWindowId}"]`);
-                    after.parentElement.removeChild(e);
-                    let i = value.newPosition;
-                    while (i > 0) {
-                        after = after.nextElementSibling;
-                        i--;
-                    }
-                    after.parentElement.insertBefore(e, after.nextElementSibling);
-                }
-                if (prop === "active") {
-                    if (value) e.setAttribute("data-current", "");
-                    else e.removeAttribute("data-current");
-                }
-            }, () => {
-                e.parentElement.removeChild(e);
-            });
+            addTab(tab);
         }
+    };
+    for (let tabs of all) {
+        addWindow(tabs);
     }
     // === MULTISELECT TEST ===
     //tabsList.enableMultiselect();
@@ -157,7 +164,7 @@ class TUIList {
                     }
                 }
 
-                let draggables = Array.from(document.getElementsByClassName("-tui-list-selected"));
+                let draggables = Array.from(this.root.getElementsByClassName("-tui-list-selected"));
                 if (draggables.length == 0) {
                     draggables = [e];
                 }
@@ -200,7 +207,7 @@ class TUIList {
             }
         });
         let getRidOfOtherCursors = () => {
-            for (let ele of document.querySelectorAll(".tab-list .tab-entry[data-drag-relation]")) {
+            for (let ele of document.querySelectorAll(".-tui-list-container li[data-drag-relation]")) {
                 ele.removeAttribute("data-drag-relation");
             }
         };
