@@ -13,6 +13,7 @@ module.exports = {
     },
     entry: {
         "background/background": "./src/background/background.js",
+        "background/captureTab": "./src/background/captureTab.js",
         "popup/popup": "./src/popup/popup.js",
         "content/content": "./src/content/content.js",
         "options/options": "./src/options/options.js"

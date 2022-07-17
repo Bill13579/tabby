@@ -186,6 +186,11 @@ html, body {
     padding-bottom: 6.5px;
 }
 
+#details-pane .title {
+    white-space: unset;
+    overflow-x: visible;
+}
+
 /* Session display pane styling */
 
 #session-display-pane #session-top-pane {

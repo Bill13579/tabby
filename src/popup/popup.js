@@ -2,6 +2,7 @@ import "Polyfill"
 
 import { TSession, TSessionListener } from "tapi/tsession";
 import { TTabActions } from "../tapi/taction";
+import { DetailsController } from "./details";
 
 (async () => {
     let sess = await TSession.read_from_current();
@@ -24,7 +25,8 @@ import { TTabActions } from "../tapi/taction";
         }
     });
     let all = sess.getAllAs2DArray();
-    let tabsList = new TUIList(undefined, new TUITabsList(sess));
+    let detailsController = new DetailsController();
+    let tabsList = new TUIList(undefined, new TUITabsList(sess, detailsController));
     tabsList.root.setAttribute("data-live", "true");
     let addTab = (tab) => {
         let e = tabsList.append(1, tab);
@@ -252,6 +254,9 @@ class TUIList {
         e.addEventListener("mousemove", () => {
             if (this.multiselect && this.multiselectDragging) processSelect(e, this.multiselectDragging.action);
         });
+        e.addEventListener("mouseover", (evt) => {
+            this.dataInterpret.handleHover(e);
+        });
         this.root.appendChild(e);
         return e;
     }
@@ -270,6 +275,7 @@ class TUIListDataInterpret {
     createRoot(data) { return document.createElement("div"); /*OVERRIDE*/ }
     createElement(level, data) { return document.createElement("div"); /*OVERRIDE*/ }
     handleClick(element) { /*OVERRIDE*/ }
+    handleHover(element) { /*OVERRIDE*/ }
     ghostSetup(ghost) { /*OVERRIDE*/ }
     handleDrop(elements, dropTarget, relation) { /*OVERRIDE*/ }
 }
@@ -278,9 +284,10 @@ class TUIListDataInterpret {
  * Extends TUIListDataInterpret to connect the list to the tab data
  */
 class TUITabsList extends TUIListDataInterpret {
-    constructor(sess) {
+    constructor(sess, detailsController) {
         super();
         this.sess = sess;
+        this.details = detailsController;
     }
     createRoot(data) {
         let list = document.createElement("ul");
@@ -383,6 +390,16 @@ class TUITabsList extends TUIListDataInterpret {
             let windowId = parseInt(element.getAttribute("data-window-id"));
             let actions = this.sess.getWindowActions(windowId);
             actions.activate();
+        }
+    }
+    handleHover(element) {
+        let tabId = parseInt(element.getAttribute("data-tab-id"));
+        let tabObj = this.sess.getTab(tabId);
+        if (element.classList.contains("tab-entry") && tabObj) {
+            this.details.setCurrent(tabId);
+            this.details.setTitle(tabObj.title);
+            this.details.setURL(tabObj.url);
+            this.details.captureTab();
         }
     }
     ghostSetup(ghost) {
