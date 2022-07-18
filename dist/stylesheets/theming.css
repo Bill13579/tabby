@@ -12,9 +12,18 @@
     --btn-inline-text: rgb(0, 153, 255);
     --current-window: #3592fc;
     --current-tab: #4089ff;
-    --btn-inline-text-hover: #0062ff;
     --selected: rgb(48, 97, 255);
+    --btn-inline-text-hover: #0062ff;
     --selected-2: rgb(37, 81, 224);
+
+    --input-focus90: #e791ec; /*currently unused*/
+    --btn-inline-text90: #e500ff; /*currently unused*/
+    --current-window90: #fc35f5;
+    --current-tab90: #d42bc0;
+    --selected90: #c31f98;
+    --btn-inline-text-hover90: #a102a1;
+    --btn-inline-text2-hover90: rgb(145, 4, 145);
+    --selected90-2: #971474;
 
     --save: #aeffc2;
     --load: #8bf1ff;

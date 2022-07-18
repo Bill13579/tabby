@@ -65,6 +65,40 @@ class TUIList {
         });
         let processSelect = (element, originalEvent, action=undefined) => {
             if (this.multiselect) {
+                let noop = false;
+                let parentCheck = (action, noop) => {
+                    // Loop through parents and check if their children have all been selected
+                    let countImpact;
+                    if (noop)
+                        countImpact = 0;
+                    else if (action === "unselecting")
+                        countImpact = -1;
+                    else if (action === "selecting")
+                        countImpact = 1;
+                    else
+                        countImpact = 0; //wut
+                    
+                    let current = this.parent(element);
+                    while (current !== null) {
+                        // Create count if not already exists
+                        if (!current.hasAttribute("data-selected-children-count")) {
+                            current.setAttribute("data-selected-children-count", 0);
+                        }
+
+                        // Update count
+                        let oldCount = parseInt(current.getAttribute("data-selected-children-count"));
+                        let newCount = oldCount + countImpact;
+                        current.setAttribute("data-selected-children-count", newCount.toString());
+
+                        // Check if every child is selected
+                        if (this.children(current, true).length === parseInt(current.getAttribute("data-selected-children-count"))) {
+                            current.classList.add("-tui-list-all-children-selected");
+                        } else {
+                            current.classList.remove("-tui-list-all-children-selected");
+                        }
+                        current = this.parent(current);
+                    }
+                };
                 if (this.multiselectDragging) {
                     if (action === undefined && element.classList.contains("-tui-list-selected")) {
                         action = "unselecting";
@@ -96,12 +130,19 @@ class TUIList {
                         if (next) processSelect(next, originalEvent, action);
                     }
                     if (action === "unselecting") {
+                        if (!element.classList.contains("-tui-list-selected")) {
+                            noop = true;
+                        }
                         element.classList.remove("-tui-list-selected");
                         // reset last-selected if we are unselecting
                         if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
                         this.lastSelected = undefined;
+                        parentCheck("unselecting", noop);
                         return "unselecting";
                     } else {
+                        if (element.classList.contains("-tui-list-selected")) {
+                            noop = true;
+                        }
                         element.classList.add("-tui-list-selected");
                         // set new last-selected element if we are selecting
                         if (this.lastSelected !== undefined) {
@@ -109,6 +150,7 @@ class TUIList {
                         }
                         this.lastSelected = element;
                         element.classList.add("-tui-list-last-selected");
+                        parentCheck("selecting", noop);
                         return "selecting";
                     }
                 }
@@ -200,6 +242,15 @@ class TUIList {
 
         e.addEventListener("mousedown", (evt) => {
             if (this.multiselect) {
+                // Select all children of node
+                let action = e.nextElementSibling.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
+                let old = this.multiselectDragging;
+                this.multiselectDragging = { action };
+                for (let child of this.children(e, true)) {
+                    processSelect(child, evt, action);
+                }
+                this.multiselectDragging = old;
+
                 e.setAttribute("draggable", "false");
                 this.multiselectDragging = true;
                 this.multiselectDragging = { start: e, action: processSelect(e, evt) };
@@ -231,6 +282,42 @@ class TUIList {
     static clearRoot(root) {
         root.innerHTML = "";
     }
+    static isElementSelected(ele) {
+        return ele.classList.contains("-tui-list-selected") || ele.classList.contains("-tui-list-all-children-selected");
+    }
+    children(ele, includeSub=false) {//TODO: Replace other implementations with this definitive one
+        if (ele.isSameNode(this.root)) {
+            let c = [];
+            for (let child of this.root.children) {
+                if (TUIList.levelOf(child) === 0 || includeSub) {
+                    c.push(child);
+                }
+            }
+            return c;
+        }
+        let current = ele.nextElementSibling;
+        let level = TUIList.levelOf(ele);
+        let c = [];
+        while (current !== null && level < TUIList.levelOf(current)) {
+            if (TUIList.levelOf(current) === level + 1 || includeSub) {
+                c.push(current);
+            }
+            current = current.nextElementSibling;
+        }
+        return c;
+    }
+    parent(ele) {//TODO: Replace other implementations with this definitive one
+        if (ele.isSameNode(this.root)) return null;
+        let current = ele.previousElementSibling;
+        let level = TUIList.levelOf(ele);
+        while (current !== null && level <= TUIList.levelOf(current)) {
+            current = current.previousElementSibling;
+        }
+        return current;
+    }
+    static levelOf(ele) {
+        return parseInt(ele.getAttribute("data-level"));
+    }
 }
 
 class TUIListView extends TUIList {
@@ -249,7 +336,8 @@ class TUISessionView extends TUIListView {
         let all = sess.getAllAs2DArray();
         let addWindow = (tabs) => {
             root.appendChild(this.create(0, {
-                id: tabs[0].windowId
+                id: tabs[0].windowId,
+                incognito: tabs[0].incognito
             }));
             for (let tab of tabs) {
                 root.appendChild(TUISessionView.createTab(tab, this, true, hookPos));
@@ -285,7 +373,8 @@ class TUISessionView extends TUIListView {
         let w = this.root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
         if (w === null) {
             this.root.appendChild(this.create(0, {
-                id: windowId
+                id: windowId,
+                incognito: tab.incognito
             }));
             this.root.appendChild(tabElement);
         } else {
@@ -307,11 +396,6 @@ class TUISessionView extends TUIListView {
         TUISessionView.clearRoot(this.root);
         this.sess.removeListener(this.sessionListener);
         return this.root;
-    }
-    static addWindow(windowId, list) {
-        list.root.appendChild(list.create(0, {
-            id: windowId
-        }));
     }
     static createTab(tab, list, hook=true, hookPos=true) {
         let e = list.create(1, tab);
@@ -342,9 +426,19 @@ class TUISessionView extends TUIListView {
                     //TODO
                 } else if (prop === "favIconUrl") {
                     let favicon = e.querySelector(".favicon");
-                    if (favicon) {
-                        favicon.src = value;
+                    let favIconPromise;
+                    if (!value.startsWith("chrome://")) {
+                        if (tab.incognito) {
+                            favIconPromise = t_getImage(value, true);
+                        } else {
+                            favIconPromise = t_getImage(value);
+                        }
+                    } else {
+                        favIconPromise = Promise.resolve(value);
                     }
+                    favIconPromise.then(base64Image => {
+                        favicon.src = base64Image;
+                    });
                 } else if (prop === "mutedInfo") {
                     let speaker = e.querySelector(".speaker");
                     if (speaker) {
@@ -442,6 +536,7 @@ class TUITabsList extends TUIListDataInterpret {
         if (level == 0) {
             let entry = document.createElement("li");
             entry.className = "window-entry";
+            if (data.incognito) entry.classList.add("incognito");
             entry.setAttribute("data-window-id", data.id);
             
             let tmp;
@@ -460,6 +555,7 @@ class TUITabsList extends TUIListDataInterpret {
         } else if (level == 1) {
             let entry = document.createElement("li");
             entry.className = "tab-entry";
+            if (data.incognito) entry.classList.add("incognito");
             entry.setAttribute("data-tab-id", data.id);
             if (data.active) entry.setAttribute("data-current", "");
             
@@ -535,6 +631,7 @@ class TUITabsList extends TUIListDataInterpret {
                 await actions.mute(!tabObj.mutedInfo.muted);
             } else {
                 await actions.activate();
+                this.sess.getWindowActions(tabObj.windowId).activate();
             }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));

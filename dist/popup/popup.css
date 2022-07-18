@@ -366,6 +366,9 @@ html, body {
     z-index: 100;
     transform: translateX(-2px);
 }
+.tab-list .tab-entry.incognito.-tui-list-selected .selected-indicator {
+    background: linear-gradient(90deg, var(--selected90) 0%, var(--selected90) 80%, var(--bg-indented) 80%, #ffffff00 100%);
+}
 .tab-list .tab-entry.-tui-list-selected {
     border-color: var(--selected-2);
     background: linear-gradient(
@@ -374,6 +377,16 @@ html, body {
         var(--bg-indented) 40px,
         var(--selected) 40px,
         var(--selected) 80px
+    );
+}
+.tab-list .tab-entry.incognito.-tui-list-selected {
+    border-color: var(--selected90-2);
+    background: linear-gradient(
+        -55deg,
+        var(--bg-indented),
+        var(--bg-indented) 40px,
+        var(--selected90) 40px,
+        var(--selected90) 80px
     );
 }
 
@@ -413,9 +426,20 @@ html, body {
 .tab-list .window-entry[data-current] {
     background-color: var(--current-window);
 }
+.tab-list .window-entry.incognito[data-current] {
+    background-color: var(--current-window90);
+}
 
-.tab-list .window-entry.-tui-list-hover {
+.tab-list .window-entry.-tui-list-hover,
+.tab-list .window-entry.-tui-list-all-children-selected {
     background-color: var(--btn-inline-text-hover);
+}
+.tab-list .window-entry.incognito {
+    background-color: var(--btn-inline-text-hover90);
+}
+.tab-list .window-entry.incognito.-tui-list-hover,
+.tab-list .window-entry.incognito.-tui-list-all-children-selected {
+    background-color: var(--btn-inline-text2-hover90);
 }
 
 .tab-list .window-entry .title {
@@ -476,8 +500,13 @@ html, body {
     border-color: var(--current-tab);
     background-color: var(--current-tab);
 }
+.tab-list .tab-entry.incognito[data-current] {
+    border-color: var(--current-tab90);
+    background-color: var(--current-tab90);
+}
 
-.tab-list .tab-entry.-tui-list-hover {
+.tab-list .tab-entry.-tui-list-hover,
+.tab-list .tab-entry.-tui-list-hover.incognito {
     border-color: var(--fg-label);
 }
 
@@ -490,13 +519,13 @@ html, body {
     pointer-events: none;
     /*TODO:*/
 }
-.tab-list .tab-entry.-tui-list-last-selected .last-selected-indicator {
+/* .tab-list .tab-entry.-tui-list-last-selected .last-selected-indicator {
     top: -2px;
     left: -2px;
     border-width: 2px;
     border-style: solid;
     border-color: white;
-}
+} *//*TODO: Work on the "last selected" indicator which will be(?) necessary for the kb-only nav*/
 
 .tab-list .tab-entry .favicon {
     vertical-align: middle;
