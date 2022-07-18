@@ -4,13 +4,34 @@ import { TSession, TSessionListener } from "tapi/tsession";
 import { TTabActions } from "../tapi/taction";
 import { DetailsController } from "./details";
 
+class TUIListOptions {
+    constructor() {
+        this.allowMove = true;
+        this.allowMultiselect = true;
+    }
+    move(allowMove) {
+        this.allowMove = allowMove;
+        return this;
+    }
+    multiselect(allowMultiselect) {
+        this.allowMultiselect = allowMultiselect;
+        return this;
+    }
+    get _draggableAttributeValue() {
+        return this.allowMove ? "true" : "false";
+    }
+    static default() {
+        return new TUIListOptions();
+    }
+}
+
 class TUIList {
     static makeRoot(dataInterpret, data) {
         let rootContainer = dataInterpret.createRoot(data);
         rootContainer.classList.add("-tui-list-container");
         return rootContainer;
     }
-    constructor(root, dataInterpret, allowMultiselect=true) {
+    constructor(root, dataInterpret, listOptions=TUIListOptions.default()) {
         this.dataInterpret = dataInterpret;
         this.root = root;
         this.multiselect = false;
@@ -18,7 +39,8 @@ class TUIList {
         this.lastSelected = undefined;
         this.documentHookInPlace_mouseUp = false;
         this.draggedElements = [];
-        if (allowMultiselect) {
+        this.listOptions = listOptions;
+        if (listOptions.allowMultiselect) {
             document.addEventListener("keydown", (evt) => {
                 if (evt.key === 'Shift') {
                     this.enableMultiselect();
@@ -33,7 +55,7 @@ class TUIList {
     }
     create(level, data) {
         let e = this.dataInterpret.createElement(level, data);
-        e.setAttribute("draggable", "true");
+        e.setAttribute("draggable", this.listOptions._draggableAttributeValue);
         e.setAttribute("tabindex", "0");
         e.setAttribute("data-level", level);
         e.addEventListener("mouseenter", () => {
@@ -41,7 +63,7 @@ class TUIList {
             if (lastHover) lastHover.classList.remove("-tui-list-hover");
             e.classList.add("-tui-list-hover");
         });
-        let processSelect = (element, action=undefined) => {
+        let processSelect = (element, originalEvent, action=undefined) => {
             if (this.multiselect) {
                 if (this.multiselectDragging) {
                     if (action === undefined && element.classList.contains("-tui-list-selected")) {
@@ -71,7 +93,7 @@ class TUIList {
                             }
                         };
                         let next = getNextSafe(element);
-                        if (next) processSelect(next, action);
+                        if (next) processSelect(next, originalEvent, action);
                     }
                     if (action === "unselecting") {
                         element.classList.remove("-tui-list-selected");
@@ -91,64 +113,13 @@ class TUIList {
                     }
                 }
             } else {
-                this.dataInterpret.handleClick(element);
+                this.dataInterpret.handleClick(element, originalEvent);
                 return "click";
             }
         };
-        e.addEventListener("click", () => {
+        e.addEventListener("click", (evt) => {
             if (!this.multiselect) {
-                processSelect(e);
-            }
-        });
-        e.addEventListener("dragstart", (evt) => {
-            if (!this.multiselect) {
-                let pastGhosts = document.getElementsByClassName("-tui-drag-ghost");
-                if (pastGhosts.length > 0) {
-                    for (let g of pastGhosts) {
-                        g.parentElement.removeChild(g);
-                    }
-                }
-
-                let draggables = Array.from(this.root.getElementsByClassName("-tui-list-selected"));
-                if (draggables.length == 0) {
-                    draggables = [e];
-                }
-                this.draggedElements = draggables;
-
-                // let closestDraggable = evt.target;
-                // while (closestDraggable && !closestDraggable.classList.contains("-tui-list-selected")) {
-                //     closestDraggable = closestDraggable.previousElementSibling;
-                // }
-                // if (closestDraggable === null) {
-                //     closestDraggable = draggables[draggables.length-1];
-                // }
-
-                const areSiblings = (element1, element2) => 
-                    (element1.nextElementSibling && element1.nextElementSibling.isSameNode(element2)) ||
-                    (element1.previousElementSibling && element1.previousElementSibling.isSameNode(element2));
-
-                let ghost = document.createElement("div");
-                this.dataInterpret.ghostSetup(ghost);
-                ghost.classList.add("-tui-drag-ghost");
-                ghost.style.position = "fixed";
-
-                for (let i = 0; i < draggables.length; i++) {
-                    let draggableClone = draggables[i].cloneNode(true);
-                    ghost.appendChild(draggableClone);
-                    // if (closestDraggable.isSameNode(draggables[i])) {
-                    //     console.log(closestDraggable);
-                    // }
-                    if (i !== draggables.length-1) {
-                        if (!areSiblings(draggables[i], draggables[i+1])) {
-                            ghost.lastElementChild.style.marginBottom = "10px";
-                        }
-                    }
-                }
-
-                document.body.appendChild(ghost);
-
-                evt.dataTransfer.setDragImage(ghost, 0, ghost.getBoundingClientRect().height*4);
-
+                processSelect(e, evt);
             }
         });
         let getRidOfOtherCursors = () => {
@@ -156,42 +127,95 @@ class TUIList {
                 ele.removeAttribute("data-drag-relation");
             }
         };
-        e.addEventListener("dragend", () => {
-            getRidOfOtherCursors();
-        });
-        e.addEventListener("dragover", (evt) => {
-            evt.preventDefault();
-            getRidOfOtherCursors();
-            if (evt.offsetY <= e.getBoundingClientRect().height / 2) {
-                e.setAttribute("data-drag-relation", "above");
-            } else {
-                e.setAttribute("data-drag-relation", "below");
-            }
-        });
-        e.addEventListener("dragleave", (evt) => {  });
-        e.addEventListener("drop", (evt) => {
-            this.dataInterpret.handleDrop(this.draggedElements, e, e.getAttribute("data-drag-relation"));
-            e.removeAttribute("data-drag-relation");
-        });
+        if (this.listOptions.allowMove) {
+            e.addEventListener("dragstart", (evt) => {
+                if (!this.multiselect) {
+                    let pastGhosts = document.getElementsByClassName("-tui-drag-ghost");
+                    if (pastGhosts.length > 0) {
+                        for (let g of pastGhosts) {
+                            g.parentElement.removeChild(g);
+                        }
+                    }
 
-        e.addEventListener("mousedown", () => {
+                    let draggables = Array.from(this.root.getElementsByClassName("-tui-list-selected"));
+                    if (draggables.length == 0) {
+                        draggables = [e];
+                    }
+                    this.draggedElements = draggables;
+
+                    // let closestDraggable = evt.target;
+                    // while (closestDraggable && !closestDraggable.classList.contains("-tui-list-selected")) {
+                    //     closestDraggable = closestDraggable.previousElementSibling;
+                    // }
+                    // if (closestDraggable === null) {
+                    //     closestDraggable = draggables[draggables.length-1];
+                    // }
+
+                    const areSiblings = (element1, element2) => 
+                        (element1.nextElementSibling && element1.nextElementSibling.isSameNode(element2)) ||
+                        (element1.previousElementSibling && element1.previousElementSibling.isSameNode(element2));
+
+                    let ghost = document.createElement("div");
+                    this.dataInterpret.ghostSetup(ghost);
+                    ghost.classList.add("-tui-drag-ghost");
+                    ghost.style.position = "fixed";
+
+                    for (let i = 0; i < draggables.length; i++) {
+                        let draggableClone = draggables[i].cloneNode(true);
+                        ghost.appendChild(draggableClone);
+                        // if (closestDraggable.isSameNode(draggables[i])) {
+                        //     console.log(closestDraggable);
+                        // }
+                        if (i !== draggables.length-1) {
+                            if (!areSiblings(draggables[i], draggables[i+1])) {
+                                ghost.lastElementChild.style.marginBottom = "10px";
+                            }
+                        }
+                    }
+
+                    document.body.appendChild(ghost);
+
+                    evt.dataTransfer.setDragImage(ghost, 0, ghost.getBoundingClientRect().height*4);
+
+                }
+            });
+            e.addEventListener("dragend", () => {
+                getRidOfOtherCursors();
+            });
+            e.addEventListener("dragover", (evt) => {
+                evt.preventDefault();
+                getRidOfOtherCursors();
+                if (evt.offsetY <= e.getBoundingClientRect().height / 2) {
+                    e.setAttribute("data-drag-relation", "above");
+                } else {
+                    e.setAttribute("data-drag-relation", "below");
+                }
+            });
+            e.addEventListener("dragleave", (evt) => {  });
+            e.addEventListener("drop", (evt) => {
+                this.dataInterpret.handleDrop(this.draggedElements, e, e.getAttribute("data-drag-relation"));
+                e.removeAttribute("data-drag-relation");
+            });
+        }
+
+        e.addEventListener("mousedown", (evt) => {
             if (this.multiselect) {
                 e.setAttribute("draggable", "false");
                 this.multiselectDragging = true;
-                this.multiselectDragging = { start: e, action: processSelect(e) };
+                this.multiselectDragging = { start: e, action: processSelect(e, evt) };
                 this.multiselectDragging.start.classList.add("-tui-list-drag-starter");
             }
         });
         if (!this.documentHookInPlace_mouseUp) document.addEventListener("mouseup", () => {
             if (this.multiselectDragging) {
                 this.multiselectDragging.start.classList.remove("-tui-list-drag-starter");
-                this.multiselectDragging.start.setAttribute("draggable", "true");
+                this.multiselectDragging.start.setAttribute("draggable", this.listOptions._draggableAttributeValue);
             }
             this.documentHookInPlace_mouseUp = true;
             this.multiselectDragging = false;
         });
-        e.addEventListener("mousemove", () => {
-            if (this.multiselect && this.multiselectDragging) processSelect(e, this.multiselectDragging.action);
+        e.addEventListener("mousemove", (evt) => {
+            if (this.multiselect && this.multiselectDragging) processSelect(e, evt, this.multiselectDragging.action);
         });
         e.addEventListener("mouseover", (evt) => {
             this.dataInterpret.handleHover(e);
@@ -219,8 +243,8 @@ class TUISessionView extends TUIListView {
      * Also, insert any event listeners here to listen for new items that need to be inserted, use `put` to insert
      * @param {TSession} sess 
      */
-    constructor(root, sess, dataInterpret, hookPos=true) {
-        super(root, dataInterpret);
+    constructor(root, sess, dataInterpret, listOptions=TUIListOptions.default(), hookPos=true) {
+        super(root, dataInterpret, listOptions);
         this.sess = sess;
         let all = sess.getAllAs2DArray();
         let addWindow = (tabs) => {
@@ -297,8 +321,7 @@ class TUISessionView extends TUIListView {
             tab.proxy((prop, value) => {
                 console.log("Tab " + tab.id + "'s property " + prop + " has been set to '" + value + "'")
     
-                if (prop === "#position" && hookPos) {//TODO
-                    console.log(value);
+                if (prop === "#position" && hookPos) {
                     let after = list.root.querySelector(`.window-entry[data-window-id="${value.newWindowId}"]`);
                     after.parentElement.removeChild(e);
                     let i = value.newPosition;
@@ -311,11 +334,48 @@ class TUISessionView extends TUIListView {
                     if (value) e.setAttribute("data-current", "");
                     else e.removeAttribute("data-current");
                 } else if (prop === "title") {
-                    //TODO
+                    let title = e.querySelector(".title");
+                    if (title) {
+                        title.innerText = value;
+                    }
                 } else if (prop === "url") {
                     //TODO
                 } else if (prop === "favIconUrl") {
-                    //TODO
+                    let favicon = e.querySelector(".favicon");
+                    if (favicon) {
+                        favicon.src = value;
+                    }
+                } else if (prop === "mutedInfo") {
+                    let speaker = e.querySelector(".speaker");
+                    if (speaker) {
+                        if (value.muted) {
+                            speaker.setAttribute("data-state", "off");
+                        } else {
+                            if (tab.audible) {
+                                speaker.setAttribute("data-state", "on");
+                            } else {
+                                speaker.setAttribute("data-state", "");
+                            }
+                        }
+                    }
+                } else if (prop === "audible") {
+                    let speaker = e.querySelector(".speaker");
+                    if (speaker) {
+                        if (tab.mutedInfo.muted) {
+                            speaker.setAttribute("data-state", "off");
+                        } else {
+                            if (value) {
+                                speaker.setAttribute("data-state", "on");
+                            } else {
+                                speaker.setAttribute("data-state", "");
+                            }
+                        }
+                    }
+                } else if (prop === "pinned") {
+                    let pin = e.querySelector(".pin");
+                    if (pin) {
+                        pin.setAttribute("data-state", value ? "pinned" : "");
+                    }
                 }// TODO: isArticle, status?
             }, () => {
                 e.parentElement.removeChild(e);
@@ -338,6 +398,15 @@ class TUISessionNoWindowsView extends TUISessionView {
         return ele;
     }
 }
+/**
+ * In addition to being a basic tab list without windows, also disable the position hooks
+ *  for the tabs. Base class for various sorted views
+ */
+class TUISessionNoWindowsPosHooklessView extends TUISessionNoWindowsView {
+    constructor(root, sess, dataInterpret, listOptions=TUIListOptions.default()) {
+        super(root, sess, dataInterpret, listOptions, false);
+    }
+}
 
 /**
  * Base class for connecting the list to the data behind the list
@@ -345,7 +414,7 @@ class TUISessionNoWindowsView extends TUISessionView {
 class TUIListDataInterpret {
     createRoot(data) { return document.createElement("div"); /*OVERRIDE*/ }
     createElement(level, data) { return document.createElement("div"); /*OVERRIDE*/ }
-    handleClick(element) { /*OVERRIDE*/ }
+    handleClick(element, originalEvent) { /*OVERRIDE*/ }
     handleHover(element) { /*OVERRIDE*/ }
     ghostSetup(ghost) { /*OVERRIDE*/ }
     handleDrop(elements, dropTarget, relation) { /*OVERRIDE*/ }
@@ -442,9 +511,11 @@ class TUITabsList extends TUIListDataInterpret {
             tmp = document.createElement("div");
             tmp.className = "single-controls";
             let pin = document.createElement("span");
-            pin.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme hide-when-not-selected pin";
+            pin.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme show-when-on hide-when-not-selected pin";
+            pin.setAttribute("data-state", data.pinned ? "pinned" : "");
             let speaker = document.createElement("span");
-            speaker.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme speaker";
+            speaker.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme show-when-on speaker";
+            speaker.setAttribute("data-state", data.mutedInfo.muted ? "off" : (data.audible ? "on" : ""));
             let closeTab = document.createElement("span");
             closeTab.className = "inline-button inline-icon-button close-tab";
             tmp.appendChild(pin); tmp.appendChild(speaker); tmp.appendChild(closeTab);
@@ -453,15 +524,22 @@ class TUITabsList extends TUIListDataInterpret {
             return entry;
         }
     }
-    handleClick(element) {
+    async handleClick(element, evt) {
         if (element.classList.contains("tab-entry")) {
             let tabId = parseInt(element.getAttribute("data-tab-id"));
+            let tabObj = this.sess.getTab(tabId);
             let actions = this.sess.getTabActions(tabId);
-            actions.activate();
+            if (evt.target.classList.contains("pin")) {
+                await actions.pin(!tabObj.pinned);
+            } else if (evt.target.classList.contains("speaker")) {
+                await actions.mute(!tabObj.mutedInfo.muted);
+            } else {
+                await actions.activate();
+            }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
             let actions = this.sess.getWindowActions(windowId);
-            actions.activate();
+            await actions.activate();
         }
     }
     handleHover(element) {
@@ -499,7 +577,7 @@ class TUITabsList extends TUIListDataInterpret {
     let root = TUIList.makeRoot(dataInterpret, undefined);
     let tabsList = new TUISessionView(root, sess, dataInterpret);
     tabsList.root.setAttribute("data-live", "true");
-    tabsList = new TUISessionView(tabsList.cleanUp(), sess, dataInterpret);
+    //tabsList = new TUISessionNoWindowsView(tabsList.cleanUp(), sess, dataInterpret);
     // === MULTISELECT TEST ===
     //tabsList.enableMultiselect();
 })();

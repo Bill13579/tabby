@@ -132,6 +132,14 @@ html, body {
 #details-pane {
     box-sizing: border-box;
     padding-left: calc(16.75px * var(--scale));
+    overflow-y: scroll;
+    height: 100%;
+
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+#details-pane::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
 }
 #session-pane, #session-display-pane {
     box-sizing: border-box;
@@ -547,6 +555,9 @@ html, body {
     display: none;
 }
 .tab-list .tab-entry.-tui-list-hover .single-controls .pin.hide-when-not-selected, 
+.tab-list .tab-entry .single-controls .pin.show-when-on[data-state=pinned],
+.tab-list .tab-entry .single-controls .speaker.show-when-on[data-state=off],
+.tab-list .tab-entry .single-controls .speaker.show-when-on[data-state=on],
 .tab-list .tab-entry.-tui-list-selected .single-controls .pin.hide-when-not-selected {
     display: inline-block;
 }

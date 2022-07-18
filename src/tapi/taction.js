@@ -7,6 +7,12 @@ export class TTabActions {
     activate() {
         return browser.tabs.update(this.id, {active: true});
     }
+    pin(v) {
+        return browser.tabs.update(this.id, {pinned: v});
+    }
+    mute(v) {
+        return browser.tabs.update(this.id, {muted: v});
+    }
     captureTab(signal, quality) {
         if (browser.tabs.captureTab) {
             return new Promise((resolve, reject) => {
