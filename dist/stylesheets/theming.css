@@ -10,9 +10,14 @@
     --input-border: #dadada;
     --input-focus: #91c3ec;
     --btn-inline-text: rgb(0, 153, 255);
+    --current-window: #3592fc;
+    --current-tab: #4089ff;
     --btn-inline-text-hover: #0062ff;
     --selected: rgb(48, 97, 255);
     --selected-2: rgb(37, 81, 224);
+
+    --save: #aeffc2;
+    --load: #8bf1ff;
 
     --svg-filter: invert(100%) sepia(5%) saturate(0%) hue-rotate(289deg) brightness(104%) contrast(107%); /* generate here: https://codepen.io/sosuke/pen/Pjoqqp */
 }

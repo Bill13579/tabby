@@ -252,7 +252,7 @@ html, body {
     border-top-right-radius: 3px;
     background-image: url(../icons/archive.svg);
     background-size: calc(18px * var(--scale)) calc(18px * var(--scale));
-    background-color: #aeffc2;
+    background-color: var(--save);
     transition: background-image 100ms;
 }
 #main[data-view="1"] 
@@ -277,7 +277,7 @@ html, body {
     border-top: none;
     background-image: url(../icons/restore.svg);
     background-size: calc(18px * var(--scale)) calc(18px * var(--scale));
-    background-color: #8bf1ff;
+    background-color: var(--load);
     transition: background-image 100ms;
 }
 #main[data-view="1"] 
@@ -411,11 +411,11 @@ html, body {
 }
 
 .tab-list .window-entry[data-current] {
-    background-color: #3592fc;
+    background-color: var(--current-window);
 }
 
 .tab-list .window-entry.-tui-list-hover {
-    background-color: #0062ff;
+    background-color: var(--btn-inline-text-hover);
 }
 
 .tab-list .window-entry .title {
@@ -473,8 +473,8 @@ html, body {
 }
 
 .tab-list .tab-entry[data-current] {
-    border-color: #4089ff;
-    background-color: #4089ff;
+    border-color: var(--current-tab);
+    background-color: var(--current-tab);
 }
 
 .tab-list .tab-entry.-tui-list-hover {
