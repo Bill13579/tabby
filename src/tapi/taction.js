@@ -44,7 +44,7 @@ export class TWindowActions {
         return Promise.all(this.ids.map(id => browser.windows.remove(id)));
     }
     titlePreface(title) {
-        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: title})));
+        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: `[${title}] `})));
     }
 }
 

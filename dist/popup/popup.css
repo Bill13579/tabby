@@ -517,6 +517,10 @@ html, body {
 }
 .tab-list .window-entry .single-controls .rename-window {
     background-image: url(../icons/rename.svg);
+    display: none;
+}
+.alt-pressed .tab-list .window-entry .single-controls .rename-window {
+    display: block;
 }
 .tab-list .window-entry .single-controls .hide-window-tabs {
     transform: scale(150%);

@@ -39,19 +39,22 @@ class TUIList {
         this.multiselectDragging = false;
         this.lastSelected = undefined;
         this.documentHookInPlace_mouseUp = false;
+        this.documentHook_mouseUp = undefined;
         this.draggedElements = [];
         this.listOptions = listOptions;
+        this.documentHook_keyDown = (evt) => {
+            if (evt.key === 'Shift') {
+                this.enableMultiselect();
+            }
+        };
+        this.documentHook_keyUp = (evt) => {
+            if (evt.key === 'Shift') {
+                this.disableMultiselect();
+            }
+        };
         if (listOptions.allowMultiselect) {
-            document.addEventListener("keydown", (evt) => {
-                if (evt.key === 'Shift') {
-                    this.enableMultiselect();
-                }
-            });
-            document.addEventListener("keyup", (evt) => {
-                if (evt.key === 'Shift') {
-                    this.disableMultiselect();
-                }
-            });
+            document.addEventListener("keydown", this.documentHook_keyDown);
+            document.addEventListener("keyup", this.documentHook_keyUp);
         }
     }
     create(level, data) {
@@ -165,6 +168,13 @@ class TUIList {
                 processSelect(e, evt);
             }
         });
+        e.addEventListener("auxclick", (evt) => {
+            if (!this.multiselect && evt.button === 1) {
+                evt.preventDefault();
+                processSelect(e, evt);
+                return false;
+            }
+        });
         let getRidOfOtherCursors = () => {
             for (let ele of document.querySelectorAll(".-tui-list-container li[data-drag-relation]")) {
                 ele.removeAttribute("data-drag-relation");
@@ -260,14 +270,17 @@ class TUIList {
                 this.multiselectDragging.start.classList.add("-tui-list-drag-starter");
             }
         });
-        if (!this.documentHookInPlace_mouseUp) document.addEventListener("mouseup", () => {
-            if (this.multiselectDragging) {
-                this.multiselectDragging.start.classList.remove("-tui-list-drag-starter");
-                this.multiselectDragging.start.setAttribute("draggable", this.listOptions._draggableAttributeValue);
-            }
+        if (!this.documentHookInPlace_mouseUp) {
             this.documentHookInPlace_mouseUp = true;
-            this.multiselectDragging = false;
-        });
+            this.documentHook_mouseUp = () => {
+                if (this.multiselectDragging) {
+                    this.multiselectDragging.start.classList.remove("-tui-list-drag-starter");
+                    this.multiselectDragging.start.setAttribute("draggable", this.listOptions._draggableAttributeValue);
+                }
+                this.multiselectDragging = false;
+            };
+            document.addEventListener("mouseup", this.documentHook_mouseUp);
+        }
         e.addEventListener("mousemove", (evt) => {
             if (this.multiselect && this.multiselectDragging) processSelect(e, evt, this.multiselectDragging.action);
         });
@@ -407,6 +420,11 @@ class TUISessionView extends TUIListView {
         }
         TUISessionView.clearRoot(this.root);
         this.sess.removeListener(this.sessionListener);
+        document.removeEventListener("keydown", this.documentHook_keyDown);
+        document.removeEventListener("keyup", this.documentHook_keyUp);
+        if (this.documentHook_mouseUp) {
+            document.removeEventListener("mouseup", this.documentHook_mouseUp);
+        }
         return this.root;
     }
     static createTab(tab, list, hook=true, hookPos=true) {
@@ -609,6 +627,7 @@ class WindowName extends TUIEditableLabel {
     onEnter(value) {
         this.sess._rel.setName(this.windowId, value);
         this.editing = false;
+        t_altReleasedEarly();
     }
 }
 /**
@@ -745,7 +764,7 @@ class TUITabsList extends TUIListDataInterpret {
                 await actions.pin(!tabObj.pinned);
             } else if (evt.target.classList.contains("speaker")) {
                 await actions.mute(!tabObj.mutedInfo.muted);
-            } else if (evt.target.classList.contains("close-tab")) {
+            } else if (evt.target.classList.contains("close-tab") || evt.button === 1) {
                 await actions.remove();
             } else {
                 await actions.activate();
@@ -794,6 +813,25 @@ class TUITabsList extends TUIListDataInterpret {
 }
 
 (async () => {
+    document.addEventListener("keydown", (evt) => {
+        if (evt.key === 'Alt') {
+            document.body.classList.add("alt-pressed");
+        }
+    });
+    let altReleased = () => {
+        document.body.classList.remove("alt-pressed");
+    };
+    document.addEventListener("keyup", (evt) => {
+        if (evt.key === 'Alt') {
+            altReleased();
+        }
+    });
+    /**
+     * For use when `keyup` is not called for whatever reason or the code wants to pretend that 
+     * alt has been released early.
+     */
+    window.t_altReleasedEarly = altReleased;
+
     let sess = await TSession.read_from_current();
     sess.enableBrowserHooks();
     let detailsController = new DetailsController();

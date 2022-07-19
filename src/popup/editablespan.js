@@ -7,9 +7,9 @@ export class TUIEditableColor {
         this.root.setAttribute("type", "color");
         this.root.value = "#e66465";
         this.root.classList.add("-tui-editable-color");
-        for (let ev of "drag dragend dragenter dragleave dragover dragstart drop blur change click dblclick error focus focusin focusout hover keydown keypress keyup load mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup resize scroll select submit".split(" ")) {
-            this.root.addEventListener(ev, (evt) => evt.stopPropagation());
-        }
+        // for (let ev of "drag dragend dragenter dragleave dragover dragstart drop blur change click dblclick error focus focusin focusout hover keydown keypress keyup load mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup resize scroll select submit".split(" ")) {
+        //     this.root.addEventListener(ev, (evt) => evt.stopPropagation());
+        // }
         this.root.addEventListener("input", this.onInput);
     }
     get value() {
@@ -37,9 +37,9 @@ export class TUIEditableLabel {
         this.editing = false;
         this.root.value = "Editable Label";
         this.root.classList.add("-tui-editable-span");
-        for (let ev of "drag dragend dragenter dragleave dragover dragstart drop blur change click dblclick error focus focusin focusout hover keydown keypress keyup load mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup resize scroll select submit".split(" ")) {
-            this.root.addEventListener(ev, (evt) => evt.stopPropagation());
-        }
+        // for (let ev of "drag dragend dragenter dragleave dragover dragstart drop blur change click dblclick error focus focusin focusout hover keydown keypress keyup load mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup resize scroll select submit".split(" ")) {
+        //     this.root.addEventListener(ev, (evt) => evt.stopPropagation());
+        // }
         this.root.addEventListener("keyup", e => {
             if (this.editing) {
                 if (e.key === "Enter") {
@@ -61,6 +61,7 @@ export class TUIEditableLabel {
         if (bool) {
             this.root.style.pointerEvents = "";
             this.root.focus();
+            this.root.select();
             this.root.classList.add("-tui-editable-span-editing");
         } else {
             this.root.style.pointerEvents = "none";
