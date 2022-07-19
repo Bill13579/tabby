@@ -34,6 +34,7 @@ class TUIList {
     }
     constructor(root, dataInterpret, listOptions=TUIListOptions.default()) {
         this.dataInterpret = dataInterpret;
+        dataInterpret.__setList(this);
         this.root = root;
         this.multiselect = false;
         this.multiselectDragging = false;
@@ -302,6 +303,7 @@ class TUIList {
         return ele.classList.contains("-tui-list-selected") || ele.classList.contains("-tui-list-all-children-selected");
     }
     children(ele, includeSub=false) {//TODO: Replace other implementations with this definitive one
+        //TODO: Write another function that gets the child at a specific index
         if (ele.isSameNode(this.root)) {
             let c = [];
             for (let child of this.root.children) {
@@ -652,6 +654,10 @@ class TUITabsList extends TUIListDataInterpret {
         super();
         this.sess = sess;
         this.details = detailsController;
+        this.list = undefined;
+    }
+    __setList(list) {
+        this.list = list;
     }
     createRoot(data) {
         let list = document.createElement("ul");
@@ -813,19 +819,237 @@ class TUITabsList extends TUIListDataInterpret {
         ghost.style.width = "calc(var(--width) * 0.45)";
     }
     handleDrop(elements, dropTarget, relation) {
+        let elementsClone = Array.from(elements);
         let toMove = elements.filter(ele => ele.classList.contains("tab-entry")).map(ele => parseInt(ele.getAttribute("data-tab-id")));
         
         if (dropTarget.classList.contains("window-entry")) {
             let targetWindowId = parseInt(dropTarget.getAttribute("data-window-id"));
             TTabActions.move(toMove, targetWindowId, -1);
         } else {
-            let movingDownwards = () => elements[0].compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
-            let listElements = Array.from(dropTarget.parentElement.children);
-            let pos = listElements.indexOf(dropTarget) - 1;
-            if (relation === "below" && !movingDownwards()) pos++;
-            if (relation === "above" && movingDownwards()) pos--;
+            // let targetTab = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id")));
+            // let targetWindowId = targetTab.windowId;
+            // let firstMove = toMove.shift();
+            // elementsClone.shift();
+            // let movingDownwards = () => {
+            //     let ele = undefined;
+            //     let elementWindowId = this.sess.getTab(firstMove).windowId;
+            //     if (elementWindowId === targetWindowId) {
+            //         ele = elements[0];
+            //     }
+            //     if (ele) {
+            //         return ele.compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
+            //     } else {
+            //         return false;
+            //     }
+            // };
+            // targetTab.index.then(pos => {
+            //     if (movingDownwards()) {
+            //         pos--;
+            //     }
+            //     if (relation === "below") {
+            //         pos++;
+            //     }
+            //     TTabActions.move([firstMove], targetWindowId, pos).then(async () => {
+            //         let nextMove = toMove.shift();
+            //         let nextMoveElement = elementsClone.shift();
+            //         let moveAfter = firstMove;
+            //         let canMoveWithoutCalc = [];
+            //         let moveAllFromOtherWindows = async () => {
+            //             canMoveWithoutCalc = [];
+            //             let moveChunkAfter = moveAfter;
+            //             if (nextMove === undefined) return;
+            //             let tabInformation = this.sess.getTab(nextMove);
+                        
+            //             while (nextMove !== undefined && tabInformation.windowId !== targetWindowId) {
+            //                 canMoveWithoutCalc.push(nextMove);
+                            
+            //                 moveAfter = nextMove;
+            //                 nextMove = toMove.shift();
+            //                 nextMoveElement = elementsClone.shift();
+            //                 if (nextMove) tabInformation = this.sess.getTab(nextMove);
+            //             }
+            //             console.log("move without calculations: ", canMoveWithoutCalc);
+            //             await TTabActions.move(canMoveWithoutCalc, targetWindowId, (await this.sess.getTab(moveChunkAfter).index) + 1);
+            //         };
+            //         await moveAllFromOtherWindows();
+            //         await t_delay(5);
+
+            //         let movingDown = [];
+            //         let movingUp = [];
+            //         let newDropBase = canMoveWithoutCalc[canMoveWithoutCalc.length-1];
+            //         if (newDropBase === undefined) {
+            //             newDropBase = firstMove;
+            //         }
+            //         let newDropTarget = dropTarget.parentElement.querySelector(`.tab-entry[data-tab-id="${newDropBase}"]`);
+            //         while (nextMove !== undefined) {
+            //             let nextMoveTabWID = this.sess.getTab(nextMove).windowId;
+            //             let moveAfterTabWID = this.sess.getTab(moveAfter).windowId;
+            //             if (nextMoveTabWID !== moveAfterTabWID) {
+            //                 break;
+            //             }
+            //             let comparePos = nextMoveElement.compareDocumentPosition(newDropTarget);
+            //             if (comparePos & Node.DOCUMENT_POSITION_FOLLOWING) { // We are moving the tab downwards
+            //                 movingDown.push(nextMove);
+            //             } else if (comparePos === 0) {
+
+            //             } else {
+            //                 movingUp.push(nextMove);
+            //             }
+            //             moveAfter = nextMove;
+            //             nextMove = toMove.shift();
+            //             nextMoveElement = elementsClone.shift();
+            //         }
+            //         let listElements = Array.from(newDropTarget.parentElement.children);
+            //         let pos = listElements.indexOf(newDropTarget);
+            //         let targetWindowElement = newDropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`);
+            //         pos = pos - listElements.indexOf(targetWindowElement);
+            //         // move up elements
+            //         await TTabActions.move(movingUp, targetWindowId, pos);
+
+            //         await t_delay(5);
+
+            //         // move down elements
+            //         await TTabActions.move(movingDown, targetWindowId, pos-1); //TODO: Why the heck is it pos-1?? (It works but still)
+
+            //         await t_delay(5);
+
+            //         await moveAllFromOtherWindows();
+            //     });
+            // });
+
+
+
+
+
+
+            // let targetTab = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id")));
+            // let targetWindowId = targetTab.windowId;
+            // let firstMove = toMove.shift();
+            // let movingDownwards = () => {
+            //     let ele = undefined;
+            //     let elementWindowId = this.sess.getTab(firstMove).windowId;
+            //     if (elementWindowId === targetWindowId) {
+            //         ele = elements[0];
+            //     }
+            //     if (ele) {
+            //         return ele.compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
+            //     } else {
+            //         return false;
+            //     }
+            // };
+            // targetTab.index.then(pos => {
+            //     if (movingDownwards()) {
+            //         pos--;
+            //     }
+            //     if (relation === "below") {
+            //         pos++;
+            //     }
+            //     TTabActions.move([firstMove], targetWindowId, pos).then(async () => {
+            //         let nextMove = toMove.shift();
+            //         let moveAfter = firstMove;
+            //         let moveAllFromOtherWindows = async () => {
+            //             let moveChunkAfter = moveAfter;
+            //             if (nextMove === undefined) return;
+            //             let tabInformation = this.sess.getTab(nextMove);
+            //             let canMoveWithoutCalc = [];
+            //             while (nextMove !== undefined && tabInformation.windowId !== targetWindowId) {
+            //                 canMoveWithoutCalc.push(nextMove);
+    
+            //                 moveAfter = nextMove;
+            //                 nextMove = toMove.shift();
+            //                 if (nextMove) tabInformation = this.sess.getTab(nextMove);
+            //             }
+            //             console.log("move without calculations: ", canMoveWithoutCalc);
+            //             await TTabActions.move(canMoveWithoutCalc, targetWindowId, (await this.sess.getTab(moveChunkAfter).index) + 1);
+            //         };
+            //         await moveAllFromOtherWindows();
+            //         while (nextMove !== undefined) {
+            //             let nextMoveTab = this.sess.getTab(nextMove);
+            //             let nextMoveFullLive = await nextMoveTab.full;
+            //             let nextMoveIndex = nextMoveFullLive.index;
+            //             let nextMoveTabWID = nextMoveFullLive.windowId;
+
+            //             let moveAfterTab = this.sess.getTab(moveAfter);
+            //             let moveAfterFullLive = await moveAfterTab.full;
+            //             let moveAfterIndex = moveAfterFullLive.index;
+            //             let moveAfterTabWID = moveAfterFullLive.windowId;
+
+            //             let finalPos = moveAfterIndex + 1;
+            //             if (nextMoveTabWID !== moveAfterTabWID) {
+            //                 break;
+            //             }
+            //             if (nextMoveIndex < moveAfterIndex) { // We are moving the tab downwards
+            //                 finalPos--;
+            //             }
+
+            //             await TTabActions.move([nextMove], moveAfterTabWID, finalPos);
+
+            //             moveAfter = nextMove;
+            //             nextMove = toMove.shift();
+            //         }
+            //         await moveAllFromOtherWindows();
+            //     });
+            // });
+
+
+
+
+
+
+
+            // let targetTab = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id")));
+            // let targetWindowId = targetTab.windowId;
+            // TTabActions.move(toMove, targetWindowId, -1).then(async () => {
+            //     let pos = await targetTab.index;
+            //     if (relation === "below") {
+            //         pos++;
+            //     }
+            //     TTabActions.move(toMove, targetWindowId, pos);
+            // });
+
+
+
+
+            
+            
+
+
+
+
+
+
+
+
+            
             let targetWindowId = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id"))).windowId;
-            pos = pos - listElements.indexOf(dropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`));
+            let movingDownwards = () => {
+                let ele = undefined;
+                for (const element of elements) {
+                    let elementWindowId = this.sess.getTab(parseInt(element.getAttribute("data-tab-id"))).windowId;
+                    if (elementWindowId === targetWindowId) {
+                        ele = element;
+                        break;
+                    }
+                }
+                if (ele) {
+                    return ele.compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
+                } else {
+                    return false;
+                }
+            };
+            let listElements = Array.from(dropTarget.parentElement.children);
+            let targetWindowElement = dropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`);
+            let pos = listElements.indexOf(dropTarget);
+            pos = pos - listElements.indexOf(targetWindowElement) - 1;
+            //https://bugzilla.mozilla.org/show_bug.cgi?id=1766159
+            if (movingDownwards()) pos--; // https://bugzilla.mozilla.org/show_bug.cgi?id=1323311
+            if (relation === "below") pos++;
+            if (this.list && relation === "below") {
+                let targetWindowElementChildren = this.list.children(targetWindowElement, false);
+                if (dropTarget.isSameNode(targetWindowElementChildren[targetWindowElementChildren.length-1])) {
+                    pos = -1;
+                }
+            }
             TTabActions.move(toMove, targetWindowId, pos);
         }
     }
