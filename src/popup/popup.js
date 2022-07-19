@@ -9,6 +9,7 @@ class TUIListOptions {
     constructor() {
         this.allowMove = true;
         this.allowMultiselect = true;
+        this.allowKBOnly = true;
     }
     move(allowMove) {
         this.allowMove = allowMove;
@@ -16,6 +17,10 @@ class TUIListOptions {
     }
     multiselect(allowMultiselect) {
         this.allowMultiselect = allowMultiselect;
+        return this;
+    }
+    kbonly(allowKBOnly) {
+        this.allowKBOnly = allowKBOnly;
         return this;
     }
     get _draggableAttributeValue() {
@@ -32,15 +37,23 @@ class TUIList {
         rootContainer.classList.add("-tui-list-container");
         return rootContainer;
     }
+    set kb(v) {
+        if (v !== this.__kb) { /*TODO: Make use */}
+        this.__kb = v;
+    }
+    get kb() {
+        return this.__kb;
+    }
     constructor(root, dataInterpret, listOptions=TUIListOptions.default()) {
         this.dataInterpret = dataInterpret;
         dataInterpret.__setList(this);
         this.root = root;
         this.multiselect = false;
         this.multiselectDragging = false;
+        this.__kb = false;
         this.lastSelected = undefined;
         this.documentHookInPlace_mouseUp = false;
-        this.documentHook_mouseUp = undefined;
+        this.endMultiselect = undefined;
         this.draggedElements = [];
         this.listOptions = listOptions;
         this.documentHook_keyDown = (evt) => {
@@ -57,6 +70,46 @@ class TUIList {
             document.addEventListener("keydown", this.documentHook_keyDown);
             document.addEventListener("keyup", this.documentHook_keyUp);
         }
+        this.kbMap = {};
+        this.documentHook_keyDownKBOnly = (evt) => {
+            //ArrowUp,ArrowDown
+            this.kbMap[evt.key] = true;
+            this.kb = true;
+            let lastHover = this.root.querySelector(".-tui-list-hover");
+            let nextHover;
+            if (evt.key === 'ArrowUp') {
+                if (lastHover) lastHover.classList.remove("-tui-list-hover");
+                if (lastHover && lastHover.previousElementSibling) {
+                    nextHover = lastHover.previousElementSibling;
+                } else {
+                    nextHover = this.root.children[this.root.children.length-1];
+                }
+            } else if (evt.key === 'ArrowDown') {
+                if (lastHover) lastHover.classList.remove("-tui-list-hover");
+                if (lastHover && lastHover.nextElementSibling) {
+                    nextHover = lastHover.nextElementSibling
+                } else {
+                    nextHover = this.root.children[0];
+                }
+            }
+            if (nextHover) {
+                nextHover.classList.add("-tui-list-hover");
+                nextHover.dispatchEvent(new KeyboardEvent("keydown", {'key': evt.key}));
+            } else if (lastHover) {
+                lastHover.dispatchEvent(new KeyboardEvent("keydown", {'key': evt.key}));
+            }
+        };
+        this.documentHook_keyUpKBOnly = (evt) => {
+            delete this.kbMap[evt.key];
+            let lastHover = this.root.querySelector(".-tui-list-hover");
+            if (lastHover) {
+                lastHover.dispatchEvent(new KeyboardEvent("keyup", {'key': evt.key}));
+            }
+        };
+        if (listOptions.allowKBOnly) {
+            document.addEventListener("keydown", this.documentHook_keyDownKBOnly);
+            document.addEventListener("keyup", this.documentHook_keyUpKBOnly);
+        }
     }
     create(level, data) {
         let e = this.dataInterpret.createElement(level, data);
@@ -64,9 +117,11 @@ class TUIList {
         e.setAttribute("tabindex", "0");
         e.setAttribute("data-level", level);
         e.addEventListener("mouseenter", () => {
-            let lastHover = this.root.querySelector(".-tui-list-hover");
-            if (lastHover) lastHover.classList.remove("-tui-list-hover");
-            e.classList.add("-tui-list-hover");
+            if (!this.kb) {
+                let lastHover = this.root.querySelector(".-tui-list-hover");
+                if (lastHover) lastHover.classList.remove("-tui-list-hover");
+                e.classList.add("-tui-list-hover");
+            }
         });
         let processSelect = (element, originalEvent, action=undefined) => {
             if (this.multiselect) {
@@ -252,6 +307,23 @@ class TUIList {
             });
         }
 
+        let startMultiselect = (e, evt) => {
+            this.multiselectDragging = true;
+            this.multiselectDragging = { start: e, action: processSelect(e, evt) };
+            this.multiselectDragging.start.classList.add("-tui-list-drag-starter");
+        };
+        let onSelection = (e, evt) => {
+            this.dataInterpret.handleHover(e);
+            if (this.multiselect && this.multiselectDragging) processSelect(e, evt, this.multiselectDragging.action);
+        };
+        this.endMultiselect = () => {
+            if (this.multiselectDragging) {
+                this.multiselectDragging.start.classList.remove("-tui-list-drag-starter");
+                this.multiselectDragging.start.setAttribute("draggable", this.listOptions._draggableAttributeValue);
+            }
+            this.multiselectDragging = false;
+        };
+
         e.addEventListener("mousedown", (evt) => {
             if (this.multiselect) {
                 // Select all children of node
@@ -266,28 +338,31 @@ class TUIList {
                 }
 
                 e.setAttribute("draggable", "false");
-                this.multiselectDragging = true;
-                this.multiselectDragging = { start: e, action: processSelect(e, evt) };
-                this.multiselectDragging.start.classList.add("-tui-list-drag-starter");
+                startMultiselect(e, evt);
             }
         });
         if (!this.documentHookInPlace_mouseUp) {
             this.documentHookInPlace_mouseUp = true;
-            this.documentHook_mouseUp = () => {
-                if (this.multiselectDragging) {
-                    this.multiselectDragging.start.classList.remove("-tui-list-drag-starter");
-                    this.multiselectDragging.start.setAttribute("draggable", this.listOptions._draggableAttributeValue);
-                }
-                this.multiselectDragging = false;
-            };
-            document.addEventListener("mouseup", this.documentHook_mouseUp);
+            document.addEventListener("mouseup", this.endMultiselect);
         }
-        e.addEventListener("mousemove", (evt) => {
-            if (this.multiselect && this.multiselectDragging) processSelect(e, evt, this.multiselectDragging.action);
-        });
         e.addEventListener("mouseover", (evt) => {
-            this.dataInterpret.handleHover(e);
+            this.kb = false;
+            onSelection(e, evt);
         });
+        // e.addEventListener("keydown", (evt) => {
+        //     if (this.kb && this.kbMap["Shift"]) {
+        //         if (this.multiselectDragging) {
+        //             onSelection(e, evt);
+        //         } else {
+        //             startMultiselect(e, evt);
+        //         }
+        //     }
+        // });
+        // e.addEventListener("keyup", (evt) => {
+        //     if (evt.key === "Shift") {
+        //         this.endMultiselect();
+        //     }
+        // });
         return e;
     }
     enableMultiselect() {
@@ -424,8 +499,10 @@ class TUISessionView extends TUIListView {
         this.sess.removeListener(this.sessionListener);
         document.removeEventListener("keydown", this.documentHook_keyDown);
         document.removeEventListener("keyup", this.documentHook_keyUp);
-        if (this.documentHook_mouseUp) {
-            document.removeEventListener("mouseup", this.documentHook_mouseUp);
+        document.removeEventListener("keydown", this.documentHook_keyDownKBOnly);
+        document.removeEventListener("keyup", this.documentHook_keyUpKBOnly);
+        if (this.endMultiselect) {
+            document.removeEventListener("mouseup", this.endMultiselect);
         }
         return this.root;
     }
