@@ -11,6 +11,7 @@ export class TSessionListener {
     onTabCreated(tab) {  }
     onWindowCreated(window) {  }
     onWindowClosed(windowId) {  }
+    onWindowFocusChanged(windowId) {  }
 }
 
 export class TSession {
@@ -54,6 +55,11 @@ export class TSession {
         this._window_created_hook = (window) => {
             for (let listener of this._listeners) listener.onWindowCreated(window);
         };
+        this._window_focus_changed_hook = (windowId) => {
+            windowId = windowId === browser.windows.WINDOW_ID_NONE ? -1 : windowId;
+            this._rel.setFocusedWindow(windowId);
+            for (let listener of this._listeners) listener.onWindowFocusChanged(windowId);
+        };
     }
     /**
      * Add a session listener
@@ -61,6 +67,13 @@ export class TSession {
      */
     addListener(listener) {
         this._listeners.push(listener);
+    }
+    /**
+     * Check if a session listener exists
+     * @param {TSessionListener} listener 
+     */
+    hasListener(listener) {
+        return this._listeners.indexOf(listener) !== -1;
     }
     /**
      * Remove a session listener
@@ -82,13 +95,13 @@ export class TSession {
     /**
      * Get TTabActions by ID
      */
-    getTabActions(tabId) {
+    getTabActions(tabId) { //TODO: Replace usage of this with just straight up calling the constructor
         return new TTabActions(tabId);
     }
     /**
      * Get TWindowActions by ID
      */
-    getWindowActions(windowId) {
+    getWindowActions(windowId) { //TODO: Replace usage of this with just straight up calling the constructor
         return new TWindowActions(windowId);
     }
     /**
@@ -104,6 +117,7 @@ export class TSession {
         //TODO: Deal with chrome prerendering onReplaced
         browser.windows.onRemoved.addListener(this._window_removed_hook);
         browser.windows.onCreated.addListener(this._window_created_hook);
+        browser.windows.onFocusChanged.addListener(this._window_focus_changed_hook);
     }
     /**
      * Returns a 2D array of TTab's representing the order of all tabs and windows
@@ -121,10 +135,17 @@ export class TSession {
         let sess = new TSession();
         let q = await browser.tabs.query({}); //get all tabs
         for (let t of q) {
-            if (!sess._rel.hasWindow(t.windowId)) sess._rel.registerWindow(t.windowId);
+            if (!sess._rel.hasWindow(t.windowId)) {
+                sess._rel.registerWindow(t.windowId);
+                let win = await browser.windows.get(t.windowId, {populate: false});
+                if (win.focused) { //check if the window is focused
+                    sess._rel.setFocusedWindow(t.windowId);
+                }
+            }
             sess._rel.appendTabToWindow(t.windowId, t);
             sess._tabs[t.id] = TTab.fromTab(t);
         }
+        await sess._rel.reloadNamesFromTemporaryStore();
         return sess;
     }
 }

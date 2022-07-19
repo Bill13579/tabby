@@ -107,6 +107,51 @@ input[type="text"]:focus {
     pointer-events: none;
 }
 
+.-tui-editable-span {
+    all: unset;
+    transform: translateX(2.2px);
+}
+.-tui-editable-span.-tui-editable-span-editing {
+    background-color: var(--bg-indented-translucent);
+    border-color: var(--bg-indented);
+    border-radius: 2px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 1.5px;
+    padding-top: 3px;
+}
+.-tui-editable-span.-tui-editable-span-editing::selection{
+    background: var(--bg-indented);
+}
+.-tui-editable-span.-tui-editable-span-editing::-moz-selection{
+    background: var(--bg-indented);
+}
+
+.-tui-editable-color.-tui-editable-color-dot {
+    border: 0;
+    padding: 0;
+    width: 200%;
+    height: 200%;
+    cursor: pointer;
+    transform: translate(-25%,-25%);
+}
+.-tui-editable-color-dot-wrapper {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    border-color: white;
+    box-shadow: 0px 0px 0.5px 0.2px #DADADA;
+}
+.-tui-editable-color-dot-wrapper {
+    box-shadow: 0px 0px 0.4px 1.4px #DADADA;
+}
+.-tui-editable-color-dot-wrapper:hover {
+    opacity: 0.8;
+}
+
 /* Overall layout */
 
 html, body, #main {
@@ -426,6 +471,12 @@ html, body {
 .tab-list .window-entry[data-current] {
     background-color: var(--current-window);
 }
+.tab-list .window-entry .current-window-indicator {
+    display: none;
+}
+.tab-list .window-entry[data-current] .current-window-indicator {
+    display: inline;
+}
 .tab-list .window-entry.incognito[data-current] {
     background-color: var(--current-window90);
 }
@@ -449,16 +500,27 @@ html, body {
 }
 
 .tab-list .window-entry .single-controls {
-    display: inline-block;
+    display: inherit;
     width: auto;
     height: auto;
 }
 
-.tab-list .window-entry .single-controls .close-window {
-    background-image: url(../icons/close.svg);
+.tab-list .window-entry .single-controls .close-window,
+.tab-list .window-entry .single-controls .rename-window,
+.tab-list .window-entry .single-controls .hide-window-tabs {
     width: calc(19px * var(--scale));
     height: calc(19px * var(--scale));
     display: block;
+}
+.tab-list .window-entry .single-controls .close-window {
+    background-image: url(../icons/close.svg);
+}
+.tab-list .window-entry .single-controls .rename-window {
+    background-image: url(../icons/rename.svg);
+}
+.tab-list .window-entry .single-controls .hide-window-tabs {
+    transform: scale(150%);
+    background-image: url(../icons/dropup.svg);
 }
 
 .tab-list .tab-entry {

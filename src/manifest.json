@@ -33,7 +33,7 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["background/background.js", "background/captureTab.js"],
+        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js"],
         "persistent": false
     },
 

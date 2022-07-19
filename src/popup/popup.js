@@ -1,8 +1,9 @@
 import "Polyfill"
 
 import { TSession, TSessionListener } from "tapi/tsession";
-import { TTabActions } from "../tapi/taction";
+import { TTabActions, TWindowActions } from "../tapi/taction";
 import { DetailsController } from "./details";
+import { TUIEditableColorDot, TUIEditableLabel } from "./editablespan";
 
 class TUIListOptions {
     constructor() {
@@ -155,7 +156,7 @@ class TUIList {
                     }
                 }
             } else {
-                this.dataInterpret.handleClick(element, originalEvent);
+                this.dataInterpret.handleClick(element, this.root.getElementsByClassName("-tui-list-selected"), originalEvent);
                 return "click";
             }
         };
@@ -243,13 +244,15 @@ class TUIList {
         e.addEventListener("mousedown", (evt) => {
             if (this.multiselect) {
                 // Select all children of node
-                let action = e.nextElementSibling.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
-                let old = this.multiselectDragging;
-                this.multiselectDragging = { action };
-                for (let child of this.children(e, true)) {
-                    processSelect(child, evt, action);
+                if (e.nextElementSibling) {
+                    let action = e.nextElementSibling.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
+                    let old = this.multiselectDragging;
+                    this.multiselectDragging = { action };
+                    for (let child of this.children(e, true)) {
+                        processSelect(child, evt, action);
+                    }
+                    this.multiselectDragging = old;
                 }
-                this.multiselectDragging = old;
 
                 e.setAttribute("draggable", "false");
                 this.multiselectDragging = true;
@@ -351,10 +354,19 @@ class TUISessionView extends TUIListView {
                 this.put(tab, TUISessionView.createTab(tab, this, true, hookPos));
             },
             onWindowClosed: (windowId) => {
-                console.log("testt");
                 let w = root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
                 if (w) {
                     w.parentElement.removeChild(w);
+                }
+            },
+            onWindowFocusChanged: (windowId) => {
+                let w = root.querySelector(`.window-entry[data-current]`);
+                if (w) {
+                    w.removeAttribute("data-current");
+                }
+                w = root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
+                if (w) {
+                    w.setAttribute("data-current", "true");
                 }
             }
         };
@@ -508,12 +520,97 @@ class TUISessionNoWindowsPosHooklessView extends TUISessionNoWindowsView {
 class TUIListDataInterpret {
     createRoot(data) { return document.createElement("div"); /*OVERRIDE*/ }
     createElement(level, data) { return document.createElement("div"); /*OVERRIDE*/ }
-    handleClick(element, originalEvent) { /*OVERRIDE*/ }
+    handleClick(element, allMultiselected, originalEvent) { /*OVERRIDE*/ }
     handleHover(element) { /*OVERRIDE*/ }
     ghostSetup(ghost) { /*OVERRIDE*/ }
     handleDrop(elements, dropTarget, relation) { /*OVERRIDE*/ }
 }
 
+/**
+ * Window name input handler
+ */
+class WindowName extends TUIEditableLabel {
+    static __instances = new Map();
+    static sessionListener = {
+        onTabCreated: (tab) => {  },
+        onWindowClosed: (closedWindowId) => {
+            if (WindowName.__instances.has(closedWindowId)) {
+                WindowName.__instances.delete(closedWindowId);
+            }
+            WindowName.recalculateOrder();
+        },
+        onWindowFocusChanged: (windowId) => {  }
+    };
+    static recalculateOrder() {
+        let i = 1;
+        for (let [, windowName] of WindowName.__instances) {
+            windowName.initialWindowName = `Window ${i}`;
+            i++;
+        }
+    }
+    /**
+     * Returns the correct instance of WindowName based on the window id (undefined if instance does not exist)
+     * @param {Integer} windowId 
+     * @returns {WindowName}
+     */
+    static getInstance(windowId) {
+        return WindowName.__instances.get(windowId);
+    }
+    // The window name will not actually be set until the "wrapper" is added to the DOM and the value property of this object is changed for the first time
+    constructor(windowId, sess, defaultWindowName) {
+        super();
+
+        this.windowId = windowId;
+        this.sess = sess;
+
+        WindowName.__instances.set(windowId, this);
+        // This sessionListener must be added in order to prevent memory leaks
+        if (!sess.hasListener(WindowName.sessionListener)) {
+            sess.addListener(WindowName.sessionListener);
+        }
+
+        this.__initialWindowName = defaultWindowName;
+        this.__currentValue = "";
+
+        this.wrapper = document.createElement("span");
+        this.wrapper.classList.add("title");
+
+        this.wrapper.appendChild(this.root);
+
+        this.currentWindowIndicator = document.createElement("span");
+        this.currentWindowIndicator.innerText = " - Current";
+        this.currentWindowIndicator.classList.add("current-window-indicator");
+
+        this.wrapper.appendChild(this.currentWindowIndicator);
+
+        WindowName.recalculateOrder();
+    }
+    /**
+     * Initialize window name from temp store
+     * (As with most other methods in this class, call only after adding "wrapper" to DOM)
+     */
+    initializeFromStore() {
+        let nameFromStore = this.sess._rel.getName(this.windowId);
+        this.value = nameFromStore ? nameFromStore : "";
+    }
+    // Careful with the getter, if used inside of value's setter WILL cause an infinite loop
+    set initialWindowName(v) {
+        this.__initialWindowName = v;
+        this.value = this.__currentValue;
+    }
+    set value(v) {
+        this.__currentValue = v;
+        if (v.trim() === "") {
+            super.value = this.__initialWindowName;
+        } else {
+            super.value = v;
+        }
+    }
+    onEnter(value) {
+        this.sess._rel.setName(this.windowId, value);
+        this.editing = false;
+    }
+}
 /**
  * Extends TUIListDataInterpret to connect the list to the tab data
  *  (Never call any methods from this class directly! They are called automatically by TUIList)
@@ -538,16 +635,27 @@ class TUITabsList extends TUIListDataInterpret {
             entry.className = "window-entry";
             if (data.incognito) entry.classList.add("incognito");
             entry.setAttribute("data-window-id", data.id);
+            if (this.sess._rel.getFocusedWindow() === data.id) entry.setAttribute("data-current", "true");
             
-            let tmp;
-            tmp = document.createElement("span");
-            tmp.className = "title";
+            let tmp = document.createElement("span");
+            tmp.className = "single-controls";
+            let tmp1 = document.createElement("span");
+            tmp1.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme hide-window-tabs";
+            tmp.appendChild(tmp1);
             entry.appendChild(tmp);
+
+            let windowNameComponent = new WindowName(data.id, this.sess, "Window #");
+            entry.appendChild(windowNameComponent.wrapper);
+            setTimeout(() => windowNameComponent.value = "", 1);
+            setTimeout(() => windowNameComponent.initializeFromStore(), 2);
 
             tmp = document.createElement("span");
             tmp.className = "single-controls";
+            tmp1 = document.createElement("span");
+            tmp1.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme rename-window";
             let tmp2 = document.createElement("span");
             tmp2.className = "inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme close-window";
+            tmp.appendChild(tmp1);
             tmp.appendChild(tmp2);
             entry.appendChild(tmp);
 
@@ -620,23 +728,42 @@ class TUITabsList extends TUIListDataInterpret {
             return entry;
         }
     }
-    async handleClick(element, evt) {
+    async handleClick(element, allMultiselected, evt) {
+        allMultiselected = Array.from(allMultiselected);
+        let elementIsInMultiselection = allMultiselected.some(node => node.isSameNode(element));
         if (element.classList.contains("tab-entry")) {
             let tabId = parseInt(element.getAttribute("data-tab-id"));
             let tabObj = this.sess.getTab(tabId);
-            let actions = this.sess.getTabActions(tabId);
+            let actions;
+            if (elementIsInMultiselection) {
+                let multiselectIds = allMultiselected.filter(node => node.hasAttribute("data-tab-id")).map(node => parseInt(node.getAttribute("data-tab-id")));
+                actions = new TTabActions(...multiselectIds);
+            } else {
+                actions = new TTabActions(tabId);
+            }
             if (evt.target.classList.contains("pin")) {
                 await actions.pin(!tabObj.pinned);
             } else if (evt.target.classList.contains("speaker")) {
                 await actions.mute(!tabObj.mutedInfo.muted);
+            } else if (evt.target.classList.contains("close-tab")) {
+                await actions.remove();
             } else {
                 await actions.activate();
                 this.sess.getWindowActions(tabObj.windowId).activate();
             }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
-            let actions = this.sess.getWindowActions(windowId);
-            await actions.activate();
+            let actions = new TWindowActions(windowId);
+            if (evt.target.classList.contains("rename-window")) {
+                let windowName = WindowName.getInstance(windowId);
+                if (windowName) {
+                    windowName.editing = true;
+                }
+            } else if (evt.target.classList.contains("close-window")) {
+                await actions.remove();
+            } else {
+                await actions.activate();
+            }
         }
     }
     handleHover(element) {

@@ -1,22 +1,25 @@
 import "Polyfill"
 
 export class TTabActions {
-    constructor(tabId) {
-        this.id = tabId;
+    constructor(...tabIds) {
+        this.ids = tabIds;
     }
     activate() {
-        return browser.tabs.update(this.id, {active: true});
+        return browser.tabs.update(this.ids[0], {active: true});
     }
     pin(v) {
-        return browser.tabs.update(this.id, {pinned: v});
+        return Promise.all(this.ids.map(id => browser.tabs.update(id, {pinned: v})));
     }
     mute(v) {
-        return browser.tabs.update(this.id, {muted: v});
+        return Promise.all(this.ids.map(id => browser.tabs.update(id, {muted: v})));
+    }
+    remove() {
+        return browser.tabs.remove(this.ids);
     }
     captureTab(signal, quality) {
         if (browser.tabs.captureTab) {
             return new Promise((resolve, reject) => {
-                browser.tabs.captureTab(this.id, quality).then((dataURI) => {
+                browser.tabs.captureTab(this.ids[0], quality).then((dataURI) => {
                     if (!signal.aborted) resolve(dataURI);
                 });
                 signal.onabort = reject;
@@ -31,11 +34,17 @@ export class TTabActions {
 }
 
 export class TWindowActions {
-    constructor(windowId) {
-        this.id = windowId;
+    constructor(...windowIds) {
+        this.ids = windowIds;
     }
     activate() {
-        return browser.windows.update(this.id, {focused: true});
+        return browser.windows.update(this.ids[0], {focused: true});
+    }
+    remove() {
+        return Promise.all(this.ids.map(id => browser.windows.remove(id)));
+    }
+    titlePreface(title) {
+        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: title})));
     }
 }
 
