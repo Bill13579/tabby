@@ -819,7 +819,7 @@ class TUITabsList extends TUIListDataInterpret {
         ghost.style.width = "calc(var(--width) * 0.45)";
     }
     handleDrop(elements, dropTarget, relation) {
-        let elementsClone = Array.from(elements);
+        //let elementsClone = Array.from(elements);
         let toMove = elements.filter(ele => ele.classList.contains("tab-entry")).map(ele => parseInt(ele.getAttribute("data-tab-id")));
         
         if (dropTarget.classList.contains("window-entry")) {
