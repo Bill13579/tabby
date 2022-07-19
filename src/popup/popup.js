@@ -624,6 +624,19 @@ class WindowName extends TUIEditableLabel {
             super.value = v;
         }
     }
+    get editing() {
+        return super.editing;
+    }
+    set editing(v) {
+        super.editing = v;
+        if (this.wrapper && this.wrapper.parentElement) {
+            if (v) {
+                this.wrapper.parentElement.querySelector(".rename-window").classList.add("hold-while-editing");
+            } else {
+                this.wrapper.parentElement.querySelector(".rename-window").classList.remove("hold-while-editing");
+            }
+        }
+    }
     onEnter(value) {
         this.sess._rel.setName(this.windowId, value);
         this.editing = false;
@@ -800,27 +813,50 @@ class TUITabsList extends TUIListDataInterpret {
         ghost.style.width = "calc(var(--width) * 0.45)";
     }
     handleDrop(elements, dropTarget, relation) {
-        let movingDownwards = () => elements[0].compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
         let toMove = elements.filter(ele => ele.classList.contains("tab-entry")).map(ele => parseInt(ele.getAttribute("data-tab-id")));
-        let listElements = Array.from(dropTarget.parentElement.children);
-        let pos = listElements.indexOf(dropTarget) - 1;
-        if (relation === "below" && !movingDownwards()) pos++;
-        if (relation === "above" && movingDownwards()) pos--;
-        let targetWindowId = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id"))).windowId;
-        pos = pos - listElements.indexOf(dropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`));
-        TTabActions.move(toMove, targetWindowId, pos);
+        
+        if (dropTarget.classList.contains("window-entry")) {
+            let targetWindowId = parseInt(dropTarget.getAttribute("data-window-id"));
+            TTabActions.move(toMove, targetWindowId, -1);
+        } else {
+            let movingDownwards = () => elements[0].compareDocumentPosition(dropTarget) & Node.DOCUMENT_POSITION_FOLLOWING;
+            let listElements = Array.from(dropTarget.parentElement.children);
+            let pos = listElements.indexOf(dropTarget) - 1;
+            if (relation === "below" && !movingDownwards()) pos++;
+            if (relation === "above" && movingDownwards()) pos--;
+            let targetWindowId = this.sess.getTab(parseInt(dropTarget.getAttribute("data-tab-id"))).windowId;
+            pos = pos - listElements.indexOf(dropTarget.parentElement.querySelector(`.window-entry[data-window-id="${targetWindowId}"]`));
+            TTabActions.move(toMove, targetWindowId, pos);
+        }
     }
 }
 
 (async () => {
-    document.addEventListener("keydown", (evt) => {
-        if (evt.key === 'Alt') {
+    let _alt = false;
+    let altPressed = () => {
+        if (!_alt) {
+            _alt = true;
             document.body.classList.add("alt-pressed");
         }
-    });
-    let altReleased = () => {
-        document.body.classList.remove("alt-pressed");
     };
+    let altReleased = () => {
+        if (_alt) {
+            _alt = false;
+            document.body.classList.remove("alt-pressed");
+        }
+    };
+    document.addEventListener("keydown", (evt) => {
+        if (evt.key === 'Alt') {
+            altPressed();
+        }
+    });
+    document.addEventListener("drag", (evt) => {
+        if (evt.altKey) {
+            altPressed();
+        } else {
+            altReleased();
+        }
+    });
     document.addEventListener("keyup", (evt) => {
         if (evt.key === 'Alt') {
             altReleased();

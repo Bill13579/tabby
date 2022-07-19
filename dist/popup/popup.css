@@ -109,7 +109,7 @@ input[type="text"]:focus {
 
 .-tui-editable-span {
     all: unset;
-    transform: translateX(2.2px);
+    /* transform: translateX(2.2px); */
 }
 .-tui-editable-span.-tui-editable-span-editing {
     background-color: var(--bg-indented-translucent);
@@ -435,6 +435,12 @@ html, body {
     );
 }
 
+.tab-list .window-entry[data-drag-relation] {
+    border-color: var(--fg-user-content);
+    border-width: 2px;
+    border-style: dashed;
+}
+
 .tab-list .window-entry {
     display: -ms-flex;
     display: -webkit-flex;
@@ -519,7 +525,8 @@ html, body {
     background-image: url(../icons/rename.svg);
     display: none;
 }
-.alt-pressed .tab-list .window-entry .single-controls .rename-window {
+.alt-pressed .tab-list .window-entry .single-controls .rename-window,
+.tab-list .window-entry .single-controls .rename-window.hold-while-editing {
     display: block;
 }
 .tab-list .window-entry .single-controls .hide-window-tabs {
