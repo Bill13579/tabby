@@ -874,6 +874,34 @@ window["t_getImage"] = function (url, noCache=false) {
     });
 };
 
+window["t_ctrlCmdKey"] = function () {
+    if (navigator.platform.indexOf("Mac") >= 0 || navigator.platform === "iPhone") {
+        return "Meta";
+    } else {
+        return "Control";
+    }
+};
+
+window["t_getElementsBetween"] = function (node1, node2) {
+    if (!node1.parentElement.isSameNode(node2.parentElement)) return undefined; // can't perform function
+    if (node1.isSameNode(node2)) return [];
+    let between = [];
+
+    let getNext = (n) => n.nextElementSibling;
+    if (node1.compareDocumentPosition(node2) & Node.DOCUMENT_POSITION_PRECEDING) {
+        getNext = (n) => n.previousElementSibling;
+    }
+
+    let nextNode = getNext(node1);
+    while (nextNode && !nextNode.isSameNode(node2)) {
+        between.push(nextNode);
+
+        nextNode = getNext(nextNode);
+    }
+
+    return between;
+};
+
 /***/ }),
 
 /***/ "./src/tapi/store.js":

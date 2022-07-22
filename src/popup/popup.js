@@ -48,6 +48,7 @@ class TUIList {
         this.dataInterpret = dataInterpret;
         dataInterpret.__setList(this);
         this.root = root;
+        // this.root.addEventListener("contextmenu", ( e )=> { e.preventDefault(); return false; } );
         this.multiselect = false;
         this.multiselectDragging = false;
         this.__kb = false;
@@ -56,24 +57,35 @@ class TUIList {
         this.endMultiselect = undefined;
         this.draggedElements = [];
         this.listOptions = listOptions;
+        this.kbMap = {};
         this.documentHook_keyDown = (evt) => {
-            if (evt.key === 'Shift') {
+            evt.preventDefault();
+            this.kbMap[evt.key] = true;
+            if (evt.key === t_ctrlCmdKey()) {
                 this.enableMultiselect();
+                this.root.parentElement.style.overflowY = "hidden"; //TODO: Consider replacing with class
             }
+            // if (this.kbMap["Control"] && this.kbMap["Shift"]) {
+            //     if (this.multiselect) {
+            //         this.disableMultiselect();
+            //     } else {
+            //         this.enableMultiselect();
+            //     }
+            // }
         };
         this.documentHook_keyUp = (evt) => {
-            if (evt.key === 'Shift') {
+            delete this.kbMap[evt.key];
+            if (evt.key === t_ctrlCmdKey()) {
                 this.disableMultiselect();
+                this.root.parentElement.style.overflowY = "";
             }
         };
         if (listOptions.allowMultiselect) {
             document.addEventListener("keydown", this.documentHook_keyDown);
             document.addEventListener("keyup", this.documentHook_keyUp);
         }
-        this.kbMap = {};
         this.documentHook_keyDownKBOnly = (evt) => {
             //ArrowUp,ArrowDown
-            this.kbMap[evt.key] = true;
             this.kb = true;
             let lastHover = this.root.querySelector(".-tui-list-hover");
             let nextHover;
@@ -100,7 +112,6 @@ class TUIList {
             }
         };
         this.documentHook_keyUpKBOnly = (evt) => {
-            delete this.kbMap[evt.key];
             let lastHover = this.root.querySelector(".-tui-list-hover");
             if (lastHover) {
                 lastHover.dispatchEvent(new KeyboardEvent("keyup", {'key': evt.key}));
@@ -124,7 +135,7 @@ class TUIList {
             }
         });
         let processSelect = (element, originalEvent, action=undefined) => {
-            if (this.multiselect) {
+            if (this.multiselect || this.kbMap["Shift"]) {
                 let noop = false;
                 let parentCheck = (action, noop) => {
                     // Loop through parents and check if their children have all been selected
@@ -194,9 +205,17 @@ class TUIList {
                             noop = true;
                         }
                         element.classList.remove("-tui-list-selected");
-                        // reset last-selected if we are unselecting
-                        if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
-                        this.lastSelected = undefined;
+                        // // reset last-selected if we are unselecting
+                        // if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
+                        // this.lastSelected = undefined;
+                        // parentCheck("unselecting", noop);
+                        // return "unselecting";
+                        // set new last-selected element if we are unselecting as well
+                        if (this.lastSelected !== undefined) {
+                            this.lastSelected.classList.remove("-tui-list-last-selected");
+                        }
+                        this.lastSelected = element;
+                        element.classList.add("-tui-list-last-selected");
                         parentCheck("unselecting", noop);
                         return "unselecting";
                     } else {
@@ -325,6 +344,34 @@ class TUIList {
         };
 
         e.addEventListener("mousedown", (evt) => {
+            // Select all nodes from -tui-list-last-selected to the clicked element if "Shift" is pressed
+            if (this.kbMap["Shift"]) {
+                if (this.lastSelected) {
+                    let ret = true;
+                    if (e.isSameNode(this.lastSelected)) {
+                        ret = false;
+                    }
+                    let action = this.lastSelected.classList.contains("-tui-list-selected") ? "selecting" : "unselecting";
+                    let old = this.multiselectDragging;
+                    this.multiselectDragging = { action };
+                    // processSelect(<target>, evt, action);
+                    for (let target of t_getElementsBetween(this.lastSelected, e)) {
+                        processSelect(target, evt, action);
+                    }
+                    processSelect(e, evt, action);
+                    this.multiselectDragging = old;
+                    if (ret) return;
+                } else {
+                    // When nothing has been selected yet, for the first-select only, allow use of Shift key to select
+                    let action = e.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
+                    let old = this.multiselectDragging;
+                    this.multiselectDragging = { action };
+                    // processSelect(<target>, evt, action);
+                    processSelect(e, evt, action);
+                    this.multiselectDragging = old;
+                    return;
+                }
+            }
             if (this.multiselect) {
                 // Select all children of node
                 if (e.nextElementSibling) {

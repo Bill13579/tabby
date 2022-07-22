@@ -3,13 +3,21 @@
  */
 
 // Enable horizontal scroll
-for (let d of document.getElementsByClassName("-horizontal-scroll")) {
-    d.addEventListener("wheel", e => {
-        e.preventDefault();
-        if (e.deltaY > 0) d.scrollLeft += 50;
-        else d.scrollLeft -= 50;
-    });
-}
+// for (let d of document.getElementsByClassName("-horizontal-scroll")) {
+//     d.addEventListener("wheel", e => {
+//         e.preventDefault();
+//         if (e.deltaY > 0) d.scrollBy({
+//             top: 0, 
+//             left: Math.max(e.deltaY, 1), 
+//             behavior: 'smooth' 
+//         });
+//         else d.scrollBy({
+//             top: 0, 
+//             left: Math.min(e.deltaY, -1), 
+//             behavior: 'smooth' 
+//         });
+//     });
+// }
 
 // Enable copy buttons
 for (let d of document.getElementsByClassName("-copy")) {

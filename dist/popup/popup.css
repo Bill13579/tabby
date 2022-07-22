@@ -434,6 +434,32 @@ html, body {
         var(--selected90) 80px
     );
 }
+.tab-list .tab-entry.-tui-list-last-selected { /* not selected, last touched */
+    box-shadow: 0px 0px 4px 0px #B6B6B6;
+    z-index: 102;
+    /* background: linear-gradient(
+        -55deg,
+        var(--bg-indented),
+        var(--bg-indented) 30px,
+        var(--input-focus90t) 30px,
+        var(--input-focus90t) 60px
+    ); */
+}
+.tab-list .tab-entry.-tui-list-selected.-tui-list-last-selected { /* selected, last touched */
+    background: var(--selected);
+}
+.tab-list .tab-entry.incognito.-tui-list-last-selected { /* not selected, last touched, incognito */
+    /* background: linear-gradient(
+        -55deg,
+        var(--bg-indented),
+        var(--bg-indented) 30px,
+        var(--input-focus90t) 30px,
+        var(--input-focus90t) 60px
+    ); */
+}
+.tab-list .tab-entry.incognito.-tui-list-selected.-tui-list-last-selected { /* selected, last touched, incognito */
+    background: var(--selected90);
+}
 
 .tab-list .window-entry[data-drag-relation] {
     border-color: var(--fg-user-content);
