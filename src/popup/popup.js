@@ -134,7 +134,7 @@ class TUIList {
                 e.classList.add("-tui-list-hover");
             }
         });
-        let processSelect = (element, originalEvent, action=undefined) => {
+        let processSelect = (element, originalEvent, action=undefined/*, skipInterpolate=false*/) => {
             if (this.multiselect || this.kbMap["Shift"]) {
                 let noop = false;
                 let parentCheck = (action, noop) => {
@@ -174,6 +174,65 @@ class TUIList {
                     if (action === undefined && element.classList.contains("-tui-list-selected")) {
                         action = "unselecting";
                     }
+                    // // Keep a record of the farthest selection
+                    // if (this.multiselectDragging.hasOwnProperty("start") && !skipInterpolate) {
+                    //     if (!this.multiselectDragging.hasOwnProperty("end")) this.multiselectDragging.end = this.multiselectDragging.start;
+                    //     let relativePosToStart = this.multiselectDragging.start.compareDocumentPosition(element);
+                    //     let relativePosToEnd = this.multiselectDragging.end.compareDocumentPosition(element);
+                    //     let endRelativePosToStart = this.multiselectDragging.start.compareDocumentPosition(this.multiselectDragging.end);
+                    //     let increaseSelection = undefined;
+                    //     if (relativePosToStart & Node.DOCUMENT_POSITION_FOLLOWING) { // dragging downwards
+                    //         if (relativePosToEnd & Node.DOCUMENT_POSITION_FOLLOWING) { // further down
+                    //             increaseSelection = true;
+                    //         } else if (relativePosToEnd & Node.DOCUMENT_POSITION_PRECEDING) { // back up
+                    //             increaseSelection = false;
+                    //         }
+                    //     } else if (relativePosToStart & Node.DOCUMENT_POSITION_PRECEDING) { // dragging upwards
+                    //         if (relativePosToEnd & Node.DOCUMENT_POSITION_FOLLOWING) { // back up
+                    //             increaseSelection = false;
+                    //         } else if (relativePosToEnd & Node.DOCUMENT_POSITION_PRECEDING) { // further up
+                    //             increaseSelection = true;
+                    //         }
+                    //     } else { // back to the start element
+                    //         increaseSelection = false;
+                    //     }
+                    //     if (increaseSelection !== undefined) {
+                    //         if (((relativePosToStart & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_PRECEDING)) !==
+                    //             (endRelativePosToStart & (Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_PRECEDING)))
+                    //             && !this.multiselectDragging.end.isSameNode(this.multiselectDragging.start)) {
+                    //             processSelect(this.multiselectDragging.end, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //             for (let interpolate of t_getElementsBetween(this.multiselectDragging.end, this.multiselectDragging.start)) {
+                    //                 processSelect(interpolate, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //             }
+                    //             for (let interpolate of t_getElementsBetween(this.multiselectDragging.start, element)) {
+                    //                 if (increaseSelection) {
+                    //                     processSelect(interpolate, originalEvent, action, true);
+                    //                 } else {
+                    //                     processSelect(interpolate, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //                 }
+                    //             }
+                    //         } else {
+                    //             if (increaseSelection) {
+                    //                 processSelect(this.multiselectDragging.end, originalEvent, action, true);
+                    //             } else {
+                    //                 processSelect(this.multiselectDragging.end, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //             }
+                    //             for (let interpolate of t_getElementsBetween(this.multiselectDragging.end, element)) {
+                    //                 if (increaseSelection) {
+                    //                     processSelect(interpolate, originalEvent, action, true);
+                    //                 } else {
+                    //                     processSelect(interpolate, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //                 }
+                    //             }
+                    //         }
+                    //         if (increaseSelection) {
+                    //             processSelect(element, originalEvent, action, true);
+                    //         } else {
+                    //             processSelect(element, originalEvent, action === "selecting" ? "unselecting" : "selecting", true);
+                    //         }
+                    //     }
+                    //     this.multiselectDragging.end = element;
+                    // }
                     // Interpolate (mousemove is too slow to react, and sometimes misses elements when the mouse is moved fast)
                     //TODO: Prevent it from looping through all elements from the initial selection to the mouse element
                     if (this.multiselectDragging.hasOwnProperty("start")) {

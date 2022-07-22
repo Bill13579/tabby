@@ -103,9 +103,10 @@ input[type="text"]:focus {
 
 .-tui-list-entry.-tui-list-last-selected { }
 
-.-tui-list-drag-starter {
+/*TODO: Why was this css condition necessary?*/
+/* .-tui-list-drag-starter {
     pointer-events: none;
-}
+} */
 
 .-tui-editable-span {
     all: unset;
