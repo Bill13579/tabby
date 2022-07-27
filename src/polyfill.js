@@ -137,7 +137,7 @@ window["t_ctrlCmdKey"] = function () {
     }
 };
 
-window["t_getElementsBetween"] = function (node1, node2) {
+window["t_getElementsBetween"] = function (node1, node2, condition=_ => true) {
     if (!node1.parentElement.isSameNode(node2.parentElement)) return undefined; // can't perform function
     if (node1.isSameNode(node2)) return [];
     let between = [];
@@ -149,7 +149,9 @@ window["t_getElementsBetween"] = function (node1, node2) {
 
     let nextNode = getNext(node1);
     while (nextNode && !nextNode.isSameNode(node2)) {
-        between.push(nextNode);
+        if (condition(nextNode)) {
+            between.push(nextNode);
+        }
 
         nextNode = getNext(nextNode);
     }

@@ -163,6 +163,7 @@ export class TUIEditableLabel {
         this.root.addEventListener("input", e => {
             setInputWidthToText(this.root);
         });
+        this.stopPropagation = (evt) => evt.stopPropagation();
     }
     get editing() {
         return this.root.style.pointerEvents !== "none";
@@ -173,10 +174,14 @@ export class TUIEditableLabel {
             this.root.focus();
             this.root.select();
             this.root.classList.add("-tui-editable-span-editing");
+            this.root.addEventListener("keydown", this.stopPropagation);
+            this.root.addEventListener("keyup", this.stopPropagation);
         } else {
             this.root.style.pointerEvents = "none";
             this.root.blur();
             this.root.classList.remove("-tui-editable-span-editing");
+            this.root.removeEventListener("keydown", this.stopPropagation);
+            this.root.removeEventListener("keyup", this.stopPropagation);
         }
     }
     get value() {

@@ -435,7 +435,7 @@ html, body {
     margin-top: 0;
     margin-bottom: 3px;
 }
-.tab-list .tab-entry.-tui-list-hidden {
+.tab-list .tab-entry.-tui-list-hidden--filter {
     display: none;
 }
 .tab-list .tab-entry.-tui-list-selected .selected-indicator {

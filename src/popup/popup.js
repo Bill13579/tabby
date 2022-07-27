@@ -30,17 +30,48 @@ class TUIListOptions {
         this.allowMove = true;
         this.allowMultiselect = true;
         this.allowKBOnly = true;
+        this.kbNavigation_skipLevels = [];
+        this.changeListeners = {};
+    }
+    on(t, callback) {
+        if (!this.changeListeners.hasOwnProperty(t)) {
+            this.changeListeners[t] = [];
+        }
+        this.changeListeners[t].push(callback);
+    }
+    off(t, callback) {
+        if (!this.changeListeners.hasOwnProperty(t)) {
+            this.changeListeners[t] = [];
+        }
+        let i = this.changeListeners[t].indexOf(callback);
+        if (i !== -1) {
+            this.changeListeners[t].splice(i, 1);
+        }
+    }
+    __trigger(t, ...params) {
+        if (!this.changeListeners.hasOwnProperty(t)) {
+            this.changeListeners[t] = [];
+        }
+        for (let listener of this.changeListeners[t]) {
+            listener(...params);
+        }
     }
     move(allowMove) {
+        if (allowMove !== this.allowMove) this.__trigger("change", {allowMove});
         this.allowMove = allowMove;
         return this;
     }
     multiselect(allowMultiselect) {
+        if (allowMultiselect !== this.allowMultiselect) this.__trigger("change", {allowMultiselect});
         this.allowMultiselect = allowMultiselect;
         return this;
     }
-    kbonly(allowKBOnly) {
+    kbonly(allowKBOnly, skipLevels=[]) {
+        if (allowKBOnly !== this.allowKBOnly) this.__trigger("change", {allowKBOnly, kbNavigation_skipLevels: skipLevels});
         this.allowKBOnly = allowKBOnly;
+        if (allowKBOnly) {
+            this.kbNavigation_skipLevels = skipLevels;
+        }
         return this;
     }
     get _draggableAttributeValue() {
@@ -63,6 +94,138 @@ class TUIList {
     }
     get kb() {
         return this.__kb;
+    }
+    static clearRoot(root) {
+        root.innerHTML = "";
+    }
+    static isElementSelected(ele) {
+        return ele.classList.contains("-tui-list-selected") || ele.classList.contains("-tui-list-all-children-selected");
+    }
+    static isElementHidden(ele) {
+        let compStyles = window.getComputedStyle(ele);
+        return compStyles.getPropertyValue("display") === "none";
+    }
+    static isElementVisible(ele) {
+        return !TUIList.isElementHidden(ele);
+    }
+    isElementKeyboardNavigable(ele) {
+        return this.listOptions.kbNavigation_skipLevels.indexOf(TUIList.levelOf(ele)) === -1;
+    }
+    static and(...conditions) {
+        return (ele) => {
+            let condition = true;
+            for (let cond of conditions) {
+                condition = condition && cond(ele);
+            }
+            return condition;
+        };
+    }
+    children(ele, includeSub=false, condition=_ => true) {//TODO: Replace other implementations with this definitive one
+        //TODO: Write another function that gets the child at a specific index
+        if (ele.isSameNode(this.root)) {
+            let c = [];
+            for (let child of this.root.children) {
+                if ((TUIList.levelOf(child) === 0 || includeSub) && condition(child)) {
+                    c.push(child);
+                }
+            }
+            return c;
+        }
+        let current = ele.nextElementSibling;
+        let level = TUIList.levelOf(ele);
+        let c = [];
+        while (current !== null && level < TUIList.levelOf(current)) {
+            if ((TUIList.levelOf(current) === level + 1 || includeSub) && condition(current)) {
+                c.push(current);
+            }
+            current = current.nextElementSibling;
+        }
+        return c;
+    }
+    parent(ele) {//TODO: Replace other implementations with this definitive one
+        if (ele.isSameNode(this.root)) return null;
+        let current = ele.previousElementSibling;
+        let level = TUIList.levelOf(ele);
+        while (current !== null && level <= TUIList.levelOf(current)) {
+            current = current.previousElementSibling;
+        }
+        return current;
+    }
+    previous(ele, condition=_ => true) {
+        if (ele.isSameNode(this.root)) return null;
+        let current = ele.previousElementSibling;
+        let currentCondition;
+        if (current !== null) currentCondition = condition(current);
+        while (current !== null && currentCondition === false) {
+            current = current.previousElementSibling;
+            if (current !== null) currentCondition = condition(current);
+        }
+        if (currentCondition["ret"]) {
+            return currentCondition["ret"];
+        }
+        return current;
+    }
+    next(ele, condition=_ => true) {
+        if (ele.isSameNode(this.root)) return null;
+        let current = ele.nextElementSibling;
+        let currentCondition;
+        if (current !== null) currentCondition = condition(current);
+        while (current !== null && currentCondition === false) {
+            current = current.nextElementSibling;
+            if (current !== null) currentCondition = condition(current);
+        }
+        if (currentCondition["ret"]) {
+            return currentCondition["ret"];
+        }
+        return current;
+    }
+    first(condition=_ => true) {
+        return this.next(this.root.children[0], condition);
+    }
+    last(condition=_ => true) {
+        return this.previous(this.root.children[this.root.children.length-1], condition);
+    }
+    areSiblings(element1, element2, condition=_ => true) {
+        let element1Next = this.next(element1, condition);
+        let element1Prev = this.previous(element1, condition);
+        return (element1Next && element1Next.isSameNode(element2)) ||
+                (element1Prev && element1Prev.isSameNode(element2));
+    }
+    static levelOf(ele) {
+        return parseInt(ele.getAttribute("data-level"));
+    }
+    hideElement(ele, reason) {
+        for (let e of [ele, ...this.children(ele, true)]) {//TODO3
+            const event = new Event("-tui-list-hidden");
+            e.dispatchEvent(event);
+            e.classList.add("-tui-list-hidden--" + reason);
+        }
+    }
+    showElement(ele, reason) {
+        for (let e of [ele, ...this.children(ele, true)]) {//TODO3
+            const event = new Event("-tui-list-shown");
+            e.dispatchEvent(event);
+            e.classList.remove("-tui-list-hidden--" + reason);
+        }
+    }
+    modifySelected(callback) {
+        let multiselectDragging = this.multiselectDragging;
+        let multiselect = this.multiselect;
+        this.multiselectDragging = { action: "" };
+        this.multiselect = true;
+
+        let processSelectCB = (target, evt, action) => {
+            // processSelect(<target>, evt, action);
+            this.multiselectDragging.action = action;
+            const event = new CustomEvent('-tui-list-internal--process-select', { detail: {
+                originalEvent: evt, action
+            } });
+            target.dispatchEvent(event);
+        };
+        callback(processSelectCB);
+
+        this.multiselectDragging = multiselectDragging;
+        this.multiselect = multiselect;
     }
     constructor(root, dataInterpret, listOptions=TUIListOptions.default()) {
         this.dataInterpret = dataInterpret;
@@ -101,8 +264,8 @@ class TUIList {
         };
         if (listOptions.allowMultiselect) {
             document.addEventListener("keydown", this.documentHook_keyDown);
-            document.addEventListener("keyup", this.documentHook_keyUp);
         }
+        document.addEventListener("keyup", this.documentHook_keyUp);
         this.documentHook_keyDownKBOnly = (evt) => {
             //ArrowUp,ArrowDown
             this.kb = true;
@@ -110,21 +273,23 @@ class TUIList {
             let nextHover;
             if (evt.key === 'ArrowUp') {
                 if (lastHover) {
-                    if (lastHover.previousElementSibling) {
+                    let lastHoverPrevious = this.previous(lastHover, TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
+                    if (lastHoverPrevious) {
                         lastHover.classList.remove("-tui-list-hover");
-                        nextHover = lastHover.previousElementSibling;
+                        nextHover = lastHoverPrevious;
                     }
                 } else {
-                    nextHover = this.root.children[this.root.children.length-1];
+                    nextHover = this.last(TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
                 }
             } else if (evt.key === 'ArrowDown') {
                 if (lastHover) {
-                    if (lastHover.nextElementSibling) {
+                    let lastHoverNext = this.next(lastHover, TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
+                    if (lastHoverNext) {
                         lastHover.classList.remove("-tui-list-hover");
-                        nextHover = lastHover.nextElementSibling;
+                        nextHover = lastHoverNext;
                     }
                 } else {
-                    nextHover = this.root.children[0];
+                    nextHover = this.first(TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
                 }
             }
             if (nextHover) {
@@ -144,20 +309,25 @@ class TUIList {
             document.addEventListener("keydown", this.documentHook_keyDownKBOnly);
             document.addEventListener("keyup", this.documentHook_keyUpKBOnly);
         }
-    }
-    hideElement(ele) {
-        for (let e of [ele, ...this.children(ele, true)]) {
-            const event = new Event("-tui-list-hidden");
-            e.dispatchEvent(event);
-            e.classList.add("-tui-list-hidden");
-        }
-    }
-    showElement(ele) {
-        for (let e of [ele, ...this.children(ele, true)]) {
-            const event = new Event("-tui-list-shown");
-            e.dispatchEvent(event);
-            e.classList.remove("-tui-list-hidden");
-        }
+        // Will only trigger when the options actually change, preventing duplicate event listeners
+        this.listOptionsHook_change = (change) => {
+            if (change["allowMultiselect"] !== undefined) {
+                if (change["allowMultiselect"]) {
+                    document.addEventListener("keydown", this.documentHook_keyDown);
+                } else {
+                    document.removeEventListener("keydown", this.documentHook_keyDown);
+                }
+            } else if (change["allowKBOnly"] !== undefined) {
+                if (change["allowKBOnly"]) {
+                    document.addEventListener("keydown", this.documentHook_keyDownKBOnly);
+                    document.addEventListener("keyup", this.documentHook_keyUpKBOnly);
+                } else {
+                    document.removeEventListener("keydown", this.documentHook_keyDownKBOnly);
+                    document.removeEventListener("keyup", this.documentHook_keyUpKBOnly);
+                }
+            }
+        };
+        listOptions.on("change", this.listOptionsHook_change);
     }
     create(level, data) {
         let e = this.dataInterpret.createElement(level, data);
@@ -173,8 +343,7 @@ class TUIList {
         });
         let processSelect = (element, originalEvent, action=undefined/*, skipInterpolate=false*/) => {
             // Don't do anything if element is hidden
-            let compStyles = window.getComputedStyle(element);
-            if (compStyles.getPropertyValue("display") === "none") return "hidden";
+            if (TUIList.isElementHidden(element)) return "hidden";
             
             if (this.multiselect || this.kbMap["Shift"]) {
                 let noop = false;
@@ -215,6 +384,8 @@ class TUIList {
                     if (action === undefined && element.classList.contains("-tui-list-selected")) {
                         action = "unselecting";
                     }
+                    //TODO: Replace relational selection with the TUIList utility functions, consider visibility
+                    //TODO: Replace t_getElementsBetween
                     // // Keep a record of the farthest selection
                     // if (this.multiselectDragging.hasOwnProperty("start") && !skipInterpolate) {
                     //     if (!this.multiselectDragging.hasOwnProperty("end")) this.multiselectDragging.end = this.multiselectDragging.start;
@@ -280,9 +451,9 @@ class TUIList {
                         let relativePosToStart = this.multiselectDragging.start.compareDocumentPosition(element);
                         let getNext;
                         if (relativePosToStart & Node.DOCUMENT_POSITION_FOLLOWING) {
-                            getNext = (element) => element.previousElementSibling;
+                            getNext = (element) => this.previous(element, TUIList.isElementVisible);
                         } else if (relativePosToStart & Node.DOCUMENT_POSITION_PRECEDING) {
-                            getNext = (element) => element.nextElementSibling;
+                            getNext = (element) => this.next(element, TUIList.isElementVisible);
                         } else {
                             getNext = (element) => element;
                         }
@@ -355,9 +526,9 @@ class TUIList {
                 ele.removeAttribute("data-drag-relation");
             }
         };
-        if (this.listOptions.allowMove) {
+        // if (this.listOptions.allowMove) {
             e.addEventListener("dragstart", (evt) => {
-                if (!this.multiselect) {
+                if (!this.multiselect && this.listOptions.allowMove) {
                     let pastGhosts = document.getElementsByClassName("-tui-drag-ghost");
                     if (pastGhosts.length > 0) {
                         for (let g of pastGhosts) {
@@ -379,10 +550,6 @@ class TUIList {
                     //     closestDraggable = draggables[draggables.length-1];
                     // }
 
-                    const areSiblings = (element1, element2) => 
-                        (element1.nextElementSibling && element1.nextElementSibling.isSameNode(element2)) ||
-                        (element1.previousElementSibling && element1.previousElementSibling.isSameNode(element2));
-
                     let ghost = document.createElement("div");
                     this.dataInterpret.ghostSetup(ghost);
                     ghost.classList.add("-tui-drag-ghost");
@@ -395,7 +562,7 @@ class TUIList {
                         //     console.log(closestDraggable);
                         // }
                         if (i !== draggables.length-1) {
-                            if (!areSiblings(draggables[i], draggables[i+1])) {
+                            if (!this.areSiblings(draggables[i], draggables[i+1])) {
                                 ghost.lastElementChild.style.marginBottom = "10px";
                             }
                         }
@@ -424,7 +591,6 @@ class TUIList {
                 this.dataInterpret.handleDrop(this.draggedElements, e, e.getAttribute("data-drag-relation"));
                 e.removeAttribute("data-drag-relation");
             });
-        }
 
         let startMultiselect = (e, evt) => {
             this.multiselectDragging = true;
@@ -452,36 +618,29 @@ class TUIList {
                         ret = false;
                     }
                     let action = this.lastSelected.classList.contains("-tui-list-selected") ? "selecting" : "unselecting";
-                    let old = this.multiselectDragging;
-                    this.multiselectDragging = { action };
-                    // processSelect(<target>, evt, action);
-                    for (let target of t_getElementsBetween(this.lastSelected, e)) {
-                        processSelect(target, evt, action);
-                    }
-                    processSelect(e, evt, action);
-                    this.multiselectDragging = old;
+                    this.modifySelected((processSelectCB) => {
+                        for (let target of t_getElementsBetween(this.lastSelected, e, TUIList.isElementVisible)) {
+                            processSelectCB(target, evt, action);
+                        }
+                        processSelectCB(e, evt, action);
+                    });
                     if (ret) return;
                 } else {
                     // When nothing has been selected yet, for the first-select only, allow use of Shift key to select
                     let action = e.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
-                    let old = this.multiselectDragging;
-                    this.multiselectDragging = { action };
-                    // processSelect(<target>, evt, action);
-                    processSelect(e, evt, action);
-                    this.multiselectDragging = old;
+                    this.modifySelected((processSelectCB) => processSelectCB(e, evt, action));
                     return;
                 }
             }
             if (this.multiselect) {
-                // Select all children of node
+                // Select all visible children of node
                 if (e.nextElementSibling) {
-                    let action = e.nextElementSibling.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
-                    let old = this.multiselectDragging;
-                    this.multiselectDragging = { action };
-                    for (let child of this.children(e, true)) {
-                        processSelect(child, evt, action);
-                    }
-                    this.multiselectDragging = old;
+                    let action = this.next(e, TUIList.isElementVisible).classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
+                    this.modifySelected((processSelectCB) => {
+                        for (let child of this.children(e, true, TUIList.isElementVisible)) {
+                            processSelectCB(child, evt, action);
+                        }
+                    });
                 }
 
                 e.setAttribute("draggable", "false");
@@ -501,16 +660,46 @@ class TUIList {
             onSelection(e, evt);
             this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
         });
+        let setHoverToNearest = (reason) => {
+            // Set hover to another element
+            if (e.classList.contains("-tui-list-hover")) {
+                let selfLevel = TUIList.levelOf(e);
+
+                let passedLowerLevel = false; // Passed a lower level entry while trying to find the next element below
+                let closestDown = this.next(e, ele => {
+                    let eleLevel = TUIList.levelOf(ele);
+                    if (eleLevel < selfLevel) passedLowerLevel = true;
+                    return TUIList.isElementVisible(ele) && this.isElementKeyboardNavigable(ele);
+                });
+                if (closestDown && !passedLowerLevel) {
+                    closestDown.classList.add("-tui-list-hover");
+                    setTimeout(() => this.dataInterpret.handleHover(closestDown, reason), 1);
+                } else {
+                    let closestUp = this.previous(e, ele => {
+                        return TUIList.isElementVisible(ele) && this.isElementKeyboardNavigable(ele);
+                    });
+                    if (closestUp) {
+                        closestUp.classList.add("-tui-list-hover");
+                        setTimeout(() => this.dataInterpret.handleHover(closestUp, reason), 1);
+                    } else if (closestDown && passedLowerLevel) {
+                        closestDown.classList.add("-tui-list-hover");
+                        setTimeout(() => this.dataInterpret.handleHover(closestDown, reason), 1);
+                    }
+                }
+            }
+        };
         // Hidden and shown events
-        e.addEventListener("-tui-list-hidden", (evt) => {
-            let action = "unselecting";
-            let old = this.multiselectDragging;
-            this.multiselectDragging = { action };
-            this.multiselect = true;
-            // processSelect(<target>, evt, action);
-            processSelect(e, "hidden", action);
-            this.multiselect = false;
-            this.multiselectDragging = old;
+        e.addEventListener("-tui-list-hidden", (_) => {
+            setHoverToNearest("-tui-list-hidden");
+            this.modifySelected((processSelectCB) => processSelectCB(e, "hidden", "unselecting"));
+        });
+        // Removed event
+        e.addEventListener("-tui-list-removed", (_) => {
+            setHoverToNearest("-tui-list-removed");
+        });
+
+        e.addEventListener("-tui-list-internal--process-select", (evt) => {
+            processSelect(e, evt.detail.originalEvent, evt.detail.action);
         });
         // e.addEventListener("keydown", (evt) => {
         //     if (this.kb && this.kbMap["Shift"]) {
@@ -534,46 +723,6 @@ class TUIList {
     disableMultiselect() {
         this.multiselect = false;
     }
-    static clearRoot(root) {
-        root.innerHTML = "";
-    }
-    static isElementSelected(ele) {
-        return ele.classList.contains("-tui-list-selected") || ele.classList.contains("-tui-list-all-children-selected");
-    }
-    children(ele, includeSub=false) {//TODO: Replace other implementations with this definitive one
-        //TODO: Write another function that gets the child at a specific index
-        if (ele.isSameNode(this.root)) {
-            let c = [];
-            for (let child of this.root.children) {
-                if (TUIList.levelOf(child) === 0 || includeSub) {
-                    c.push(child);
-                }
-            }
-            return c;
-        }
-        let current = ele.nextElementSibling;
-        let level = TUIList.levelOf(ele);
-        let c = [];
-        while (current !== null && level < TUIList.levelOf(current)) {
-            if (TUIList.levelOf(current) === level + 1 || includeSub) {
-                c.push(current);
-            }
-            current = current.nextElementSibling;
-        }
-        return c;
-    }
-    parent(ele) {//TODO: Replace other implementations with this definitive one
-        if (ele.isSameNode(this.root)) return null;
-        let current = ele.previousElementSibling;
-        let level = TUIList.levelOf(ele);
-        while (current !== null && level <= TUIList.levelOf(current)) {
-            current = current.previousElementSibling;
-        }
-        return current;
-    }
-    static levelOf(ele) {
-        return parseInt(ele.getAttribute("data-level"));
-    }
 }
 
 class TUIListView extends TUIList {
@@ -587,6 +736,7 @@ class TUISessionView extends TUIListView {
      * @param {TSession} sess 
      */
     constructor(root, sess, dataInterpret, listOptions=TUIListOptions.default(), hookPos=true) {
+        listOptions.kbonly(true, [0]); // Make window entries unnavigable by keyboard
         super(root, dataInterpret, listOptions);
 
         this.sess = sess;
@@ -597,7 +747,7 @@ class TUISessionView extends TUIListView {
                 incognito: tabs[0].incognito
             }));
             for (let tab of tabs) {
-                root.appendChild(TUISessionView.createTab(tab, this, true, hookPos));
+                root.appendChild(this.createTab(tab, this, true, hookPos));
             }
         };
         for (let tabs of all) {
@@ -605,7 +755,7 @@ class TUISessionView extends TUIListView {
         }
         this.sessionListener = {
             onTabCreated: (tab) => {
-                this.put(tab, TUISessionView.createTab(tab, this, true, hookPos));
+                this.put(tab, this.createTab(tab, this, true, hookPos));
             },
             onWindowClosed: (windowId) => {
                 let w = root.querySelector(`.window-entry[data-window-id="${windowId}"]`);
@@ -648,7 +798,7 @@ class TUISessionView extends TUIListView {
         console.log(results);
         if (results === undefined) {
             for (let c of this.root.children) {
-                this.showElement(c);
+                this.showElement(c, "filter");
             }
         } else {
             let tabMap = {};
@@ -672,13 +822,13 @@ class TUISessionView extends TUIListView {
                 if (results.hasOwnProperty(tabId)) {
                     let tab = this.sess.getTab(parseInt(tabId));
                     if (results[tabId].score >= center) {
-                        this.showElement(tabMap[tabId]);
+                        this.showElement(tabMap[tabId], "filter");
                     } else {
                         if (TUISessionView.search(tab.url, key) ||
                             TUISessionView.search(tab.title, key)) {
-                                this.showElement(tabMap[tabId]);
+                                this.showElement(tabMap[tabId], "filter");
                             } else {
-                                this.hideElement(tabMap[tabId]);
+                                this.hideElement(tabMap[tabId], "filter");
                             }
                     }
                     delete tabMap[tabId];
@@ -689,9 +839,9 @@ class TUISessionView extends TUIListView {
                     let tab = this.sess.getTab(parseInt(tabId));
                     if (TUISessionView.search(tab.url, key) ||
                         TUISessionView.search(tab.title, key)) {
-                            this.showElement(tabMap[tabId]);
+                            this.showElement(tabMap[tabId], "filter");
                         } else {
-                            this.hideElement(tabMap[tabId]);
+                            this.hideElement(tabMap[tabId], "filter");
                         }
                 }
             }
@@ -718,7 +868,7 @@ class TUISessionView extends TUIListView {
             let before = w;
             let index = (await tab.index) + 1;
             for (let i = 0; i < index; i++) {
-                before = before.nextElementSibling;
+                before = before.nextElementSibling;//TODO3
             }
             this.root.insertBefore(tabElement, before);
         }
@@ -739,9 +889,10 @@ class TUISessionView extends TUIListView {
         if (this.endMultiselect) {
             document.removeEventListener("mouseup", this.endMultiselect);
         }
+        this.listOptions.off("change", this.listOptionsHook_change);
         return this.root;
     }
-    static createTab(tab, list, hook=true, hookPos=true) {
+    createTab(tab, list, hook=true, hookPos=true) {
         let e = list.create(1, tab);
     
         // Hook the tab up with its respective TTab object
@@ -754,10 +905,10 @@ class TUISessionView extends TUIListView {
                     after.parentElement.removeChild(e);
                     let i = value.newPosition;
                     while (i > 0) {
-                        after = after.nextElementSibling;
+                        after = after.nextElementSibling;//TODO3
                         i--;
                     }
-                    after.parentElement.insertBefore(e, after.nextElementSibling);
+                    after.parentElement.insertBefore(e, after.nextElementSibling);//TODO3
                 } else if (prop === "active") {
                     if (value) e.setAttribute("data-current", "");
                     else e.removeAttribute("data-current");
@@ -816,31 +967,31 @@ class TUISessionView extends TUIListView {
                     }
                 }// TODO: isArticle, status?
             }, () => {
-                // Set hover to another element
-                if (e.classList.contains("-tui-list-hover")) {
-                    let closestDown = e.nextElementSibling;
-                    let passedWindowEntry = false; // Passed a window entry while trying to find the next tab below
-                    while (closestDown && !closestDown.classList.contains("tab-entry")) {
-                        closestDown = closestDown.nextElementSibling;
-                        passedWindowEntry = true;
-                    }
-                    if (closestDown && !passedWindowEntry) {
-                        closestDown.classList.add("-tui-list-hover");
-                        setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
-                    } else {
-                        let closestUp = e.previousElementSibling;
-                        while (closestUp && !closestUp.classList.contains("tab-entry")) {
-                            closestUp = closestUp.previousElementSibling;
-                        }
-                        if (closestUp) {
-                            closestUp.classList.add("-tui-list-hover");
-                            setTimeout(() => list.dataInterpret.handleHover(closestUp, "tabClosedClosestUp"), 1);
-                        } else if (closestDown && passedWindowEntry) {
-                            closestDown.classList.add("-tui-list-hover");
-                            setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
-                        }
-                    }
-                }
+                // if (e.classList.contains("-tui-list-hover")) {
+                //     let passedWindowEntry = false; // Passed a window entry while trying to find the next tab below
+                //     let closestDown = this.next(e, ele => {
+                //         let isTabEntry = ele.classList.contains("tab-entry");
+                //         if (!isTabEntry) passedWindowEntry = true;
+                //         return TUIList.isElementVisible(ele) && isTabEntry;
+                //     });
+                //     if (closestDown && !passedWindowEntry) {
+                //         closestDown.classList.add("-tui-list-hover");
+                //         setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
+                //     } else {
+                //         let closestUp = this.previous(e, ele => {
+                //             return TUIList.isElementVisible(ele) && ele.classList.contains("tab-entry");
+                //         });
+                //         if (closestUp) {
+                //             closestUp.classList.add("-tui-list-hover");
+                //             setTimeout(() => list.dataInterpret.handleHover(closestUp, "tabClosedClosestUp"), 1);
+                //         } else if (closestDown && passedWindowEntry) {
+                //             closestDown.classList.add("-tui-list-hover");
+                //             setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
+                //         }
+                //     }
+                // }
+                const event = new Event("-tui-list-removed");
+                e.dispatchEvent(event);
                 e.parentElement.removeChild(e);
             });
         }
