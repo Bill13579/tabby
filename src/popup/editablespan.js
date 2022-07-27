@@ -31,6 +31,116 @@ export class TUIEditableColorDot extends TUIEditableColor {
     }
 }
 
+export class TUIEditableDiv {
+    constructor(singleLine=true) {
+        this.root = document.createElement("pre");
+        this.root.setAttribute("contenteditable", "true");
+        this.editing = false;
+        this.singleLine = singleLine;
+
+        this._placeholderTemplate = document.createElement("span");
+        this._placeholderTemplate.classList.add("-tui-editable-div-placeholder");
+
+        this.root.classList.add("-tui-editable-div");
+        this.root.addEventListener("keypress", e => {
+            e.stopPropagation();
+            if (e.key === "Enter" && this.singleLine) return false;
+        });
+        this.root.addEventListener("keydown", e => {
+            e.stopPropagation();
+        });
+        this.root.addEventListener("keyup", e => {
+            e.stopPropagation();
+            if (this.editing) {
+                if (e.key === "Enter") {
+                    this.onEnter(this.value);
+                }
+            }
+        });
+        this.root.addEventListener("blur", e => {
+            this.onEnter(this.value);
+        });
+        this.root.addEventListener("input", e => {
+            this.autoPlaceholder();
+            this.onInput(this.value);
+        });
+    }
+    get value() {
+        return this.root.innerText.replaceAll("\n", "");
+    }
+    set value(v) {
+        this.rememberCaretPosition();
+        this.root.innerText = v;
+        this.recoverCaretPosition();
+        this.autoPlaceholder();
+    }
+    rememberCaretPosition() {
+        this._caretPosition = t_getCaretPosition(this.root);
+    }
+    recoverCaretPosition() {
+        if (this._caretPosition !== undefined) {
+            t_setCaretPosition(this.root, this._caretPosition);
+            this._caretPosition = undefined;
+        }
+    }
+    /**
+     * Clear all content completely without adding a placeholder afterwards
+     */
+    clear() {
+        this.root.innerText = "";
+    }
+    /**
+     * Automatically add or remove placeholder depending on the value
+     */
+    autoPlaceholder() {
+        if (this.value === "") {
+            this.addPlaceholder();
+        } else {
+            this.removePlaceholder();
+        }
+    }
+    /**
+     * Adds in the placeholder
+     */
+    addPlaceholder() {
+        this.root.appendChild(this._placeholderTemplate.cloneNode(true));
+    }
+    /**
+     * Removes the placeholder
+     */
+    removePlaceholder() {
+        for (let ph of this.root.querySelectorAll(".-tui-editable-div-placeholder"))
+            this.root.removeChild(ph);
+    }
+    get singleLine() {
+        return this._singleLine;
+    }
+    set singleLine(bool) {
+        this._singleLine = bool;
+        if (bool) {
+            this.root.classList.add("-tui-editable-singleline-div");
+        } else {
+            this.root.classList.remove("-tui-editable-singleline-div");
+        }
+    }
+    get editing() {
+        return this.root.style.pointerEvents !== "none";
+    }
+    set editing(bool) {
+        if (bool) {
+            this.root.style.pointerEvents = "";
+            this.root.focus();
+            this.root.classList.add("-tui-editable-div-editing");
+        } else {
+            this.root.style.pointerEvents = "none";
+            this.root.blur();
+            this.root.classList.remove("-tui-editable-div-editing");
+        }
+    }
+    onEnter(value) { /*OVERRIDE*/ }
+    onInput(value) { /*OVERRIDE*/ }
+}
+
 export class TUIEditableLabel {
     constructor() {
         this.root = document.createElement("input");

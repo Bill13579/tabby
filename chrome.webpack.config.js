@@ -24,7 +24,7 @@ module.exports = {
     },
     plugins: [
         new CircularDependencyPlugin({
-            exclude: /node_modules/,
+            exclude: /node_modules|cartographer\/pkg/,
             failOnError: true,
             allowAsyncCycles: false,
             cwd: process.cwd()
@@ -32,5 +32,14 @@ module.exports = {
         new DefinePlugin({
             TARGET: "\"chrome\""
         })
-    ]
+    ],
+    experiments: {
+        asyncWebAssembly: true,
+        // buildHttp: true,
+        // layers: true,
+        // lazyCompilation: true,
+        // outputModule: true,
+        // syncWebAssembly: true,
+        // topLevelAwait: true,
+    },
 };

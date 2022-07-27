@@ -1,9 +1,29 @@
+// window.workers = [];
+// window.__workersReady = 0;
+// // Setup workers
+// for (let i = 0; i < navigator.hardwareConcurrency; i++) {
+//     let worker = new Worker(new URL('./searchWorker.js', import.meta.url));
+//     workers.push(worker);
+//     worker.onmessage = ({data}) => {
+//         console.log(data);
+//         if (data === "ready") {
+//             window.__workersReady++;
+//         }
+//     };
+// }
+// window.workersReady = () => {
+//     return workers.length === window.__workersReady;
+// };
+
 import "Polyfill"
 
 import { TSession, TSessionListener } from "tapi/tsession";
 import { TTabActions, TWindowActions } from "../tapi/taction";
 import { DetailsController } from "./details";
-import { TUIEditableColorDot, TUIEditableLabel } from "./editablespan";
+import { TUIEditableColorDot, TUIEditableDiv, TUIEditableLabel } from "./editablespan";
+import { parse_query, shard_doc, query as query_all } from "../../cartographer/pkg/cartographer";
+
+import { $localtmp$, normal } from "../tapi/store";
 
 class TUIListOptions {
     constructor() {
@@ -59,9 +79,8 @@ class TUIList {
         this.listOptions = listOptions;
         this.kbMap = {};
         this.documentHook_keyDown = (evt) => {
-            evt.preventDefault();
             this.kbMap[evt.key] = true;
-            if (evt.key === t_ctrlCmdKey()) {
+            if (this.kbMap["Meta"] || this.kbMap["Control"]) {
                 this.enableMultiselect();
                 this.root.parentElement.style.overflowY = "hidden"; //TODO: Consider replacing with class
             }
@@ -75,7 +94,7 @@ class TUIList {
         };
         this.documentHook_keyUp = (evt) => {
             delete this.kbMap[evt.key];
-            if (evt.key === t_ctrlCmdKey()) {
+            if (!this.kbMap["Meta"] && !this.kbMap["Control"]) {
                 this.disableMultiselect();
                 this.root.parentElement.style.overflowY = "";
             }
@@ -90,16 +109,20 @@ class TUIList {
             let lastHover = this.root.querySelector(".-tui-list-hover");
             let nextHover;
             if (evt.key === 'ArrowUp') {
-                if (lastHover) lastHover.classList.remove("-tui-list-hover");
-                if (lastHover && lastHover.previousElementSibling) {
-                    nextHover = lastHover.previousElementSibling;
+                if (lastHover) {
+                    if (lastHover.previousElementSibling) {
+                        lastHover.classList.remove("-tui-list-hover");
+                        nextHover = lastHover.previousElementSibling;
+                    }
                 } else {
                     nextHover = this.root.children[this.root.children.length-1];
                 }
             } else if (evt.key === 'ArrowDown') {
-                if (lastHover) lastHover.classList.remove("-tui-list-hover");
-                if (lastHover && lastHover.nextElementSibling) {
-                    nextHover = lastHover.nextElementSibling
+                if (lastHover) {
+                    if (lastHover.nextElementSibling) {
+                        lastHover.classList.remove("-tui-list-hover");
+                        nextHover = lastHover.nextElementSibling;
+                    }
                 } else {
                     nextHover = this.root.children[0];
                 }
@@ -122,6 +145,20 @@ class TUIList {
             document.addEventListener("keyup", this.documentHook_keyUpKBOnly);
         }
     }
+    hideElement(ele) {
+        for (let e of [ele, ...this.children(ele, true)]) {
+            const event = new Event("-tui-list-hidden");
+            e.dispatchEvent(event);
+            e.classList.add("-tui-list-hidden");
+        }
+    }
+    showElement(ele) {
+        for (let e of [ele, ...this.children(ele, true)]) {
+            const event = new Event("-tui-list-shown");
+            e.dispatchEvent(event);
+            e.classList.remove("-tui-list-hidden");
+        }
+    }
     create(level, data) {
         let e = this.dataInterpret.createElement(level, data);
         e.setAttribute("draggable", this.listOptions._draggableAttributeValue);
@@ -135,6 +172,10 @@ class TUIList {
             }
         });
         let processSelect = (element, originalEvent, action=undefined/*, skipInterpolate=false*/) => {
+            // Don't do anything if element is hidden
+            let compStyles = window.getComputedStyle(element);
+            if (compStyles.getPropertyValue("display") === "none") return "hidden";
+            
             if (this.multiselect || this.kbMap["Shift"]) {
                 let noop = false;
                 let parentCheck = (action, noop) => {
@@ -391,7 +432,7 @@ class TUIList {
             this.multiselectDragging.start.classList.add("-tui-list-drag-starter");
         };
         let onSelection = (e, evt) => {
-            this.dataInterpret.handleHover(e);
+            this.dataInterpret.handleHover(e, evt);
             if (this.multiselect && this.multiselectDragging) processSelect(e, evt, this.multiselectDragging.action);
         };
         this.endMultiselect = () => {
@@ -404,7 +445,7 @@ class TUIList {
 
         e.addEventListener("mousedown", (evt) => {
             // Select all nodes from -tui-list-last-selected to the clicked element if "Shift" is pressed
-            if (this.kbMap["Shift"]) {
+            if (this.kbMap["Shift"] && this.listOptions.allowMultiselect) {
                 if (this.lastSelected) {
                     let ret = true;
                     if (e.isSameNode(this.lastSelected)) {
@@ -451,9 +492,25 @@ class TUIList {
             this.documentHookInPlace_mouseUp = true;
             document.addEventListener("mouseup", this.endMultiselect);
         }
-        e.addEventListener("mouseover", (evt) => {
+        e.addEventListener("mousemove", (evt) => {
             this.kb = false;
             onSelection(e, evt);
+        });
+        // The key down event is also artificially activated by ArrowDown and ArrowUp listeners
+        e.addEventListener("keydown", (evt) => {
+            onSelection(e, evt);
+            this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
+        });
+        // Hidden and shown events
+        e.addEventListener("-tui-list-hidden", (evt) => {
+            let action = "unselecting";
+            let old = this.multiselectDragging;
+            this.multiselectDragging = { action };
+            this.multiselect = true;
+            // processSelect(<target>, evt, action);
+            processSelect(e, "hidden", action);
+            this.multiselect = false;
+            this.multiselectDragging = old;
         });
         // e.addEventListener("keydown", (evt) => {
         //     if (this.kb && this.kbMap["Shift"]) {
@@ -531,6 +588,7 @@ class TUISessionView extends TUIListView {
      */
     constructor(root, sess, dataInterpret, listOptions=TUIListOptions.default(), hookPos=true) {
         super(root, dataInterpret, listOptions);
+
         this.sess = sess;
         let all = sess.getAllAs2DArray();
         let addWindow = (tabs) => {
@@ -567,6 +625,77 @@ class TUISessionView extends TUIListView {
             }
         };
         sess.addListener(this.sessionListener);
+    }
+    static keywordSearch(s, key) {
+        let keywords = key.trim().split(" "), count = 0;
+        for (let i = 0; i < keywords.length; i++) {
+            let word = keywords[i];
+            if (word.trim() !== "" && word.match(/^[a-zA-Z0-9]+$/)) {
+                if (s.toUpperCase().includes(word.toUpperCase())) {
+                    count++;
+                }
+            }
+        }
+        return count >= 2;
+    }
+    static search(s, key) {
+        return s.toUpperCase().includes(key.toUpperCase()) || TUISessionView.keywordSearch(s, key);
+    }
+    /**
+     * Filter list based on search results (undefined to reset)
+     */
+    filter(key, results=undefined) {
+        console.log(results);
+        if (results === undefined) {
+            for (let c of this.root.children) {
+                this.showElement(c);
+            }
+        } else {
+            let tabMap = {};
+            for (let c of this.root.children) {
+                if (c.hasAttribute("data-tab-id")) {
+                    tabMap[c.getAttribute("data-tab-id")] = c;
+                }
+            }
+            let rangeLow = 0;
+            let rangeHigh = 0;
+            for (let value of Object.values(results)) {
+                if (value.score < rangeLow) {
+                    rangeLow = value.score;
+                }
+                if (value.score > rangeHigh) {
+                    rangeHigh = value.score;
+                }
+            }
+            let center = (rangeLow + rangeHigh) / 2.0;
+            for (let tabId in results) {
+                if (results.hasOwnProperty(tabId)) {
+                    let tab = this.sess.getTab(parseInt(tabId));
+                    if (results[tabId].score >= center) {
+                        this.showElement(tabMap[tabId]);
+                    } else {
+                        if (TUISessionView.search(tab.url, key) ||
+                            TUISessionView.search(tab.title, key)) {
+                                this.showElement(tabMap[tabId]);
+                            } else {
+                                this.hideElement(tabMap[tabId]);
+                            }
+                    }
+                    delete tabMap[tabId];
+                }
+            }
+            for (let tabId in tabMap) {
+                if (tabMap.hasOwnProperty(tabId)) {
+                    let tab = this.sess.getTab(parseInt(tabId));
+                    if (TUISessionView.search(tab.url, key) ||
+                        TUISessionView.search(tab.title, key)) {
+                            this.showElement(tabMap[tabId]);
+                        } else {
+                            this.hideElement(tabMap[tabId]);
+                        }
+                }
+            }
+        }
     }
     /**
      * Resort the view completely, as well as any heavy operations concerning going through the entire list,
@@ -687,6 +816,31 @@ class TUISessionView extends TUIListView {
                     }
                 }// TODO: isArticle, status?
             }, () => {
+                // Set hover to another element
+                if (e.classList.contains("-tui-list-hover")) {
+                    let closestDown = e.nextElementSibling;
+                    let passedWindowEntry = false; // Passed a window entry while trying to find the next tab below
+                    while (closestDown && !closestDown.classList.contains("tab-entry")) {
+                        closestDown = closestDown.nextElementSibling;
+                        passedWindowEntry = true;
+                    }
+                    if (closestDown && !passedWindowEntry) {
+                        closestDown.classList.add("-tui-list-hover");
+                        setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
+                    } else {
+                        let closestUp = e.previousElementSibling;
+                        while (closestUp && !closestUp.classList.contains("tab-entry")) {
+                            closestUp = closestUp.previousElementSibling;
+                        }
+                        if (closestUp) {
+                            closestUp.classList.add("-tui-list-hover");
+                            setTimeout(() => list.dataInterpret.handleHover(closestUp, "tabClosedClosestUp"), 1);
+                        } else if (closestDown && passedWindowEntry) {
+                            closestDown.classList.add("-tui-list-hover");
+                            setTimeout(() => list.dataInterpret.handleHover(closestDown, "tabClosedClosestDown"), 1);
+                        }
+                    }
+                }
                 e.parentElement.removeChild(e);
             });
         }
@@ -724,11 +878,61 @@ class TUIListDataInterpret {
     createRoot(data) { return document.createElement("div"); /*OVERRIDE*/ }
     createElement(level, data) { return document.createElement("div"); /*OVERRIDE*/ }
     handleClick(element, allMultiselected, originalEvent) { /*OVERRIDE*/ }
-    handleHover(element) { /*OVERRIDE*/ }
+    handleHover(element, originalEvent) { /*OVERRIDE*/ }
     ghostSetup(ghost) { /*OVERRIDE*/ }
     handleDrop(elements, dropTarget, relation) { /*OVERRIDE*/ }
 }
 
+class SearchDiv extends TUIEditableDiv {
+    constructor(sess, tabsList) {
+        super(true);
+        this.sess = sess;
+        this.tabsList = tabsList;
+        this.root.id = "_search";
+        this.root.classList.add("search");
+        this.root.setAttribute("type", "text");
+        this.editing = true;
+        this.value = "";
+        // this._offset = 0;
+    }
+    reconstructQuery(query, last=false) {
+        switch (query.t) {
+            case "ALL":
+                let result = "";
+                for (let i = 0; i < query.children.length; i++) {
+                    result += this.reconstructQuery(query.children[i], i == query.children.length-1);
+                }
+                return result;
+            break;
+            case "SENTENCE":
+                if (last) {
+                    return query.originalString;
+                } else {
+                    this._offset += query.adjustedString.length - query.originalString.length;
+                    return query.adjustedString;
+                }
+            break;
+            case "REGEX":
+                return query.originalString;
+            break;
+            case "NOOP":
+                return query.originalString;
+            break;
+        }
+    }
+    async onInput(value) {
+        if (value.trim() === "") {
+            this.tabsList.filter(value, undefined);
+        } else {
+            let ids = this.sess.getAllTabIdsAsStrings();
+            await browser.runtime.sendMessage({
+                _: "search",
+                queryString: value,
+                ids
+            });
+        }
+    }
+}
 /**
  * Window name input handler
  */
@@ -962,13 +1166,14 @@ class TUITabsList extends TUIListDataInterpret {
             } else {
                 actions = new TTabActions(tabId);
             }
-            if (evt.target.classList.contains("pin")) {
+            if (evt.target.classList.contains("pin") || evt.key === "p") {
                 await actions.pin(!tabObj.pinned);
-            } else if (evt.target.classList.contains("speaker")) {
+            } else if (evt.target.classList.contains("speaker") || evt.key === "m") {
                 await actions.mute(!tabObj.mutedInfo.muted);
-            } else if (evt.target.classList.contains("close-tab") || evt.button === 1) {
+            } else if (evt.target.classList.contains("close-tab") || evt.button === 1 || evt.key === "Delete") {
                 await actions.remove();
             } else {
+                if (evt.key && evt.key !== "Enter") return;
                 await actions.activate();
                 this.sess.getWindowActions(tabObj.windowId).activate();
             }
@@ -983,11 +1188,19 @@ class TUITabsList extends TUIListDataInterpret {
             } else if (evt.target.classList.contains("close-window")) {
                 await actions.remove();
             } else {
+                if (evt.key && evt.key !== "Enter") return;
                 await actions.activate();
             }
         }
     }
-    handleHover(element) {
+    handleHover(element, originalEvent) {
+        if (originalEvent.key) {
+            if (originalEvent.key === "ArrowUp") {
+                t_getInView(element, this.list.root.parentElement, true);
+            } else if (originalEvent.key === "ArrowDown") {
+                t_getInView(element, this.list.root.parentElement, false);
+            }
+        }
         let tabId = parseInt(element.getAttribute("data-tab-id"));
         let tabObj = this.sess.getTab(tabId);
         if (element.classList.contains("tab-entry") && tabObj) {
@@ -1275,13 +1488,32 @@ class TUITabsList extends TUIListDataInterpret {
      */
     window.t_altReleasedEarly = altReleased;
 
+    // Visually show when window is not focused
+    window.onblur = () => {
+        document.body.style.opacity = "0.8";
+    };
+    window.onfocus = () => {
+        document.body.style.opacity = "";
+    };
+
     let sess = await TSession.read_from_current();
     sess.enableBrowserHooks();
+
     let detailsController = new DetailsController();
     let dataInterpret = new TUITabsList(sess, detailsController);
     let root = TUIList.makeRoot(dataInterpret, undefined);
     let tabsList = new TUISessionView(root, sess, dataInterpret);
     tabsList.root.setAttribute("data-live", "true");
+
+    // Create the search bar
+    let search = new SearchDiv(sess, tabsList);
+    let settingsBtn = document.getElementById("_access_settings");
+    settingsBtn.parentElement.insertBefore(search.root, settingsBtn);
+
+    browser.runtime.onMessage.addListener(data => {
+        if (data["_"] !== "search") return;
+        tabsList.filter(search.value, data.results);
+    });
     //tabsList = new TUISessionNoWindowsView(tabsList.cleanUp(), sess, dataInterpret);
     // === MULTISELECT TEST ===
     //tabsList.enableMultiselect();

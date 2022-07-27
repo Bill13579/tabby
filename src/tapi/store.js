@@ -13,7 +13,7 @@ function isSpecial(type, id) {
 function normal(type, id) {
   return id.substring(4 + type.length, id.length);
 }
-const DEL_ON_START = special("__DELONSTART", "_");
+const DEL_ON_START = (type) => special(type, "___DELONSTART");
 
 export class StorageSpace {
   constructor(type, name="conf", tmp=false) {
@@ -21,11 +21,91 @@ export class StorageSpace {
     this.name = name;
     this.tmp = tmp;
     this.__fulfillers = {};
+    this.__modifierPromises = {};
   }
-  async __delOnStart() {
-    let delOnStart = await this.__getOne(DEL_ON_START);
-    await this.__unset(delOnStart);
-    await this.__set(DEL_ON_START, []);
+  async modify(optionID, callback, queryCurrentValue=true) {
+    let modifierPromise = this.__modifierPromises[optionID];
+    this.__modifierPromises[optionID] = new Promise(async (resolve, _) => {
+      try {
+        if (modifierPromise) await modifierPromise;
+        
+        // Do stuff
+        let currentValue = queryCurrentValue ? await this.getOne(optionID) : undefined;
+        let returnValue = callback(currentValue);
+        if (returnValue instanceof Promise) {
+          returnValue = await returnValue;
+        }
+        if (returnValue) {
+          await this.set(optionID, returnValue);
+        }
+        // Do stuff
+        
+        resolve(); // Resolve anyways so the chain can keep going
+      } catch (e) {
+        console.error(`storage modification for property "${optionID}" failed with the following error:`);
+        console.error(e);
+        resolve(); // Resolve anyways so the chain can keep going
+      }
+    });
+    return this.__modifierPromises[optionID];
+  }
+  async modifyAll(callback, queryCurrentValue, ...optionIDs) {
+    let modifierPromises = optionIDs.map(optionID => this.__modifierPromises[optionID]);
+    let newPromise = new Promise(async (resolve, _) => {
+      try {
+        for (let promise of modifierPromises) {
+          if (promise !== undefined) {
+            await promise;
+          }
+        }
+        
+        // Do stuff
+        let currentValues = queryCurrentValue ? await this.get(...optionIDs) : undefined;
+        let returnValue = callback(currentValues);
+        if (returnValue instanceof Promise) {
+          returnValue = await returnValue;
+        }
+        if (returnValue) {
+          await this.setAll(returnValue);
+        }
+        // Do stuff
+        
+        resolve(); // Resolve anyways so the chain can keep going
+      } catch (e) {
+        console.error(`storage modification for properties "${optionIDs}" failed with the following error:`);
+        console.error(e);
+        resolve(); // Resolve anyways so the chain can keep going
+      }
+    });
+    for (let optionID of optionIDs) {
+      this.__modifierPromises[optionID] = newPromise;
+    }
+    return newPromise;
+  }
+  special(id) {
+    return special(this.name, id);
+  }
+  isSpecial(id) {
+    return isSpecial(this.name, id);
+  }
+  normal(id) {
+    return normal(this.name, id);
+  }
+  __delOnStart() {
+    return this.modify(DEL_ON_START(this.name), async () => {
+      let delOnStart = await this.__getOne(DEL_ON_START(this.name));
+      if (delOnStart) {
+        console.log("[store] delOnStart exists: ");
+        console.log(delOnStart);
+        return this.modifyAll(() => {
+          console.log("[store] deleting");
+          return this.__unset(...delOnStart);
+        }, false, ...delOnStart)
+          .then(() => this.__set(DEL_ON_START(this.name), []/* Set delOnStart back to an empty array */));
+      } else {
+        this.__set(DEL_ON_START(this.name), []/* Set delOnStart back to an empty array */)
+      }
+    }, false);
   }
   async hasOne(optionID) {
     optionID = special(this.name, optionID);
@@ -48,32 +128,32 @@ export class StorageSpace {
     return re;
   }
   */
-  async unset(...optionIDs) {
-    if (this.tmp) {
-      let delOnStart = await this.__getOne(DEL_ON_START);
+  unset(...optionIDs) {
+    return this.modifyAll(async () => {
+      let delOnStart = await this.__getOne(DEL_ON_START(this.name));
       for (let id of optionIDs) {
         let i = delOnStart.indexOf(id);
         if (i !== -1) {
           delOnStart.splice(i, 1);
         }
       }
-      await this.__set(DEL_ON_START, delOnStart);
-    }
-    return this.__unset(...optionIDs);
+      await this.__set(DEL_ON_START(this.name), delOnStart);
+      await this.__unset(...optionIDs);
+    }, false, DEL_ON_START(this.name), ...optionIDs);
   }
   async __unset(...optionIDs) {
     return browser.storage[this.type].remove(optionIDs.map(id => special(this.name, id)));
   }
-  async set(optionID, value) {
-    if (this.tmp) {
-      let delOnStart = await this.__getOne(DEL_ON_START);
+  set(optionID, value) {
+    return this.modifyAll(async () => {
+      let delOnStart = await this.__getOne(DEL_ON_START(this.name));
       delOnStart = delOnStart ? delOnStart : [];
       if (!delOnStart.includes(optionID)) {
         delOnStart.push(optionID);
       }
-      await this.__set(DEL_ON_START, delOnStart);
-    }
-    return this.__set(special(this.name, optionID), value);
+      await this.__set(DEL_ON_START(this.name), delOnStart);
+      await this.__set(special(this.name, optionID), value);
+    }, false, DEL_ON_START(this.name), optionID);
   }
   async __set(optionID, value) {
     let data = {};
@@ -94,6 +174,9 @@ export class StorageSpace {
   }
   async __getOne(optionID) {
     return (await browser.storage[this.type].get(optionID))[optionID];
+  }
+  async getKeys() {
+    return this.__getOne(DEL_ON_START(this.name));
   }
   async get(...optionIDs) {
     let re = {};

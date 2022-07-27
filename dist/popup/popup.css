@@ -153,6 +153,34 @@ input[type="text"]:focus {
     opacity: 0.8;
 }
 
+.-tui-editable-div,
+.-tui-editable-div .-tui-editable-div-placeholder {
+    font-size: calc(13.5px * var(--scale));
+}
+.-tui-editable-div {
+    background-color: var(--fg-indented);
+    padding-left: 6.5px;
+    height: calc(30px * var(--scale));
+    color: var(--fg-user-content);
+    overflow: hidden;
+    position: relative;
+}
+.-tui-editable-div:focus {
+    outline: none;
+}
+.-tui-editable-div .-tui-editable-div-placeholder {
+    color: var(--fg-shadow);
+    pointer-events: none;
+    position: absolute;
+    left: 6.5px;
+    top: 7px;
+}
+.-tui-editable-div .-tui-editable-div-placeholder::before {
+    content: "Placeholder Text";
+}
+.-tui-editable-singleline-div * { display: inline }
+.-tui-editable-singleline-div br { display: none; }
+
 /* Overall layout */
 
 html, body, #main {
@@ -368,6 +396,10 @@ html, body {
     box-shadow: 0px 0px 2px 0px var(--input-border);
 }
 
+#session-display-pane #session-top-pane .search .-tui-editable-div-placeholder::before {
+    content: "Search Tabs";
+}
+
 /* Settings button layout */
 
 #session-display-pane #session-top-pane .settings-button {
@@ -402,6 +434,9 @@ html, body {
 .tab-list .tab-entry[data-drag-relation="below"] {
     margin-top: 0;
     margin-bottom: 3px;
+}
+.tab-list .tab-entry.-tui-list-hidden {
+    display: none;
 }
 .tab-list .tab-entry.-tui-list-selected .selected-indicator {
     background: linear-gradient(90deg, var(--selected) 0%, var(--selected) 80%, var(--bg-indented) 80%, #ffffff00 100%);

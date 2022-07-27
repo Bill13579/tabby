@@ -156,3 +156,79 @@ window["t_getElementsBetween"] = function (node1, node2) {
 
     return between;
 };
+
+window["t_getInView"] = function (e, frame, alignToTop) {
+    let tbounding = frame.getBoundingClientRect();
+    let bounding = e.getBoundingClientRect();
+    if (tbounding.y > bounding.y
+        || tbounding.y > (bounding.y + bounding.height)
+        || bounding.y >= (tbounding.y + tbounding.height)
+        || (bounding.y + bounding.height) >= (tbounding.y + tbounding.height)) {
+            e.scrollIntoView(alignToTop);
+        }
+}
+
+// https://stackoverflow.com/questions/4811822/get-a-ranges-start-and-end-offsets-relative-to-its-parent-container/4812022#4812022
+window["t_getCaretPosition"] = function (element) {
+    var caretOffset = 0;
+    var doc = element.ownerDocument || element.document;
+    var win = doc.defaultView || doc.parentWindow;
+    var sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            var range = win.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            caretOffset = preCaretRange.toString().length;
+        }
+    } else if ( (sel = doc.selection) && sel.type != "Control") {
+        var textRange = sel.createRange();
+        var preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        caretOffset = preCaretTextRange.text.length;
+    }
+    return caretOffset;
+}
+
+function setCaret(element, pos) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    
+    range.setStart(element, pos);
+    range.collapse(true);
+    
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+// t_setCaretPosition with consideration for child elements
+window["t_setCaretPosition"] = function (element, caretPos) {
+    let pos = 0;
+    let relativeCaretPos = caretPos;
+    for (let node of element.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            pos += node.nodeValue.length;
+            if (caretPos <= pos) {
+                setCaret(node, relativeCaretPos);
+                return;
+            }
+            relativeCaretPos -= node.nodeValue.length;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            let t = node.innerText;
+            pos += t.length;
+            if (caretPos <= pos) {
+                t_setCaretPosition(node, relativeCaretPos);
+                return;
+            }
+            relativeCaretPos -= t.length;
+        }
+    }
+}
+
+window["t_stripHtml"] = function (html) {
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+}

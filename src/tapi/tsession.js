@@ -86,6 +86,19 @@ export class TSession {
         }
     }
     /**
+     * Returns an array of tab ids in the session
+     * @returns {String[]}
+     */
+    getAllTabIdsAsStrings() {
+        let ids = [];
+        for (let id in this._tabs) {
+            if (this._tabs.hasOwnProperty(id)) {
+                ids.push(id);
+            }
+        }
+        return ids;
+    }
+    /**
      * Get TTab by ID, undefined if otherwise
      * @returns {TTab}
      */

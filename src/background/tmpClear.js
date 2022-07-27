@@ -1,7 +1,7 @@
 import { StorageSpace } from "../tapi/store";
 
 let tmpClear = async () => {
-    console.log("[store] clearing temporary data...");
+    console.log("[store] clearing temporary data");
     const $localtmp$ = new StorageSpace("local", "temp", true);
     const $synctmp$ = new StorageSpace("sync", "temp", true);
     await $localtmp$.__delOnStart();
