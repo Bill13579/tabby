@@ -57,67 +57,77 @@ async function initializeCartographerFromStore() {
 }
 
 let lastUpdatePromise; // Make sure that updates are made sequentially
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo["status"] && changeInfo["status"] === "complete") {
-        let updatePromise = lastUpdatePromise;
-        lastUpdatePromise = new Promise(async (resolve, reject) => {
-            try {
-                if (updatePromise) await updatePromise;
 
-                // Re-index
-                if (shard_uninitialized()) {
-                    await initializeCartographerFromStore();
-                }
-
-                let a = new Date();
-
-                let content;
-                try {
-                    content = await callContentScript(tabId, "packd", {
-                        action: "innerText"
-                    });
-                } catch (e) {
-                    console.error(`could not contact tab ${tabId}, error: ${e}`);
-                    console.error("falling back on title+url");
-                    content = {
-                        innerText: "",
-                        title: tab.title,
-                        url: tab.url
-                    };
-                }
-                
-                if (!await $localtmp$.hasOne("cartographerStats")) {
-                    await $localtmp$.set("cartographerStats", `{"totalDocs": 0, "lengthAvg": 0, "occurences": {}}`);
-                }
-                let cartographerStats = await $localtmp$.getOne("cartographerStats");
-                
-                // Unindex old doc first if there is one
-                let oldDoc = await $localtmp$.getOne(`cartographer_${tabId}`);
-                if (oldDoc) {
-                    let { stats } = unindex(oldDoc, cartographerStats);
-                    cartographerStats = JSON.stringify(stats);
-                    unshard_doc(tabId.toString());
-                }
-
-                let i = index(tabId.toString(), content.innerText, content.title, content.url, cartographerStats);
-                
-                let doc = JSON.stringify(i.doc);
-
-                await $localtmp$.set("cartographerStats", JSON.stringify(i.stats));
-                await $localtmp$.set(`cartographer_${tabId}`, doc);
-                shard_doc(doc);
-                
-                let b = new Date();
-                console.log("indexing took " + (b - a) + "ms");
-
-                resolve();
-            } catch (e) {
-                console.log(`could not index tab ${tabId}, error: ${e}`);
-
-                resolve(); // Resolve anyways so the chain can keep going
-            }
-        });
+let urlDB = {};
+browser.webNavigation.onCompleted.addListener(({tabId, url}) => {
+    if (!urlDB.hasOwnProperty(tabId)) {
+        urlDB[tabId] = url;
+    } else {
+        if (urlDB[tabId] === url) {
+            return;
+        } else {
+            urlDB[tabId] = url;
+        }
     }
+    let updatePromise = lastUpdatePromise;
+    lastUpdatePromise = new Promise(async (resolve, reject) => {
+        try {
+            if (updatePromise) await updatePromise;
+
+            // Re-index
+            if (shard_uninitialized()) {
+                await initializeCartographerFromStore();
+            }
+
+            let a = new Date();
+
+            let content;
+            try {
+                content = await callContentScript(tabId, "packd", {
+                    action: "innerText"
+                });
+            } catch (e) {
+                console.error(`could not contact tab ${tabId}, error: ${e}`);
+                console.error("falling back on title+url");
+                let tab = await browser.tabs.get(tabId);
+                content = {
+                    innerText: "",
+                    title: tab.title,
+                    url: url
+                };
+            }
+            
+            if (!await $localtmp$.hasOne("cartographerStats")) {
+                await $localtmp$.set("cartographerStats", `{"totalDocs": 0, "lengthAvg": 0, "occurences": {}}`);
+            }
+            let cartographerStats = await $localtmp$.getOne("cartographerStats");
+            
+            // Unindex old doc first if there is one
+            let oldDoc = await $localtmp$.getOne(`cartographer_${tabId}`);
+            if (oldDoc) {
+                let { stats } = unindex(oldDoc, cartographerStats);
+                cartographerStats = JSON.stringify(stats);
+                unshard_doc(tabId.toString());
+            }
+
+            let i = index(tabId.toString(), content.innerText, content.title, content.url, cartographerStats);
+            
+            let doc = JSON.stringify(i.doc);
+
+            await $localtmp$.set("cartographerStats", JSON.stringify(i.stats));
+            await $localtmp$.set(`cartographer_${tabId}`, doc);
+            shard_doc(doc);
+            
+            let b = new Date();
+            console.log("indexing took " + (b - a) + "ms");
+
+            resolve();
+        } catch (e) {
+            console.log(`could not index tab ${tabId}, error: ${e}`);
+
+            resolve(); // Resolve anyways so the chain can keep going
+        }
+    });
 });
 
 browser.tabs.onRemoved.addListener((tabId, _) => {

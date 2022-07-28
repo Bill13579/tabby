@@ -214,11 +214,11 @@ class TUIList {
         this.multiselectDragging = { action: "" };
         this.multiselect = true;
 
-        let processSelectCB = (target, evt, action) => {
+        let processSelectCB = (target, evt, action, automatic=false) => {
             // processSelect(<target>, evt, action);
             this.multiselectDragging.action = action;
             const event = new CustomEvent('-tui-list-internal--process-select', { detail: {
-                originalEvent: evt, action
+                originalEvent: evt, action, automatic
             } });
             target.dispatchEvent(event);
         };
@@ -341,7 +341,7 @@ class TUIList {
                 e.classList.add("-tui-list-hover");
             }
         });
-        let processSelect = (element, originalEvent, action=undefined/*, skipInterpolate=false*/) => {
+        let processSelect = (element, originalEvent, action=undefined, automatic=false/*, skipInterpolate=false*/) => {
             // Don't do anything if element is hidden
             if (TUIList.isElementHidden(element)) return "hidden";
             
@@ -476,17 +476,21 @@ class TUIList {
                             noop = true;
                         }
                         element.classList.remove("-tui-list-selected");
-                        // // reset last-selected if we are unselecting
-                        // if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
-                        // this.lastSelected = undefined;
-                        // parentCheck("unselecting", noop);
-                        // return "unselecting";
-                        // set new last-selected element if we are unselecting as well
-                        if (this.lastSelected !== undefined) {
-                            this.lastSelected.classList.remove("-tui-list-last-selected");
+                        
+                        if (!automatic) {
+                            // // reset last-selected if we are unselecting
+                            // if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
+                            // this.lastSelected = undefined;
+                            // parentCheck("unselecting", noop);
+                            // return "unselecting";
+                            // set new last-selected element if we are unselecting as well
+                            if (this.lastSelected !== undefined) {
+                                this.lastSelected.classList.remove("-tui-list-last-selected");
+                            }
+                            this.lastSelected = element;
+                            element.classList.add("-tui-list-last-selected");
                         }
-                        this.lastSelected = element;
-                        element.classList.add("-tui-list-last-selected");
+
                         parentCheck("unselecting", noop);
                         return "unselecting";
                     } else {
@@ -494,12 +498,16 @@ class TUIList {
                             noop = true;
                         }
                         element.classList.add("-tui-list-selected");
-                        // set new last-selected element if we are selecting
-                        if (this.lastSelected !== undefined) {
-                            this.lastSelected.classList.remove("-tui-list-last-selected");
+                        
+                        if (!automatic) {
+                            // set new last-selected element if we are selecting
+                            if (this.lastSelected !== undefined) {
+                                this.lastSelected.classList.remove("-tui-list-last-selected");
+                            }
+                            this.lastSelected = element;
+                            element.classList.add("-tui-list-last-selected");
                         }
-                        this.lastSelected = element;
-                        element.classList.add("-tui-list-last-selected");
+
                         parentCheck("selecting", noop);
                         return "selecting";
                     }
@@ -624,6 +632,7 @@ class TUIList {
                         }
                         processSelectCB(e, evt, action);
                     });
+                    // Remove last selected after finishing the range select
                     if (this.lastSelected !== undefined) {
                         this.lastSelected.classList.remove("-tui-list-last-selected");
                         this.lastSelected = undefined;
@@ -696,7 +705,7 @@ class TUIList {
         // Hidden and shown events
         e.addEventListener("-tui-list-hidden", (_) => {
             setHoverToNearest("-tui-list-hidden");
-            this.modifySelected((processSelectCB) => processSelectCB(e, "hidden", "unselecting"));
+            this.modifySelected((processSelectCB) => processSelectCB(e, "hidden", "unselecting", true));
         });
         // Removed event
         e.addEventListener("-tui-list-removed", (_) => {
@@ -704,7 +713,7 @@ class TUIList {
         });
 
         e.addEventListener("-tui-list-internal--process-select", (evt) => {
-            processSelect(e, evt.detail.originalEvent, evt.detail.action);
+            processSelect(e, evt.detail.originalEvent, evt.detail.action, evt.detail.automatic);
         });
         // e.addEventListener("keydown", (evt) => {
         //     if (this.kb && this.kbMap["Shift"]) {

@@ -35,6 +35,11 @@ export class TUIEditableDiv {
     constructor(singleLine=true) {
         this.root = document.createElement("pre");
         this.root.setAttribute("contenteditable", "true");
+        this.root.addEventListener("paste", function(e) {
+            e.preventDefault();
+            let text = e.clipboardData.getData("text/plain");
+            document.execCommand("insertText", false, text);
+        });
         this.singleLine = singleLine;
 
         this._placeholderTemplate = document.createElement("span");
