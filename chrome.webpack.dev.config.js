@@ -15,6 +15,7 @@ module.exports = {
         "background/background": "./src/background/background.js",
         "background/captureTab": "./src/background/captureTab.js",
         "background/tmpClear": "./src/background/tmpClear.js",
+        "background/commands": "./src/background/commands.js",
         "popup/popup": "./src/popup/popup.js",
         "content/content": "./src/content/content.js",
         "options/options": "./src/options/options.js"

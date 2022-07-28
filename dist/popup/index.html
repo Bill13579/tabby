@@ -8,16 +8,17 @@
     </head>
     <body>
         <div id="main" data-view="0">
+            <span id="details-placeholder">Click a tab to open it.<br/>Hover over a tab to preview it.</span>
             <div id="details-pane">
-                <img id="_details_pane_image_holder" src="https://picsum.photos/1080/720" width="100%" />
+                <img id="_details_pane_image_holder" src="" width="100%" />
                 <br/>
                 <label>Title</label><div class="-copy inline-button inline-text-button" data-target="_title_txt"></div>
                 <div class="title -horizontal-scroll">
                     <span id="_title_txt">Lorem Picsum, get your own images with this API</span>
                 </div>
                 <label>URL</label><div class="-copy inline-button inline-text-button" data-target="_url_txt"></div>
-                <div class="url -horizontal-scroll">
-                    <span id="_url_txt">https://addons.mozilla.org/en-US/firefox/addon/tabby-window-tab-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search</span>
+                <div class="url -horizontal-scroll" tabindex="-1">
+                    <span id="_url_txt"><a href="https://www.youtube.com/watch?v=8BIeGdBjJiU">https://www.youtube.com/watch?v=8BIeGdBjJiU</a></span>
                 </div>
             </div>
             <div id="session-display-pane" data-static="0">

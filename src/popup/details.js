@@ -6,6 +6,9 @@ export class DetailsController {
         this.tabId = undefined;
     }
     setCurrent(tabId) {
+        // Hide placeholder and show details pane
+        document.getElementById("details-pane").setAttribute("data-tab-id", tabId);
+        document.getElementById("details-placeholder").style.display = "none";
         this.tabId = tabId;
     }
     setTitle(title) {

@@ -3,7 +3,53 @@ import { module } from "./module"
 
 import Mercury from "@postlight/mercury-parser";
 
-const BYPASS = ["www.youtube.com"];
+function waitForElementToExist(selector) {
+    return new Promise((resolve, _) => {
+        let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        
+        if (typeof MutationObserver !== 'undefined') {
+            let observer = new MutationObserver((mutations) => {
+                let node = document.querySelector(selector);
+                if (node) {
+                    observer.disconnect();
+                    resolve(node);
+                }
+            });
+            
+            observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
+        }
+    });
+}
+function waitForElementValueToChange(element) {
+    return new Promise((resolve, _) => {
+        let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+
+        if (typeof MutationObserver !== 'undefined') {
+            let observer = new MutationObserver((mutations) => {
+                resolve(element.textContent);
+            });
+
+            observer.observe(element, { attributes: false, childList: true, subtree: true, characterData: false });
+        }
+    });
+}
+
+const MUTATION_OBSERVERS = {
+    "www.youtube.com": () => new Promise(async (resolve, reject) => {
+        if (window.location.pathname.startsWith("/watch")) {
+            let ele = document.querySelector('#meta-contents #description yt-formatted-string.content');
+            if (ele) {
+                let value = await waitForElementValueToChange(ele);
+                resolve(value);
+            } else {
+                let value = await waitForElementToExist('#meta-contents #description yt-formatted-string.content');
+                resolve(value.textContent);
+            }
+        } else {
+            resolve(document.body.innerText);
+        }
+    })
+};
 
 function getScroll() {
     return {
@@ -58,11 +104,13 @@ module("packd", data => {
             });
         }
         case "innerText": {
-            if (window.location.hostname in BYPASS) {
-                return Promise.resolve({
-                    title: document.title,
-                    url: window.location.href,
-                    innerText: document.body.innerText
+            if (window.location.hostname in MUTATION_OBSERVERS && MUTATION_OBSERVERS.hasOwnProperty(window.location.hostname)) {
+                return MUTATION_OBSERVERS[window.location.hostname]().then(value => {
+                    return {
+                        title: document.title,
+                        url: window.location.href,
+                        innerText: value
+                    };
                 });
             } else {
                 return Mercury.parse(window.location.href, {

@@ -624,6 +624,10 @@ class TUIList {
                         }
                         processSelectCB(e, evt, action);
                     });
+                    if (this.lastSelected !== undefined) {
+                        this.lastSelected.classList.remove("-tui-list-last-selected");
+                        this.lastSelected = undefined;
+                    }
                     if (ret) return;
                 } else {
                     // When nothing has been selected yet, for the first-select only, allow use of Shift key to select
@@ -686,6 +690,7 @@ class TUIList {
                         setTimeout(() => this.dataInterpret.handleHover(closestDown, reason), 1);
                     }
                 }
+                e.classList.remove("-tui-list-hover");
             }
         };
         // Hidden and shown events
@@ -892,7 +897,7 @@ class TUISessionView extends TUIListView {
         this.listOptions.off("change", this.listOptionsHook_change);
         return this.root;
     }
-    createTab(tab, list, hook=true, hookPos=true) {
+    createTab(tab, list, hook=true, hookPos=true) { //TODO: The "list" parameter is no longer necessary since it's not static anymore
         let e = list.create(1, tab);
     
         // Hook the tab up with its respective TTab object
@@ -998,6 +1003,16 @@ class TUISessionView extends TUIListView {
 
         return e;
     }
+    /**
+     * Scrolls into view and selects the current tab
+     */
+    scrollCurrentIntoView(select=true) {
+        let current = this.root.querySelector(".tab-list .window-entry[data-current] ~ .tab-entry[data-current]");
+        if (current) {
+            if (select) current.classList.add("-tui-list-hover");
+            current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 }
 
 /**
@@ -1042,6 +1057,13 @@ class SearchDiv extends TUIEditableDiv {
         this.root.id = "_search";
         this.root.classList.add("search");
         this.root.setAttribute("type", "text");
+        // Contribute to the tabsList's kbMap
+        this.root.addEventListener("keydown", (evt) => {
+            this.tabsList.documentHook_keyDown(evt);
+        });
+        this.root.addEventListener("keyup", (evt) => {
+            this.tabsList.documentHook_keyUp(evt);
+        });
         this.editing = true;
         this.value = "";
         // this._offset = 0;
@@ -1668,4 +1690,17 @@ class TUITabsList extends TUIListDataInterpret {
     //tabsList = new TUISessionNoWindowsView(tabsList.cleanUp(), sess, dataInterpret);
     // === MULTISELECT TEST ===
     //tabsList.enableMultiselect();
+
+    let initialFocus = await browser.runtime.sendMessage({ "_": "initialFocus" });
+    if (initialFocus.search === true || initialFocus.search === undefined) {
+        search.editing = true;
+        search.editing = true;
+        search.editing = true;
+        search.editing = true;
+        search.editing = true;
+        //tabsList.scrollCurrentIntoView(false);
+    } else {
+        tabsList.scrollCurrentIntoView();
+        tabsList.kb = true;
+    }
 })();

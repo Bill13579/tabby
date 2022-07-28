@@ -203,7 +203,19 @@ html, body {
     box-sizing: border-box;
     background-color: var(--bg);
 }
+#details-placeholder {
+    font-size: calc(25px * var(--scale));
+    font-weight: bolder;
+    color: var(--fg-shadow-2);
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
 #details-pane {
+    display: none;
     box-sizing: border-box;
     padding-left: calc(16.75px * var(--scale));
     overflow-y: scroll;
@@ -211,6 +223,9 @@ html, body {
 
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     scrollbar-width: none;  /* Firefox */
+}
+#details-pane[data-tab-id] {
+    display: block;
 }
 #details-pane::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */

@@ -61,7 +61,11 @@ impl Statistics {
             for (key, _) in &part.occurences {
                 if !done_set.contains(key) {
                     let old_val = self.occurences.get(key).unwrap();
-                    self.occurences.insert(key.clone(), old_val - 1);
+                    if old_val - 1 == 0 {
+                        self.occurences.remove(key);
+                    } else {
+                        self.occurences.insert(key.clone(), old_val - 1);
+                    }
                     done_set.insert(key.clone());
                 }
             }

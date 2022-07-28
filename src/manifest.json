@@ -33,12 +33,12 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js"],
+        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
         "persistent": false
     },
 
     "commands": {
-        "_execute_browser_action": {
+        "open-tabby-focus-search": {
             "suggested_key": {
                 "default": "Ctrl+Shift+Space",
                 "mac": "MacCtrl+Shift+Space"

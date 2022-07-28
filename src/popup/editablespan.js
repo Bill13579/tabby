@@ -35,7 +35,6 @@ export class TUIEditableDiv {
     constructor(singleLine=true) {
         this.root = document.createElement("pre");
         this.root.setAttribute("contenteditable", "true");
-        this.editing = false;
         this.singleLine = singleLine;
 
         this._placeholderTemplate = document.createElement("span");
@@ -129,7 +128,7 @@ export class TUIEditableDiv {
     set editing(bool) {
         if (bool) {
             this.root.style.pointerEvents = "";
-            this.root.focus();
+            t_focusCaret(this.root);
             this.root.classList.add("-tui-editable-div-editing");
         } else {
             this.root.style.pointerEvents = "none";

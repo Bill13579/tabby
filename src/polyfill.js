@@ -206,6 +206,18 @@ function setCaret(element, pos) {
     sel.addRange(range);
 }
 
+// t_focusCaret
+window["t_focusCaret"] = function (element) {
+    let s = window.getSelection();
+    let r = document.createRange();
+    r.setStart(element, 0);
+    r.setEnd(element, 0);
+    r.collapse(true);
+    s.removeAllRanges();
+    s.addRange(r);
+    element.focus();
+}
+
 // t_setCaretPosition with consideration for child elements
 window["t_setCaretPosition"] = function (element, caretPos) {
     let pos = 0;

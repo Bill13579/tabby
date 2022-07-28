@@ -58,7 +58,7 @@ async function initializeCartographerFromStore() {
 
 let lastUpdatePromise; // Make sure that updates are made sequentially
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if ((changeInfo["status"] && changeInfo["status"] === "complete") || changeInfo["title"]) {
+    if (changeInfo["status"] && changeInfo["status"] === "complete") {
         let updatePromise = lastUpdatePromise;
         lastUpdatePromise = new Promise(async (resolve, reject) => {
             try {
@@ -90,6 +90,15 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                     await $localtmp$.set("cartographerStats", `{"totalDocs": 0, "lengthAvg": 0, "occurences": {}}`);
                 }
                 let cartographerStats = await $localtmp$.getOne("cartographerStats");
+                
+                // Unindex old doc first if there is one
+                let oldDoc = await $localtmp$.getOne(`cartographer_${tabId}`);
+                if (oldDoc) {
+                    let { stats } = unindex(oldDoc, cartographerStats);
+                    cartographerStats = JSON.stringify(stats);
+                    unshard_doc(tabId.toString());
+                }
+
                 let i = index(tabId.toString(), content.innerText, content.title, content.url, cartographerStats);
                 
                 let doc = JSON.stringify(i.doc);
