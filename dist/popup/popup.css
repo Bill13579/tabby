@@ -181,6 +181,41 @@ input[type="text"]:focus {
 .-tui-editable-singleline-div * { display: inline }
 .-tui-editable-singleline-div br { display: none; }
 
+.-tui-menu {
+    display: inline-flex;
+    flex-direction: column;
+    background-color: var(--bg);
+    box-shadow: 0 0 0.5px 1px var(--fg-user-content);
+    justify-content: center;
+    border-radius: 3px;
+    flex: 1 1 auto;
+    position: fixed;
+}
+.-tui-menu-item {
+    display: inline-block;
+    height: calc(28px * var(--scale));
+    padding-left: 5px;
+    padding-right: calc(5px + 4.5px);
+    border-radius: 3px;
+}
+.-tui-menu-item:hover {
+    background-color: var(--bg-indented-1);
+}
+.-tui-menu-item[data-pressed] {
+    background-color: var(--fg-shadow);
+}
+.-tui-menu-item .-tui-menu-item-icon {
+    height: 100%;
+    width: calc(24px * var(--scale));
+    vertical-align: middle;
+}
+.-tui-menu-item .-tui-menu-item-label {
+    color: var(--fg);
+    font-family: Helvetica, Arial, Sans-Serif;
+    vertical-align: middle;
+    user-select: none;
+}
+
 /* Overall layout */
 
 html, body, #main {
@@ -264,6 +299,20 @@ html, body {
     -moz-user-select: none;
     -khtml-user-select: none;
     -ms-user-select: none;
+}
+
+#details-pane #unloaded-tab-preview-placeholder {
+    display: none;
+    width: 100%;
+    height: calc(150px * var(--scale));
+    color: var(--fg-label);
+    justify-content: center;
+}
+#details-pane #unloaded-tab-preview-placeholder-text::before {
+    content: 'THIS TAB IS UNLOADED. CLICK TO RELOAD';
+}
+#details-pane #unloaded-tab-preview-placeholder-text[data-loading]::before {
+    content: 'LOADING...';
 }
 
 #details-pane label {
@@ -602,7 +651,7 @@ html, body {
     background-image: url(../icons/rename.svg);
     display: none;
 }
-.alt-pressed .tab-list .window-entry .single-controls .rename-window,
+/* .alt-pressed .tab-list .window-entry .single-controls .rename-window, */
 .tab-list .window-entry .single-controls .rename-window.hold-while-editing {
     display: block;
 }

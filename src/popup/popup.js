@@ -24,6 +24,7 @@ import { TUIEditableColorDot, TUIEditableDiv, TUIEditableLabel } from "./editabl
 import { parse_query, shard_doc, query as query_all } from "../../cartographer/pkg/cartographer";
 
 import { $localtmp$, normal } from "../tapi/store";
+import { openContextMenu, TUIMenu, TUIMenuItem } from "./menu";
 
 class TUIListOptions {
     constructor() {
@@ -160,7 +161,7 @@ class TUIList {
             current = current.previousElementSibling;
             if (current !== null) currentCondition = condition(current);
         }
-        if (currentCondition["ret"]) {
+        if (currentCondition && currentCondition["ret"]) {
             return currentCondition["ret"];
         }
         return current;
@@ -174,7 +175,7 @@ class TUIList {
             current = current.nextElementSibling;
             if (current !== null) currentCondition = condition(current);
         }
-        if (currentCondition["ret"]) {
+        if (currentCondition && currentCondition["ret"]) {
             return currentCondition["ret"];
         }
         return current;
@@ -528,6 +529,9 @@ class TUIList {
                 processSelect(e, evt);
                 return false;
             }
+        });
+        e.addEventListener("contextmenu", (evt) => {
+            this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
         });
         let getRidOfOtherCursors = () => {
             for (let ele of document.querySelectorAll(".-tui-list-container li[data-drag-relation]")) {
@@ -979,6 +983,11 @@ class TUISessionView extends TUIListView {
                     if (pin) {
                         pin.setAttribute("data-state", value ? "pinned" : "");
                     }
+                } else if (prop === "status") {
+                    // Update captureTab if details is currently pointing to this tab
+                    if (this.dataInterpret.details.tabId === tab.id && value === "complete") {
+                        this.dataInterpret.details.captureTab(true);
+                    }
                 }// TODO: isArticle, status?
             }, () => {
                 // if (e.classList.contains("-tui-list-hover")) {
@@ -1362,7 +1371,19 @@ class TUITabsList extends TUIListDataInterpret {
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
             let actions = new TWindowActions(windowId);
-            if (evt.target.classList.contains("rename-window")) {
+            if (evt["type"] && evt["type"] === "contextmenu") {
+                let nameWindow;
+                openContextMenu(evt, new TUIMenu(
+                    nameWindow = new TUIMenuItem("Give the window a purpose", "../icons/rename.svg")
+                ).callback((state) => {
+                    if (state.target === nameWindow) {
+                        let windowName = WindowName.getInstance(windowId);
+                        if (windowName) {
+                            windowName.editing = true;
+                        }
+                    }
+                }).make());
+            } else if (evt.target.classList.contains("rename-window")) {
                 let windowName = WindowName.getInstance(windowId);
                 if (windowName) {
                     windowName.editing = true;
