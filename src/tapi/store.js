@@ -15,6 +15,8 @@ function normal(type, id) {
 }
 const DEL_ON_START = (type) => special(type, "___DELONSTART");
 
+class OutOfStorageError extends Error {  }
+
 export class StorageSpace {
   constructor(type, name="conf", tmp=false) {
     this.type = type;
@@ -106,6 +108,62 @@ export class StorageSpace {
         this.__set(DEL_ON_START(this.name), []/* Set delOnStart back to an empty array */)
       }
     }, false);
+  }
+  __chunkNumber(optionID, partKey, chunkSuffix="_part") {
+    return parseInt(partKey.substring(optionID.length + chunkSuffix.length));
+  }
+  async storeLarge(optionID, value, chunksOfSize=8092) {
+    const chunks = t_chunkBytes(value, chunksOfSize);
+    const keys = await this.getKeys();
+    
+    // Loop through the keys to find the old chunks that are no longer required to store the new data
+    let dels = [];
+    for (let partKey of keys) {
+      if (partKey.startsWith(optionID) && this.__chunkNumber(optionID, partKey) >= chunks.length) {
+        dels.push(partKey);
+      }
+    }
+
+    // Build the set object
+    let sets = {};
+    for (let [index, chunk] of chunks.entries()) {
+      sets[optionID + "_part" + index] = chunk;
+    }
+
+    await this.unset(...dels);
+    try {
+      await this.setAll(sets, true);
+    } catch (e) {
+      await this.unset(...Object.keys(sets));
+      throw new OutOfStorageError("storeLarge failed! error: " + e);
+    }
+  }
+  async retrieveLarge(optionID) {
+    const keys = await this.getKeys();
+
+    // Loop through the keys to find the relevant chunks
+    let gets = [];
+    let maxChunkNumber = 0;
+    for (let partKey of keys) {
+      if (partKey.startsWith(optionID)) {
+        gets.push(partKey);
+        let chunkNumber = this.__chunkNumber(optionID, partKey);
+        if (chunkNumber > maxChunkNumber) {
+          maxChunkNumber = chunkNumber;
+        }
+      }
+    }
+
+    // Get the chunks
+    let chunks = await this.get(...gets);
+
+    // Gather the chunks and merge them
+    let obj = "";
+    for (let i = 0; i <= maxChunkNumber; i++) {
+      obj += chunks[optionID + "_part" + i];
+    }
+
+    return obj;
   }
   async hasOne(optionID) {
     optionID = special(this.name, optionID);
@@ -199,12 +257,20 @@ export class StorageSpace {
   async fulfillOnce(optionID, fulfiller) {
     return this.__fulfill(optionID, fulfiller);
   }
-  setFulfiller(optionID, fulfiller) {
+  addFulfiller(optionID, fulfiller) {
     if (!this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID] = [];
     this.__fulfillers[optionID].push(fulfiller);
   }
+  removeFulfiller(optionID, fulfiller) {
+    if (this.__fulfillers.hasOwnProperty(optionID)) {
+      let index = this.__fulfillers[optionID].indexOf(fulfiller);
+      if (index !== -1) {
+        this.__fulfillers[optionID].splice(index, 1);
+      }
+    }
+  }
   async fulfill(optionID, fulfiller) {
-    this.setFulfiller(optionID, fulfiller);
+    this.addFulfiller(optionID, fulfiller);
     return this.fulfillOnce(optionID, fulfiller);
   }
   async __onChange(changes) {
@@ -226,9 +292,11 @@ browser.storage.onChanged.addListener(async (changes, areaName) => {
   switch (areaName) {
     case "local":
       await $local$.__onChange(changes);
+      await $localtmp$.__onChange(changes);
       break;
     case "sync":
       await $sync$.__onChange(changes);
+      await $synctmp$.__onChange(changes);
       break;
   }
 });

@@ -11,7 +11,7 @@ let dropCurrentWindowId = false;
 
 let __search = undefined;
 
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener((message) => {
     if (message["_"] !== "initialFocus") return;
     let promise = Promise.resolve({
         "_": "initialFocus",

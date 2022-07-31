@@ -13,8 +13,10 @@
     "permissions": [
         "tabs",
         "storage",
+        "cookies",
         "contextMenus",
-        "webNavigation"
+        "webNavigation",
+        "unlimitedStorage"
     ],
 
     "options_ui": {
@@ -35,7 +37,7 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
+        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
         "persistent": false
     },
 

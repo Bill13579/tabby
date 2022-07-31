@@ -8,7 +8,8 @@ export const TTAB_TRACK_ONATTACHED = ["windowId"];
 export const TTAB_TRACK_UNCHANGING = ["cookieStoreId", "incognito", "openerTabId", "id"];
 export const TTAB_TRACK = TTAB_TRACK_ONUPDATED.concat(TTAB_TRACK_ONUPDATED_MANUAL, TTAB_TRACK_ONACTIVATED, TTAB_TRACK_ONMOVED, TTAB_TRACK_ONATTACHED, TTAB_TRACK_UNCHANGING);
 
-export const TTAB_SERIALIZE = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url",
+export const TTAB_SERIALIZE = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "hidden", "discarded",
+                        "isInReaderMode",
                         "active",
                         "windowId",
                         "cookieStoreId", "incognito", "openerTabId"];
@@ -137,6 +138,32 @@ export class TTab {
      */
     get index() {
         return this.full.then(tab => tab.index);
+    }
+    /**
+     * Opens the tab
+     * @param {TTab} ttab 
+     * @param {Integer} windowId 
+     * @param {String} cookieStoreId
+     * @returns {Promise<Tab>}
+     */
+    static toTab(ttab, windowId, cookieStoreId) {
+        // ============= FOR REFERENCE =============
+        // export const TTAB_SERIALIZE = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "hidden", "discarded",
+        //                 "isInReaderMode",
+        //                 "active",
+        //                 "windowId",
+        //                 "cookieStoreId", "incognito", "openerTabId"]; "hidden" is currently not recovered, "openerTabId" must be done separately later
+        return browser.tabs.create({
+            active: ttab.active,
+            cookieStoreId, //TODO: cookieStoreId changes by the computer
+            discarded: ttab.discarded,
+            muted: ttab.mutedInfo.muted,
+            openInReaderMode: ttab.isInReaderMode,
+            pinned: ttab.pinned,
+            title: ttab.discarded ? ttab.title : undefined,
+            url: ttab.url,
+            windowId
+        });
     }
     /**
      * Create an instance of TTab from a Tab object

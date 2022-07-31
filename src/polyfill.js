@@ -104,15 +104,19 @@ window["t_getImage"] = function (url, noCache=false) {
         try {
             if (!url.startsWith("chrome://")) {
                 let xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function(){
-                    if (this.readyState == 4 && this.status == 200) {
-                        let contentType = xhr.getResponseHeader("Content-Type").trim();
-                        if (contentType.startsWith("image/")) {
-                            let flag = "data:" + contentType + ";charset=utf-8;base64,";
-                            let imageStr = t_arrayBufferToBase64(xhr.response);
-                            resolve(flag + imageStr);
+                xhr.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) {
+                            let contentType = xhr.getResponseHeader("Content-Type").trim();
+                            if (contentType.startsWith("image/")) {
+                                let flag = "data:" + contentType + ";charset=utf-8;base64,";
+                                let imageStr = t_arrayBufferToBase64(xhr.response);
+                                resolve(flag + imageStr);
+                            } else {
+                                reject("Image Request Failed: Content-Type is not an image! (Content-Type: \"" + contentType + "\")");
+                            }
                         } else {
-                            reject("Image Request Failed: Content-Type is not an image! (Content-Type: \"" + contentType + "\")");
+                            reject(this.status);
                         }
                     }
                 };
@@ -166,8 +170,8 @@ window["t_getInView"] = function (e, frame, alignToTop) {
         || tbounding.y > (bounding.y + bounding.height)
         || bounding.y >= (tbounding.y + tbounding.height)
         || (bounding.y + bounding.height) >= (tbounding.y + tbounding.height)) {
-            e.scrollIntoView(alignToTop);
-        }
+        e.scrollIntoView(alignToTop);
+    }
 }
 
 // https://stackoverflow.com/questions/4811822/get-a-ranges-start-and-end-offsets-relative-to-its-parent-container/4812022#4812022
@@ -185,7 +189,7 @@ window["t_getCaretPosition"] = function (element) {
             preCaretRange.setEnd(range.endContainer, range.endOffset);
             caretOffset = preCaretRange.toString().length;
         }
-    } else if ( (sel = doc.selection) && sel.type != "Control") {
+    } else if ((sel = doc.selection) && sel.type != "Control") {
         var textRange = sel.createRange();
         var preCaretTextRange = doc.body.createTextRange();
         preCaretTextRange.moveToElementText(element);
@@ -198,10 +202,10 @@ window["t_getCaretPosition"] = function (element) {
 function setCaret(element, pos) {
     var range = document.createRange();
     var sel = window.getSelection();
-    
+
     range.setStart(element, pos);
     range.collapse(true);
-    
+
     sel.removeAllRanges();
     sel.addRange(range);
 }
@@ -246,3 +250,45 @@ window["t_stripHtml"] = function (html) {
     let doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent || "";
 }
+
+window["t_byteLen"] = (str) => new Blob([str]).size;
+
+window["t_chunkSubstr"] = function (str, size) {
+    const numChunks = Math.ceil(str.length / size)
+    const chunks = new Array(numChunks)
+
+    for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+        chunks[i] = str.substr(o, size)
+    }
+
+    return chunks
+}
+window["t_chunkBytes"] = function (str, size) {
+    let numChunks = Math.ceil(t_byteLen(str) / size);
+    let chunks = new Array(numChunks);
+
+    let i = 0;
+    chunks[i] = "";
+    for (const c of str) {
+        let cat = chunks[i] + c;
+        if (t_byteLen(cat) > size) {
+            i++;
+            if (i >= chunks.length) chunks.push("");
+            chunks[i] = c;
+        } else {
+            chunks[i] = cat;
+        }
+    }
+
+    return chunks;
+}
+
+window["t_browserDetection"] = function () {
+    let url = browser.runtime.getURL("/");
+    if (url.startsWith("moz")) {
+        return "moz";
+    } else {
+        return "chromium";
+    }
+}
+

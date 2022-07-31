@@ -1,9 +1,13 @@
 :root {
     --bg: #131313;
+    --bg-lite: #202020;
     --bg-indented: #3f3f3f;
+    --bg-indented-0: #404040;
     --bg-indented-translucent: rgba(250, 250, 250, 0.1);
     --bg-indented-1: #555555;
     --bg-indented-2: #5e5e5e;
+    --bg-indented-3: #6a6a6a;
+    --fg-lite: #ffffff;
     --fg: #e6e6e6;
     --fg-shadow: #9f9f9f;
     --fg-shadow-2: #aaaaaa;

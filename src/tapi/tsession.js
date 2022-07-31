@@ -1,8 +1,9 @@
 import "Polyfill"
 
-import { TTab } from "./ttab";
+import { TTab, TTAB_SERIALIZE } from "./ttab";
 import { TRelativeOrder } from "./trelativeorder";
 import { TTabActions, TWindowActions } from "./taction";
+import { callContentScript } from "./content";
 
 /**
  * Event handler class for handling window additions, window removals, and tab additions
@@ -140,6 +141,18 @@ export class TSession {
         return this._rel.getAllAs2DArray().map(v => v.map(tid => this._tabs[tid]));
     }
     /**
+     * Promise returning all the Firefox contextual identities in the session, if the browser is Firefox. 
+     * If the browser is not Firefox, returns a promise that resolves immediately to an undefined (which is different from
+     * the similar `mozContextualIdentity` property in `TTab`)
+     */
+    get mozContextualIdentities() {
+        if (browser.contextualIdentities) {
+            return browser.contextualIdentities.query({});
+        } else {
+            return Promise.resolve(undefined);
+        }
+    }
+    /**
      * Creates a Session object by reading in the current state of the browser
      * 
      * @returns {TSession}
@@ -160,5 +173,98 @@ export class TSession {
         }
         await sess._rel.reloadNamesFromTemporaryStore();
         return sess;
+    }
+    /**
+     * Converts the `TSession` into a serializable format
+     * @returns {Object}
+     */
+    async toSerializable() {
+        let tabs = {};
+        for (let tabId in this._tabs) {
+            if (this._tabs.hasOwnProperty(tabId)) {
+                let unserialized = this._tabs[tabId];
+                let tab = unserialized.serialize(TTAB_SERIALIZE);
+                // reduce favIconUrl to a url to save space
+                try {
+                    let icons = await callContentScript(unserialized.id, "packd", {
+                        action: "favicon"
+                    });
+                    if (icons.length === 0) {
+                        try {
+                            let href = new URL("/favicon.ico", unserialized.url).href;
+                            await t_getImage(href, unserialized.incognito);
+                            icons.push({ href, sizes: "" });
+                        } catch (e) {  }
+                    }
+                    if (icons.length !== 0) {
+                        let favicon = new URL(icons[icons.length-1].href, unserialized.url).href;
+                        tab["favIconUrl"] = favicon;
+                    }
+                } catch (e) {
+                    console.error(`could not contact tab ${tabId}, error: ${e}`);
+                }
+                tabs[tabId] = tab;
+            }
+        }
+        let rel = this._rel.toSerializable();
+        return { tabs, rel };
+    }
+    /**
+     * Recreates a `TSession` object from the provided serializable object, made from the corresponding `toSerializable` method
+     * @param {Object} root 
+     * @returns {TSession}
+     */
+    static fromSerializable(root) {
+        let sess = new TSession();
+        for (let tabId in root.tabs) {
+            if (root.tabs.hasOwnProperty(tabId)) {
+                sess._tabs[tabId] = TTab.fromSerialized(root.tabs[tabId]);
+            }
+        }
+        sess._rel = TRelativeOrder.fromSerializable(root.rel);
+        return sess;
+    }
+    /**
+     * Given a map of remote `cookieStoreId`'s to their corresponding local `cookieStoreId`'s, open
+     *  all the tabs stored in the session based on the order stored in `TRelativeOrder`. Also restore
+     *  the user defined names for the windows.
+     * Recreate the session.
+     * @param {Object.<string, string>} mozContextualIdentityMap 
+     */
+    async openAll(mozContextualIdentityMap=undefined) {
+        let all = this.getAllAs2DArray();
+        let shouldFocusWindow;
+        for (let tabs of all) {
+            let window = await browser.windows.create({
+                focused: this._rel._focusedWindow === tabs[0].windowId,
+                incognito: tabs[0].incognito
+            });
+            // If this window should be focused, leave it to later to do it
+            if (this._rel._focusedWindow === tabs[0].windowId) {
+                shouldFocusWindow = window;
+            }
+            for (let ttab of tabs) {
+                try {
+                    let tab = await TTab.toTab(ttab, window.id, mozContextualIdentityMap ? mozContextualIdentityMap[ttab.cookieStoreId] : undefined);
+                    await new TTabActions(tab.id).openerTabId(ttab.openerTabId);
+                } catch (e) {
+                    console.error(`could not recreate tab`, ttab, `due to`, e);
+                }
+            }
+            if (window.tabs.length > 0) {
+                try {
+                    await new TTabActions(window.tabs[0].id).remove();
+                } catch (e) {
+                    console.error(`could not clear away the opened-by-default tab in window ${window.id}`, e);
+                }
+            }
+            // Re-apply window name
+            let windowName = this._rel.getName(tabs[0].windowId);
+            this._rel.setName(window.id, windowName ? windowName : "");
+        }
+        // Focus the window that should be focused
+        if (shouldFocusWindow) {
+            await new TWindowActions(shouldFocusWindow.id).activate();
+        }
     }
 }

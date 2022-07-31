@@ -1,10 +1,16 @@
 import "Polyfill"
 import { module } from "./module"
 
+import getFavicons from "get-favicons/from-array";
 import Mercury from "@postlight/mercury-parser";
 
+/**
+ * Attaches a mutation observer on the document and waits for the selector to exist
+ * @param {String} selector 
+ * @returns {Promise<Element, TypeError>}
+ */
 function waitForElementToExist(selector) {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve, reject) => {
         let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
         
         if (typeof MutationObserver !== 'undefined') {
@@ -17,11 +23,19 @@ function waitForElementToExist(selector) {
             });
             
             observer.observe(document.body, { childList: true, subtree: true, attributes: false, characterData: false });
+        } else {
+            reject(new TypeError("MutationObservers are not supported on this browser!"));
         }
     });
 }
+
+/**
+ * Attaches a mutation observer on the element until its content (childList/subtree) changes, then return its textContent
+ * @param {Element} element 
+ * @returns {Promise<String, TypeError>}
+ */
 function waitForElementValueToChange(element) {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve, reject) => {
         let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
         if (typeof MutationObserver !== 'undefined') {
@@ -30,6 +44,8 @@ function waitForElementValueToChange(element) {
             });
 
             observer.observe(element, { attributes: false, childList: true, subtree: true, characterData: false });
+        } else {
+            reject(new TypeError("MutationObservers are not supported on this browser!"));
         }
     });
 }
@@ -103,6 +119,21 @@ module("packd", data => {
                 }
             });
         }
+        case "favicon": {
+            // Convert head elements into the get-favicons format
+            return getFavicons(Array.from(document.querySelectorAll("base, link, meta"))
+                            .map(ele => {
+                                let attrs = ele.attributes;
+                                let obj = {};
+                                for (let attr of attrs) {
+                                    obj[attr.name] = attr.value;
+                                }
+                                return Object.assign(obj, {
+                                    'nodeName': ele.nodeName.toLocaleUpperCase(),
+                                    'innerText': ele.innerText,
+                                });
+                            }));
+        }
         case "innerText": {
             if (window.location.hostname in MUTATION_OBSERVERS && MUTATION_OBSERVERS.hasOwnProperty(window.location.hostname)) {
                 return MUTATION_OBSERVERS[window.location.hostname]().then(value => {
@@ -113,17 +144,46 @@ module("packd", data => {
                     };
                 });
             } else {
-                return Mercury.parse(window.location.href, {
-                    html: new XMLSerializer().serializeToString(document)
-                }).then(result => {
-                    let processed = t_stripHtml(result.content);
-                    return {
-                        title: document.title,
-                        url: window.location.href,
-                        innerText: processed
-                    };
+                // return Mercury.parse(window.location.href, {
+                //     html: new XMLSerializer().serializeToString(document)
+                // }).then(result => {
+                //     let processed = t_stripHtml(result.content);
+                //     return {
+                //         title: document.title,
+                //         url: window.location.href,
+                //         innerText: processed
+                //     };
+                // });
+                return Promise.resolve({
+                    title: document.title,
+                    url: window.location.href,
+                    innerText: seo()
                 });
             }
         }
     }
 });
+
+function seo() {
+    let title = document.title;
+    let url = window.location.href;
+    let description = document.querySelector("meta[name='description']");
+    if (description) {
+        description = description.getAttribute("content");
+    } else {
+        description = "<same as title> " + title;
+    }
+    let __contentTags = document.querySelectorAll(":not(aside):not(header):not(footer):not(nav) h1, :not(aside):not(header):not(footer):not(nav) h2, :not(aside):not(header):not(footer):not(nav) h3, article section:not(aside):not(header):not(footer):not(nav)");
+    let content = "";
+    for (let node of __contentTags) {
+        content += node.innerText;
+        content += "\n\n";
+    }
+    let imageAlts = document.querySelectorAll("article section:not(aside):not(header):not(footer):not(nav) img[alt]")
+    let imageDescriptions = "";
+    for (let node of imageAlts) {
+        imageDescriptions += node.alt;
+        imageDescriptions += "\n\n";
+    }
+    return title + "\n" + url + "\n" + description + "\n\n" + content + imageDescriptions;
+}

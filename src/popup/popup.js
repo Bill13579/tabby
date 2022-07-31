@@ -23,8 +23,8 @@ import { DetailsController } from "./details";
 import { TUIEditableColorDot, TUIEditableDiv, TUIEditableLabel } from "./editablespan";
 import { parse_query, shard_doc, query as query_all } from "../../cartographer/pkg/cartographer";
 
-import { $localtmp$, normal } from "../tapi/store";
-import { openContextMenu, TUIMenu, TUIMenuItem } from "./menu";
+import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
+import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 
 class TUIListOptions {
     constructor() {
@@ -210,21 +210,27 @@ class TUIList {
         }
     }
     modifySelected(callback) {
+        // Setup a fake dragging environment
         let multiselectDragging = this.multiselectDragging;
         let multiselect = this.multiselect;
         this.multiselectDragging = { action: "" };
         this.multiselect = true;
 
+        // Create the callback function for passing along the 4 parameters to the real processSelect's
         let processSelectCB = (target, evt, action, automatic=false) => {
-            // processSelect(<target>, evt, action);
+            // Set the action
             this.multiselectDragging.action = action;
+            
+            // The event will trigger the element to call processSelect on itself
             const event = new CustomEvent('-tui-list-internal--process-select', { detail: {
                 originalEvent: evt, action, automatic
             } });
             target.dispatchEvent(event);
         };
+        // Ready
         callback(processSelectCB);
 
+        // Reset state
         this.multiselectDragging = multiselectDragging;
         this.multiselect = multiselect;
     }
@@ -478,6 +484,7 @@ class TUIList {
                         }
                         element.classList.remove("-tui-list-selected");
                         
+                        // Last-selected doesn't make sense if the user wasn't the one that initiated the select
                         if (!automatic) {
                             // // reset last-selected if we are unselecting
                             // if (this.lastSelected) this.lastSelected.classList.remove("-tui-list-last-selected");
@@ -500,6 +507,7 @@ class TUIList {
                         }
                         element.classList.add("-tui-list-selected");
                         
+                        // Last-selected doesn't make sense if the user wasn't the one that initiated the select
                         if (!automatic) {
                             // set new last-selected element if we are selecting
                             if (this.lastSelected !== undefined) {
@@ -530,6 +538,7 @@ class TUIList {
                 return false;
             }
         });
+        // Pass along the contextmenu event as well
         e.addEventListener("contextmenu", (evt) => {
             this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
         });
@@ -703,6 +712,7 @@ class TUIList {
                         setTimeout(() => this.dataInterpret.handleHover(closestDown, reason), 1);
                     }
                 }
+                // Remove hover on self
                 e.classList.remove("-tui-list-hover");
             }
         };
@@ -795,16 +805,17 @@ class TUISessionView extends TUIListView {
         sess.addListener(this.sessionListener);
     }
     static keywordSearch(s, key) {
-        let keywords = key.trim().split(" "), count = 0;
+        let keywords = key.trim().split(" "), count = 0, total = 0;
         for (let i = 0; i < keywords.length; i++) {
             let word = keywords[i];
             if (word.trim() !== "" && word.match(/^[a-zA-Z0-9]+$/)) {
+                total++;
                 if (s.toUpperCase().includes(word.toUpperCase())) {
                     count++;
                 }
             }
         }
-        return count >= 2;
+        return count >= Math.max(2, total / 2.0);
     }
     static search(s, key) {
         return s.toUpperCase().includes(key.toUpperCase()) || TUISessionView.keywordSearch(s, key);
@@ -835,11 +846,11 @@ class TUISessionView extends TUIListView {
                     rangeHigh = value.score;
                 }
             }
-            let center = (rangeLow + rangeHigh) / 2.0;
+            let center = (rangeLow + rangeHigh) * 2.0 / 3.0;
             for (let tabId in results) {
                 if (results.hasOwnProperty(tabId)) {
                     let tab = this.sess.getTab(parseInt(tabId));
-                    if (results[tabId].score >= center) {
+                    if (center !== 0 && results[tabId].score >= center) {
                         this.showElement(tabMap[tabId], "filter");
                     } else {
                         if (TUISessionView.search(tab.url, key) ||
@@ -1024,10 +1035,15 @@ class TUISessionView extends TUIListView {
     /**
      * Scrolls into view and selects the current tab
      */
-    scrollCurrentIntoView(select=true) {
+    scrollCurrentIntoView(evt, select=true) {
         let current = this.root.querySelector(".tab-list .window-entry[data-current] ~ .tab-entry[data-current]");
         if (current) {
-            if (select) current.classList.add("-tui-list-hover");
+            if (select) {
+                let lastHover = this.root.querySelector(".-tui-list-hover");
+                if (lastHover) lastHover.classList.remove("-tui-list-hover");
+                current.classList.add("-tui-list-hover");
+                this.dataInterpret.handleHover(current, evt);
+            }
             current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
@@ -1078,6 +1094,9 @@ class SearchDiv extends TUIEditableDiv {
         // Contribute to the tabsList's kbMap
         this.root.addEventListener("keydown", (evt) => {
             this.tabsList.documentHook_keyDown(evt);
+            if (evt.key === "ArrowDown") {
+                this.onEnter(this.value, evt); // Move to list
+            }
         });
         this.root.addEventListener("keyup", (evt) => {
             this.tabsList.documentHook_keyUp(evt);
@@ -1123,6 +1142,20 @@ class SearchDiv extends TUIEditableDiv {
             });
         }
     }
+    onEnter(_, originalEvent) {
+        if (originalEvent.key) {
+            // Select the first result
+            this.root.blur(); // Blur focus on search
+            let first = this.tabsList.first(TUIList.and(TUIList.isElementVisible, this.tabsList.isElementKeyboardNavigable.bind(this.tabsList)));
+            let lastHover = this.tabsList.root.querySelector(".-tui-list-hover");
+            if (lastHover) lastHover.classList.remove("-tui-list-hover");
+            if (first) {
+                first.classList.add("-tui-list-hover");
+                first.dispatchEvent(new KeyboardEvent("keydown", {'key': "ArrowDown"}));
+                first.dispatchEvent(new KeyboardEvent("keyup", {'key': "ArrowDown"}));
+            }
+        }
+    }
 }
 /**
  * Window name input handler
@@ -1133,6 +1166,7 @@ class WindowName extends TUIEditableLabel {
         onTabCreated: (tab) => {  },
         onWindowClosed: (closedWindowId) => {
             if (WindowName.__instances.has(closedWindowId)) {
+                WindowName.__instances.get(closedWindowId).cleanUp();
                 WindowName.__instances.delete(closedWindowId);
             }
             WindowName.recalculateOrder();
@@ -1184,12 +1218,22 @@ class WindowName extends TUIEditableLabel {
         WindowName.recalculateOrder();
     }
     /**
-     * Initialize window name from temp store
+     * Initialize window name from temp store, helping update TRelativeOrder to the correct
+     *  value if necessary
      * (As with most other methods in this class, call only after adding "wrapper" to DOM)
      */
     initializeFromStore() {
-        let nameFromStore = this.sess._rel.getName(this.windowId);
-        this.value = nameFromStore ? nameFromStore : "";
+        this.__storeListener = nameFromStore => {
+            this.value = nameFromStore ? nameFromStore : "";
+            let storedNameFromRel = this.sess._rel.getName(this.windowId);
+            if (nameFromStore !== storedNameFromRel) {
+                this.sess._rel.setName(this.windowId, nameFromStore);
+            }
+        };
+        $localtmp$.fulfill(`window${this.windowId}`, this.__storeListener);
+    }
+    cleanUp() {
+        $localtmp$.removeFulfiller(`window${this.windowId}`, this.__storeListener);
     }
     // Careful with the getter, if used inside of value's setter WILL cause an infinite loop
     set initialWindowName(v) {
@@ -1209,6 +1253,9 @@ class WindowName extends TUIEditableLabel {
     }
     set editing(v) {
         super.editing = v;
+        if (this.__currentValue === "" && v) {
+            super.value = "";
+        }
         if (this.wrapper && this.wrapper.parentElement) {
             if (v) {
                 this.wrapper.parentElement.querySelector(".rename-window").classList.add("hold-while-editing");
@@ -1220,6 +1267,7 @@ class WindowName extends TUIEditableLabel {
     onEnter(value) {
         this.sess._rel.setName(this.windowId, value);
         this.editing = false;
+        // this.value = value.trim();
         t_altReleasedEarly();
     }
 }
@@ -1357,9 +1405,9 @@ class TUITabsList extends TUIListDataInterpret {
             } else {
                 actions = new TTabActions(tabId);
             }
-            if (evt.target.classList.contains("pin") || evt.key === "p") {
+            if (evt.target.classList.contains("pin") || evt.key === "p" || evt.key === "P") {
                 await actions.pin(!tabObj.pinned);
-            } else if (evt.target.classList.contains("speaker") || evt.key === "m") {
+            } else if (evt.target.classList.contains("speaker") || evt.key === "m" || evt.key === "M") {
                 await actions.mute(!tabObj.mutedInfo.muted);
             } else if (evt.target.classList.contains("close-tab") || evt.button === 1 || evt.key === "Delete") {
                 await actions.remove();
@@ -1374,8 +1422,8 @@ class TUITabsList extends TUIListDataInterpret {
             if (evt["type"] && evt["type"] === "contextmenu") {
                 let nameWindow;
                 openContextMenu(evt, new TUIMenu(
-                    nameWindow = new TUIMenuItem("Give the window a purpose", "../icons/rename.svg")
-                ).callback((state) => {
+                    nameWindow = new TUIMenuItem("Rename", "../icons/rename.svg")
+                ).callback(() => {}, (state) => {
                     if (state.target === nameWindow) {
                         let windowName = WindowName.getInstance(windowId);
                         if (windowName) {
@@ -1397,7 +1445,7 @@ class TUITabsList extends TUIListDataInterpret {
         }
     }
     handleHover(element, originalEvent) {
-        if (originalEvent.key) {
+        if (originalEvent && originalEvent.key) {
             if (originalEvent.key === "ArrowUp") {
                 t_getInView(element, this.list.root.parentElement, true);
             } else if (originalEvent.key === "ArrowDown") {
@@ -1668,10 +1716,19 @@ class TUITabsList extends TUIListDataInterpret {
             document.body.classList.remove("alt-pressed");
         }
     };
+    let standardShortcuts = (evt) => {
+        if (evt.key === 's') {
+            setTimeout(() => search.editing = true, 1);
+        } else if (evt.key === 'S') {
+            tabsList.scrollCurrentIntoView(evt);
+            tabsList.kb = true;
+        }
+    };
     document.addEventListener("keydown", (evt) => {
         if (evt.key === 'Alt') {
             altPressed();
         }
+        standardShortcuts(evt);
     });
     document.addEventListener("drag", (evt) => {
         if (evt.altKey) {
@@ -1730,7 +1787,266 @@ class TUITabsList extends TUIListDataInterpret {
         search.editing = true;
         //tabsList.scrollCurrentIntoView(false);
     } else {
-        tabsList.scrollCurrentIntoView();
+        tabsList.scrollCurrentIntoView(undefined);
         tabsList.kb = true;
     }
+
+    // Single save implementation
+    let saveForLater = document.getElementById("save-for-later");
+    saveForLater.addEventListener("click", async (evt) => {
+        saveForLater.setAttribute("data-disabled", "");
+        let done = () => {
+            saveForLater.removeAttribute("data-disabled");
+            saveForLater.setAttribute("data-done", "");
+            setTimeout(() => {
+                saveForLater.removeAttribute("data-done");
+            }, 3000);
+        };
+
+        let save = await sess.toSerializable();
+        save.mozContextualIdentities = await sess.mozContextualIdentities;
+
+        let timestamp = new Date().getTime();
+        await $local$.set("sflv1_timestamp", timestamp);
+
+        save.mozContextualIdentities = LZString.compressToUTF16(JSON.stringify(save.mozContextualIdentities));
+        await $local$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
+
+        save.rel = JSON.stringify(save.rel);
+        await $local$.set("sflv1_rel", save.rel);
+
+        save.tabs = LZString.compressToUTF16(JSON.stringify(save.tabs));
+        await $local$.storeLarge("sflv1_tabs", save.tabs);
+
+        try {
+            await $sync$.set("sflv1_timestamp", timestamp);
+            await $sync$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
+            await $sync$.set("sflv1_rel", save.rel);
+            await $sync$.storeLarge("sflv1_tabs", save.tabs);
+            done();
+        } catch (e) {
+            await $sync$.unset("sflv1_timestamp", "sflv1_mozContextualIdentities", "sflv1_rel");
+            console.log("couldn't save to sync storage! error: " + e);
+            let errorLabel;
+            openContextMenu(evt, new TUIMenu(
+                errorLabel = new TUIMenuLabel("The session was too large to be stored on the browser's sync storage. It's still saved locally though", "../icons/cancel.svg", "scale(0.8) translateY(1.5%) translateX(-7%)")
+            ).callback(_ => {}, _ => {
+                done();
+            }).make());
+        }
+    });
+    let saveTimestamps = {
+        local: undefined,
+        sync: undefined
+    };
+    let restoreNow = document.getElementById("restore-now");
+    let generateTitle = () => {
+        let title = "";
+        if (saveTimestamps.local) {
+            title += `Click for the (local) save on ${new Date(saveTimestamps.local).toLocaleString()}\n`;
+        }
+        if (saveTimestamps.sync) {
+            title += `Right click for the (sync) save on ${new Date(saveTimestamps.sync).toLocaleString()}\n`;
+        }
+        if (saveTimestamps.local === saveTimestamps.sync) {
+            title = `Click for the save on ${new Date(saveTimestamps.local).toLocaleString()}\n`;
+        }
+        if (title === "") {
+            title += "Restore websites that have been saved for later";
+            restoreNow.setAttribute("data-greyed-out", "");
+        } else {
+            restoreNow.removeAttribute("data-greyed-out");
+        }
+        restoreNow.title = title;
+    };
+    $local$.fulfill("sflv1_timestamp", (ts) => {
+        saveTimestamps.local = ts;
+        generateTitle();
+    });
+    $sync$.fulfill("sflv1_timestamp", (ts) => {
+        saveTimestamps.sync = ts;
+        generateTitle();
+    });
+    let mapCIById = (ci) => {
+        let map = {};
+        for (let identity of ci) {
+            map[identity.cookieStoreId] = identity;
+        }
+        return map;
+    };
+    let mapCIWithName = (ci) => {
+        let map = {};
+        for (let identity of ci) {
+            if (!map.hasOwnProperty(identity.name)) {
+                map[identity.name] = [];
+            }
+            map[identity.name].push(identity);
+        }
+        return map;
+    };
+    let nearest = (cis, target) => {
+        let max = undefined;
+        for (let ci of cis) {
+            let score = 0;
+            if (ci.iconUrl === target.iconUrl) score += 2;
+            if (ci.colorCode === target.colorCode) score++;
+            if (max) {
+                if (score > max[1]) {
+                    max = [ci, score];
+                }
+            } else {
+                max = [ci, score];
+            }
+        }
+        return max;
+    };
+    let resolveMozContextualIdentities = async (savedCI) => {
+        let base = {
+            "firefox-default": "firefox-default",
+            "firefox-private": "firefox-private"
+        };
+        if (savedCI === undefined) return base;
+        let currentCI = await browser.contextualIdentities.query({});
+        let currentCIMap = mapCIWithName(currentCI);
+        let savedCIIdMap = mapCIById(savedCI);
+        let currentCIIdMap = mapCIById(currentCI);
+        let map = {};
+        for (let ci of savedCI) {
+            if (currentCIMap.hasOwnProperty(ci.name) && currentCIMap[ci.name].length > 0) {
+                let [match, _] = nearest(currentCIMap[ci.name], ci);
+                map[ci.cookieStoreId] = match.cookieStoreId;
+            } else {
+                map[ci.cookieStoreId] = undefined;
+            }
+        }
+        
+        let rect = restoreNow.getBoundingClientRect();
+        let actions;
+        let ok;
+        let cancel;
+        let labels = [];
+        let dropdowns = [];
+        let rows = [];
+        let mainLabel;
+        let mainMenu;
+        let hr;
+
+        let ciIndex = function (cookieStoreId) {
+            for (let i = 0; i < currentCI.length; i++) {
+                let ci = currentCI[i];
+                if (cookieStoreId === ci.cookieStoreId) return i;
+            }
+            return -1;
+        }
+        let generateDropdownOptions = function () {
+            let options = [];
+            for (let ci of currentCI) {
+                options.push(new TUIMenuItem(ci.name, ci.iconUrl, undefined, {
+                    colorCode: ci.colorCode,
+                    cookieStoreId: ci.cookieStoreId
+                }));
+            }
+            return options;
+        }
+
+        if (Object.values(map).every(value => value !== undefined)) {
+            return Promise.resolve(map);
+        }
+        return new Promise((resolve, reject) => {
+            openContextMenu({
+                clientX: rect.left,
+                clientY: rect.top + rect.height
+            }, new TUIMenu(
+                mainLabel = new TUIMenuLabel("These containers were unable to be located: "),
+                hr = new TUIMenuHR(),
+                new TUIMenuListLayout(
+                    ...Object.entries(map).filter(([key, value]) => value === undefined).map(([key, value]) => 
+                        new TUIMenuFlexLayout(
+                            new TUIMenuLabel(savedCIIdMap[key].name, savedCIIdMap[key].iconUrl, undefined, {
+                                colorCode: savedCIIdMap[key].colorCode
+                            }).pushInto(labels),
+                            new TUIMenuDropdown((_, options) => {
+                                for (let item of options) {
+                                    TUIMenuItem.colorIcon(item.icon, item.data.colorCode);
+                                }
+                            }, (target, dropdown) => {
+                                map[key] = target.data.cookieStoreId;
+                                TUIMenuItem.colorIcon(dropdown.icon, target.data.colorCode);
+                                if (Object.values(map).every(value => value !== undefined)) {
+                                    ok.enabled = true;
+                                }
+                            }, generateDropdownOptions(), "Select...", "", undefined, { initialSelection: value ? ciIndex(value) : -1 }).pushInto(dropdowns)
+                        ).pushInto(rows))
+                ),
+                actions = new TUIMenuFlexLayout(
+                    cancel = new TUIMenuItem("Cancel", ""),
+                    ok = new TUIMenuItem("Ok")
+                )
+            ).callback((root, mainMenu) => {
+                document.removeEventListener("mousedown", mainMenu.__documentMouseDown);
+                let setDisplayStyles = (ele) => {
+                    ele.style.display = "flex";
+                    ele.style.flexDirection = "column";
+                    ele.style.justifyContent = "center";
+                };
+                mainLabel.icon.style.display = "none";
+                hr.root.style.marginBottom = "5px";
+                setDisplayStyles(mainLabel.root);
+                cancel.icon.style.display = "none";
+                ok.icon.style.display = "none";
+                actions.root.style.flexDirection = "row";
+                actions.root.style.justifyContent = "space-between";
+                let setFontStyles = (ele) => {
+                    ele.style.fontSize = "12px";
+                };
+                setFontStyles(ok.root);
+                setDisplayStyles(ok.root);
+                setFontStyles(cancel.root);
+                setDisplayStyles(cancel.root);
+                ok.enabled = Object.values(map).every(value => value !== undefined);
+                for (let row of rows) {
+                    row.root.style.flexDirection = "row";
+                    row.root.style.justifyContent = "space-between";
+                }
+                for (let item of labels) {
+                    TUIMenuItem.colorIcon(item.icon, item.data.colorCode);
+                }
+                for (let dropdown of dropdowns) {
+                    if (dropdown.data.initialSelection !== -1) {
+                        dropdown.selection = dropdown.options[dropdown.data.initialSelection];
+                    }
+                }
+            }, state => {
+                if (state.target === ok) {
+                    resolve(map);
+                } else {
+                    reject("cancelled");
+                }
+            }).make());
+        });
+    };
+    restoreNow.addEventListener("click", async (evt) => {
+        let mozContextualIdentities = await $local$.getOne("sflv1_mozContextualIdentities");
+        mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
+        mozContextualIdentities = JSON.parse(mozContextualIdentities);
+        let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
+        browser.runtime.sendMessage({
+            _: "sflv1_openSession",
+            store: "local",
+            mozContextualIdentityMap
+        });
+    });
+    restoreNow.addEventListener("contextmenu", async (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        let mozContextualIdentities = await $sync$.getOne("sflv1_mozContextualIdentities");
+        mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
+        mozContextualIdentities = JSON.parse(mozContextualIdentities);
+        let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
+        browser.runtime.sendMessage({
+            _: "sflv1_openSession",
+            store: "sync",
+            mozContextualIdentityMap
+        });
+    });
 })();

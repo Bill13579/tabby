@@ -13,6 +13,9 @@ export class TTabActions {
     mute(v) {
         return Promise.all(this.ids.map(id => browser.tabs.update(id, {muted: v})));
     }
+    openerTabId(v) {
+        return Promise.all(this.ids.map(id => browser.tabs.update(id, {openerTabId: v})));
+    }
     remove() {
         return browser.tabs.remove(this.ids);
     }
@@ -44,7 +47,7 @@ export class TWindowActions {
         return Promise.all(this.ids.map(id => browser.windows.remove(id)));
     }
     titlePreface(title) {
-        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: `[${title}] `})));
+        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: title})));
     }
 }
 

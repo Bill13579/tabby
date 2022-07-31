@@ -4,6 +4,8 @@ import { TTabActions } from "../tapi/taction";
 export class DetailsController {
     constructor() {
         this.tabId = undefined;
+        // Keep track of the last captured tab id,
+        //  so that the same tab isn't requested for capture 100 times by the mouse move event
         this._lastCaptureTabId = undefined;
         this._hookPlaceholder();
     }
@@ -61,7 +63,7 @@ export class DetailsController {
                 this._setImage(cap);
                 this._hidePlaceholder();
             } else {
-                if (tab.discarded) {
+                if (tab && tab.discarded) {
                     this._hideImage();
                 } // Do not hide the image if the tab isn't discarded
             }

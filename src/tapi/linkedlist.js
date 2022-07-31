@@ -198,6 +198,18 @@ export class T1DLinkedList {
         return s;
     }
     /**
+     * Creates a linked list from an Array representation
+     * @param {Array} array
+     * @returns {T1DLinkedList} 
+     */
+    static fromArray(array) {
+        let l = new T1DLinkedList();
+        for (let ele of array) {
+            l.append(ele);
+        }
+        return l;
+    }
+    /**
      * Count length
      */
     get length() {

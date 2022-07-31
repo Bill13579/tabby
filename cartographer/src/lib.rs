@@ -62,6 +62,8 @@ impl Statistics {
                 if !done_set.contains(key) {
                     let old_val = self.occurences.get(key).unwrap();
                     if old_val - 1 == 0 {
+                        // Remove the key from the map if they don't occur in any documents at all to avoid
+                        //  muddying the IDF calculations
                         self.occurences.remove(key);
                     } else {
                         self.occurences.insert(key.clone(), old_val - 1);

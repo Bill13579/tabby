@@ -10,10 +10,10 @@ import { TWindowActions } from "./taction";
 export class TRelativeOrder {
     constructor() {
         this._worder = new T1DLinkedList();
-        this._order = {};
-        this._active = {};
+        this._order = {}; // { windowId(Integer): _(T1DLinkedList) }
+        this._active = {}; // { windowId(Integer): tabId(Integer) }
         this._focusedWindow = -1;
-        this._naming = {};
+        this._naming = {}; // { windowId(Integer): name(String) }
     }
     /**
      * Set the currently focused window
@@ -51,11 +51,12 @@ export class TRelativeOrder {
         if (name.trim() === "") {
             name = undefined;
             $localtmp$.unset(`window${windowId}`);
+            new TWindowActions(windowId).titlePreface("");
         } else {
             $localtmp$.set(`window${windowId}`, name);
+            new TWindowActions(windowId).titlePreface(`[${name}] `);
         }
         this._naming[windowId] = name;
-        new TWindowActions(windowId).titlePreface(name);
     }
     /**
      * Get window name (undefined if unset)
@@ -155,5 +156,42 @@ export class TRelativeOrder {
             ret.push(this._order[windowId].toArray());
         }
         return ret;
+    }
+    /**
+     * Converts the `TRelativeOrder` into a serializable format
+     * @returns {Object}
+     */
+    toSerializable() {
+        let worder = this._worder.toArray();
+        let order = {};
+        for (let windowId in this._order) {
+            if (this._order.hasOwnProperty(windowId)) {
+                order[windowId] = this._order[windowId].toArray();
+            }
+        }
+        let active = this._active;
+        let focusedWindow = this._focusedWindow;
+        let naming = this._naming;
+        return {
+            worder, order, active, focusedWindow, naming
+        };
+    }
+    /**
+     * Recreates a `TRelativeOrder` object from the provided serializable object, made from the corresponding `toSerializable` method
+     * @param {Object} root 
+     * @returns {TRelativeOrder}
+     */
+    static fromSerializable(root) {
+        let rel = new TRelativeOrder();
+        rel._worder = T1DLinkedList.fromArray(root.worder);
+        for (let windowId in root.order) {
+            if (root.order.hasOwnProperty(windowId)) {
+                rel._order[windowId] = T1DLinkedList.fromArray(root.order[windowId]);
+            }
+        }
+        rel._active = root.active;
+        rel._focusedWindow = root.focusedWindow;
+        rel._naming = root.naming;
+        return rel;
     }
 }

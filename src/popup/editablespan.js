@@ -57,12 +57,12 @@ export class TUIEditableDiv {
             e.stopPropagation();
             if (this.editing) {
                 if (e.key === "Enter") {
-                    this.onEnter(this.value);
+                    this.onEnter(this.value, e);
                 }
             }
         });
         this.root.addEventListener("blur", e => {
-            this.onEnter(this.value);
+            this.onEnter(this.value, e);
         });
         this.root.addEventListener("input", e => {
             this.autoPlaceholder();
@@ -141,7 +141,7 @@ export class TUIEditableDiv {
             this.root.classList.remove("-tui-editable-div-editing");
         }
     }
-    onEnter(value) { /*OVERRIDE*/ }
+    onEnter(value, originalEvent) { /*OVERRIDE*/ }
     onInput(value) { /*OVERRIDE*/ }
 }
 
