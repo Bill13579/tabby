@@ -1920,7 +1920,7 @@ class TUITabsList extends TUIListDataInterpret {
         if (saveTimestamps.sync) {
             title += `Right click for the (sync) save on ${new Date(saveTimestamps.sync).toLocaleString()}\n`;
         }
-        if (saveTimestamps.local === saveTimestamps.sync) {
+        if (saveTimestamps.local && saveTimestamps.local === saveTimestamps.sync) {
             title = `Click for the save on ${new Date(saveTimestamps.local).toLocaleString()}\n`;
         }
         if (title === "") {
