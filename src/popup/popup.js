@@ -25,6 +25,8 @@ import { parse_query, shard_doc, query as query_all } from "../../cartographer/p
 
 import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
+import { resolveDefault } from "../options/exports"
+import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
 
 class TUIListOptions {
     constructor() {
@@ -1038,7 +1040,7 @@ class TUISessionView extends TUIListView {
     scrollCurrentIntoView(evt, select=true) {
         let current = this.root.querySelector(".tab-list .window-entry[data-current] ~ .tab-entry[data-current]");
         if (current) {
-            if (select) {
+            if (select && TUIList.isElementVisible(current)) {
                 let lastHover = this.root.querySelector(".-tui-list-hover");
                 if (lastHover) lastHover.classList.remove("-tui-list-hover");
                 current.classList.add("-tui-list-hover");
@@ -1102,7 +1104,12 @@ class SearchDiv extends TUIEditableDiv {
             this.tabsList.documentHook_keyUp(evt);
         });
         this.editing = true;
-        this.value = "";
+        $localtmp$.fulfillOnce("memory:search-value", (val) => {
+            if (val && val.trim() !== "" && this.value !== val) {
+                this.value = val;
+                this.onInput(val);
+            }
+        });
         // this._offset = 0;
     }
     reconstructQuery(query, last=false) {
@@ -1131,6 +1138,7 @@ class SearchDiv extends TUIEditableDiv {
         }
     }
     async onInput(value) {
+        await $localtmp$.set("memory:search-value", value);
         if (value.trim() === "") {
             this.tabsList.filter(value, undefined);
         } else {
@@ -1415,6 +1423,9 @@ class TUITabsList extends TUIListDataInterpret {
                 if (evt.key && evt.key !== "Enter") return;
                 await actions.activate();
                 this.sess.getWindowActions(tabObj.windowId).activate();
+                $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
+                    if (hidePopupAfterTabSelection) window.close();
+                });
             }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
@@ -1441,6 +1452,9 @@ class TUITabsList extends TUIListDataInterpret {
             } else {
                 if (evt.key && evt.key !== "Enter") return;
                 await actions.activate();
+                $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
+                    if (hidePopupAfterTabSelection) window.close();
+                });
             }
         }
     }
@@ -1722,6 +1736,27 @@ class TUITabsList extends TUIListDataInterpret {
         } else if (evt.key === 'S') {
             tabsList.scrollCurrentIntoView(evt);
             tabsList.kb = true;
+        } else if (evt.key === 'a' || evt.key === 'A') {
+            tabsList.modifySelected((processSelectCB) => {
+                for (let child of tabsList.children(tabsList.root, true)) {
+                    if (TUIList.isElementVisible(child)) {
+                        processSelectCB(child, evt, "selecting", true);
+                    } else {
+                        processSelectCB(child, evt, "unselecting", true);
+                    }
+                }
+            });
+        } else if (evt.key === 'i' || evt.key === 'I') {
+            tabsList.modifySelected((processSelectCB) => {
+                for (let child of tabsList.children(tabsList.root, true)) {
+                    let action = child.classList.contains("-tui-list-selected") ? "unselecting" : "selecting";
+                    if (TUIList.isElementVisible(child)) {
+                        processSelectCB(child, evt, action, true);
+                    } else {
+                        processSelectCB(child, evt, "unselecting", true);
+                    }
+                }
+            });
         }
     };
     document.addEventListener("keydown", (evt) => {
@@ -1791,6 +1826,43 @@ class TUITabsList extends TUIListDataInterpret {
         tabsList.kb = true;
     }
 
+    // Settings button
+    document.getElementById("_access_settings").addEventListener("click", (evt) => {
+        browser.runtime.openOptionsPage();
+        window.close();
+    });
+    // Fulfill settings
+    $local$.fulfill("option:popup-size", (popupSize) => {
+        document.documentElement.style.setProperty("--width", `${popupSize[0]}px`);
+        document.documentElement.style.setProperty("--height", `${popupSize[1]}px`);
+    }, resolveDefault("option:popup-size"));
+    $local$.fulfill("option:popup-scale", (popupScale) => {
+        document.documentElement.style.setProperty("--scale", `${popupScale}`);
+    }, resolveDefault("option:popup-scale"));
+    $local$.fulfill("option:show-tab-info", (showTabInfo) => {
+        if (showTabInfo === 1) {
+            document.querySelector("#main").setAttribute("data-no-details-pane", "");
+            document.querySelector("#main #details-placeholder").setAttribute("data-no-details-pane", "");
+        } else if (showTabInfo === 2) {
+            document.querySelector("#main").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-pane").setAttribute("data-no-preview", "");
+        } else if (showTabInfo === 3) {
+            document.querySelector("#main").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-pane").removeAttribute("data-no-preview");
+        }
+    }, resolveDefault("option:show-tab-info"));
+    $local$.fulfill("option:popup-theme", (popupTheme) => {
+        document.querySelector(":root").setAttribute("data-theme", popupTheme);
+        if (popupTheme === "") {
+            $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
+                // Load custom CSS
+                document.getElementById("theming").appendChild(document.createTextNode(popupCustomTheme));
+            });
+        }
+    }, resolveDefault("option:popup-theme"));
+
     // Single save implementation
     let saveForLater = document.getElementById("save-for-later");
     saveForLater.addEventListener("click", async (evt) => {
@@ -1853,7 +1925,11 @@ class TUITabsList extends TUIListDataInterpret {
         }
         if (title === "") {
             title += "Restore websites that have been saved for later";
-            restoreNow.setAttribute("data-greyed-out", "");
+            hasSFLvt2().then(has => {
+                if (!has) {
+                    restoreNow.setAttribute("data-greyed-out", "");
+                }
+            });
         } else {
             restoreNow.removeAttribute("data-greyed-out");
         }
@@ -2027,14 +2103,18 @@ class TUITabsList extends TUIListDataInterpret {
     };
     restoreNow.addEventListener("click", async (evt) => {
         let mozContextualIdentities = await $local$.getOne("sflv1_mozContextualIdentities");
-        mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
-        mozContextualIdentities = JSON.parse(mozContextualIdentities);
-        let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
-        browser.runtime.sendMessage({
-            _: "sflv1_openSession",
-            store: "local",
-            mozContextualIdentityMap
-        });
+        if (await hasSFLvt2() && !mozContextualIdentities) {
+            await restoreSFLvt2();
+        } else {
+            mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
+            mozContextualIdentities = JSON.parse(mozContextualIdentities);
+            let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
+            browser.runtime.sendMessage({
+                _: "sflv1_openSession",
+                store: "local",
+                mozContextualIdentityMap
+            });
+        }
     });
     restoreNow.addEventListener("contextmenu", async (evt) => {
         evt.preventDefault();

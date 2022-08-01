@@ -1,6 +1,6 @@
 {
     "name": "tabby",
-    "version": "2.1.2",
+    "version": "3.0.0",
     "description": "Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.",
     "private": true,
     "scripts": {
@@ -34,7 +34,7 @@
         "webpack-cli": "^4.9.2"
     },
     "dependencies": {
-        "@postlight/mercury-parser": "^2.2.1",
+        "get-favicons": "github:Bill13579/get-favicons",
         "proxy-polyfill": "^0.3.2",
         "smoothscroll-polyfill": "^0.4.4"
     }

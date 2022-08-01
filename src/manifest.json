@@ -37,7 +37,7 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
+        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"],
         "persistent": false
     },
 

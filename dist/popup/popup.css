@@ -171,6 +171,7 @@ input[type="text"]:focus {
 .-tui-editable-div .-tui-editable-div-placeholder {
     color: var(--fg-shadow);
     pointer-events: none;
+    user-select: none;
     position: absolute;
     left: 6.5px;
     top: 7px;
@@ -269,6 +270,15 @@ html, body {
     padding-bottom: calc(10px * var(--scale)); /* left and right are handled by details-pane and session-pane individually */
     box-sizing: border-box;
     background-color: var(--bg);
+}
+#main[data-no-details-pane] {
+    grid-template-columns: minmax(0, 0fr) minmax(0, 100fr) minmax(0, 55fr);
+}
+#main #details-pane[data-no-preview] .preview-image {
+    display: none;
+}
+#main #details-placeholder[data-no-details-pane] {
+    opacity: 0;
 }
 #details-placeholder {
     font-size: calc(25px * var(--scale));
@@ -703,6 +713,7 @@ html, body {
 .tab-list .window-entry .single-controls .hide-window-tabs {
     transform: scale(150%);
     background-image: url(../icons/dropup.svg);
+    display: none; /*TODO: hidden until used */
 }
 
 .tab-list .tab-entry {

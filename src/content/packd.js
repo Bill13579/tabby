@@ -2,7 +2,6 @@ import "Polyfill"
 import { module } from "./module"
 
 import getFavicons from "get-favicons/from-array";
-import Mercury from "@postlight/mercury-parser";
 
 /**
  * Attaches a mutation observer on the document and waits for the selector to exist

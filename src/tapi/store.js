@@ -37,8 +37,8 @@ export class StorageSpace {
         if (returnValue instanceof Promise) {
           returnValue = await returnValue;
         }
-        if (returnValue) {
-          await this.set(optionID, returnValue);
+        if (returnValue !== undefined) {
+          await this.__set(special(this.name, optionID), returnValue);
         }
         // Do stuff
         
@@ -67,8 +67,8 @@ export class StorageSpace {
         if (returnValue instanceof Promise) {
           returnValue = await returnValue;
         }
-        if (returnValue) {
-          await this.setAll(returnValue);
+        if (returnValue !== undefined) {
+          await this.__setAll(returnValue);
         }
         // Do stuff
         
@@ -227,6 +227,15 @@ export class StorageSpace {
       }
     }
   }
+  async __setAll(options, overwriteExistingOptions=false) {
+    for (let key in options) {
+      if (options.hasOwnProperty(key)) {
+        if (overwriteExistingOptions || !(await this.hasOne(key))) {
+          await this.__set(special(this.name, key), options[key]);
+        }
+      }
+    }
+  }
   async getOne(optionID) {
     return this.__getOne(special(this.name, optionID));
   }
@@ -269,7 +278,12 @@ export class StorageSpace {
       }
     }
   }
-  async fulfill(optionID, fulfiller) {
+  async fulfill(optionID, fulfiller, defaultValue=undefined) {
+    if (defaultValue !== undefined) { //TODO: Evaluate if this needs to be wrapped in a modify
+      if (!(await this.hasOne(optionID))) {
+        await this.set(optionID, defaultValue);
+      }
+    }
     this.addFulfiller(optionID, fulfiller);
     return this.fulfillOnce(optionID, fulfiller);
   }

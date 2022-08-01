@@ -65,8 +65,8 @@ export class TUIEditableDiv {
             this.onEnter(this.value, e);
         });
         this.root.addEventListener("input", e => {
-            this.autoPlaceholder();
             this.onInput(this.value);
+            this.autoPlaceholder();
         });
     }
     get value() {
@@ -108,6 +108,7 @@ export class TUIEditableDiv {
      */
     addPlaceholder() {
         this.root.appendChild(this._placeholderTemplate.cloneNode(true));
+        TUIEditableDiv.focus(this.root);
     }
     /**
      * Removes the placeholder
@@ -133,7 +134,7 @@ export class TUIEditableDiv {
     set editing(bool) {
         if (bool) {
             this.root.style.pointerEvents = "";
-            t_focusCaret(this.root);
+            TUIEditableDiv.focus(this.root);
             this.root.classList.add("-tui-editable-div-editing");
         } else {
             this.root.style.pointerEvents = "none";
@@ -143,6 +144,20 @@ export class TUIEditableDiv {
     }
     onEnter(value, originalEvent) { /*OVERRIDE*/ }
     onInput(value) { /*OVERRIDE*/ }
+    static focus(element) {
+        let s = window.getSelection();
+        let r = document.createRange();
+        r.setStart(element, 0);
+        let ph = element.querySelector(".-tui-editable-div-placeholder");
+        if (ph) {
+            r.setEndBefore(ph);
+        } else {
+            r.selectNodeContents(element);
+        }
+        s.removeAllRanges();
+        s.addRange(r);
+        element.focus();
+    }
 }
 
 export class TUIEditableLabel {

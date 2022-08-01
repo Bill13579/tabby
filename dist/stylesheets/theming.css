@@ -1,10 +1,9 @@
-:root {
+:root[data-theme="dark"] {
     --bg: #131313;
     --bg-lite: #202020;
     --bg-indented: #3f3f3f;
     --bg-indented-0: #404040;
     --bg-indented-translucent: rgba(250, 250, 250, 0.1);
-    --bg-indented-1: #555555;
     --bg-indented-2: #5e5e5e;
     --bg-indented-3: #6a6a6a;
     --fg-lite: #ffffff;
@@ -37,4 +36,47 @@
     --load: #8bf1ff;
 
     --svg-filter: invert(100%) sepia(5%) saturate(0%) hue-rotate(289deg) brightness(104%) contrast(107%); /* generate here: https://codepen.io/sosuke/pen/Pjoqqp */
+}
+:root[data-theme="classic"] {
+    --bg: #ffffff;
+    --bg-lite: #dfdfdf;
+    --bg-indented: #f2f2f2;
+    --bg-indented-0: rgb(227, 227, 227);
+    --bg-indented-translucent: rgba(250, 250, 250, 0.1);
+    --bg-indented-2: #5e5e5e;
+    --bg-indented-3: #fff;
+    --fg-lite: #000000;
+    --fg: #191919;
+    --fg-shadow: #606060;
+    --fg-shadow-2: #aaaaaa;
+    --fg-label: #000000;
+    --fg-user-content: #000000;
+
+    --input-border: #dadada;
+    --input-focus: #91c3ec;
+    --btn-inline-text: rgb(0, 153, 255);
+    --current-window: #3592fc;
+    --current-tab: #b6d2ff;
+    --selected: #dce9ff;
+    --btn-inline-text-hover: #0062ff;
+    --selected-2: #dce9ff;
+
+    --input-focus90: #e791ec; /*currently unused*/
+    --input-focus90t: #ea4af260; /*currently unused*/
+    --btn-inline-text90: #e500ff; /*currently unused*/
+    --current-window90: rgb(173, 0, 173);
+    --current-tab90: rgb(255, 151, 255);
+    --selected90: rgb(255, 125, 255);
+    --btn-inline-text-hover90: rgb(173, 0, 173);
+    --btn-inline-text2-hover90: rgb(128, 0, 128);
+    --selected90-2: rgb(255, 125, 255);
+
+    --save: #aeffc2;
+    --load: #8bf1ff;
+
+    --svg-filter: invert(0%) sepia(100%) saturate(0%) hue-rotate(99deg) brightness(95%) contrast(104%); /* generate here: https://codepen.io/sosuke/pen/Pjoqqp */
+    --svg-filter-white: invert(100%) sepia(5%) saturate(0%) hue-rotate(289deg) brightness(104%) contrast(107%);
+}
+:root[data-theme="classic"] .window-entry .single-controls .-force-filter-svg-to-match-theme {
+    filter: none;
 }
