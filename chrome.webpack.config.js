@@ -10,10 +10,10 @@ module.exports = {
         }
     },
     entry: {
-        "background/background": "./src/background/background.js",
-        "popup/popup": "./src/popup/popup.js",
-        "content/content": "./src/content/content.js",
-        "options/options": "./src/options/options.js"
+        "tabby2-background": "./src/background/background.js",
+        // "popup/popup": "./src/popup/popup.js",
+        // "content/content": "./src/content/content.js",
+        // "options/options": "./src/options/options.js"
     },
     output: {
         filename: "[name].js",
