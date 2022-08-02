@@ -5,7 +5,7 @@ import { getCorrectTabId } from "./wrong-to-right"
 import { getWindows, correctFocused } from "./wtutils"
 import { getActualHeight, stopPropagation } from "./domutils"
 import { windowEntryDragStarted, windowEntryDraggingOver, windowEntryDropped, windowEntryTitleClicked, windowCloseClick, windowEntryContextMenu } from "./event-listeners/windowEntry"
-import { tabEntryMouseOver, tabEntryClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
+import { tabEntryMouseOver, tabEntryClicked, tabEntryAuxClicked, tabCloseClick, tabPinClick, tabSpeakerControlClick } from "./event-listeners/tabEntry"
 import { sendRuntimeMessage } from "../messaging"
 
 // Update tabs
@@ -216,6 +216,7 @@ export async function updateTabs(windows) {
 
                 tabEntry.addEventListener("mouseover", tabEntryMouseOver);
                 tabEntry.addEventListener("click", tabEntryClicked);
+                tabEntry.addEventListener("auxclick", tabEntryAuxClicked);
 
                 if (tab.pinned) {
                     pinBtn.style.backgroundImage = "url(../icons/pinremove.svg)";
