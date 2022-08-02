@@ -21,6 +21,7 @@ switch (process.argv[2]) {
         manifest.permissions.push("contextualIdentities");
         break;
     case "chrome":
+        manifest.content_security_policy = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'";
         break;
 }
 manifest.version = Ext.EXT_VERSION;

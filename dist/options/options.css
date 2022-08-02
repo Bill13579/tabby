@@ -59,7 +59,7 @@ body {
     user-select: none;
 }
 
-.option input {
+.option input[type="text"], .option input[type="number"] {
     display: inline-block;
     width: 30%;
     font-size: 15px;
@@ -67,6 +67,11 @@ body {
     padding-right: 10px;
     padding-top: 11px;
     padding-bottom: 11px;
+}
+.option textarea {
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: scroll;
 }
 
 .option[disabled] {

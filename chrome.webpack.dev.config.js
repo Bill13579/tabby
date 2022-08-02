@@ -8,10 +8,14 @@ module.exports = {
     resolve: {
         alias: {
             Polyfill: path.resolve(__dirname, "src/polyfill.js")
-        }
+        },
+        modules: [path.resolve(__dirname, "src"), "node_modules"]
     },
     entry: {
         "background/background": "./src/background/background.js",
+        "background/captureTab": "./src/background/captureTab.js",
+        "background/tmpClear": "./src/background/tmpClear.js",
+        "background/commands": "./src/background/commands.js",
         "popup/popup": "./src/popup/popup.js",
         "content/content": "./src/content/content.js",
         "options/options": "./src/options/options.js"
@@ -22,7 +26,7 @@ module.exports = {
     },
     plugins: [
         new CircularDependencyPlugin({
-            exclude: /node_modules/,
+            exclude: /node_modules|cartographer\/pkg/,
             failOnError: true,
             allowAsyncCycles: false,
             cwd: process.cwd()
@@ -30,5 +34,14 @@ module.exports = {
         new DefinePlugin({
             TARGET: "\"chrome\""
         })
-    ]
+    ],
+    experiments: {
+        asyncWebAssembly: true,
+        // buildHttp: true,
+        // layers: true,
+        // lazyCompilation: true,
+        // outputModule: true,
+        // syncWebAssembly: true,
+        // topLevelAwait: true,
+    },
 };

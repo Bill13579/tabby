@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta charset="utf-8" />
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./options.css">
+        <link href="https://res.cloudinary.com/finnhvman/raw/upload/matter/matter-0.2.2.min.css" rel="stylesheet">
         <title>Tabby Options</title>
-        <link rel="stylesheet" href="elements/elements.css" />
-        <script type="text/javascript" src="elements/elements.js"></script>
-        <link rel="stylesheet" href="options.css" />
-        <script type="text/javascript" src="options.js"></script>
     </head>
     <body>
         <div id="content">
@@ -20,45 +20,83 @@
                     <div class="option">
                         <label>Popup Size: </label>
                         <div id="option-popup-size">
-                            <input id="option-popup-width" class="ui-input" type="number" placeholder="Width" max="800"></input>
+                            <input id="option-popup-width" class="ui-input" type="number" placeholder="Width"
+                                max="800"></input>
                             <span style="font-size: 15px;">&nbsp;X&nbsp;</span>
-                            <input id="option-popup-height" class="ui-input" type="number" placeholder="Height" max="600"></input>
+                            <input id="option-popup-height" class="ui-input" type="number" placeholder="Height"
+                                max="600"></input>
                         </div>
                     </div>
                     <div class="option">
                         <label>Popup Scale: </label>
-                        <input id="option-popup-scale" class="ui-input" type="number" placeholder="Scale" step="0.1" min="0.1"></input>
+                        <input id="option-popup-scale" class="ui-input" type="number" placeholder="Scale" step="0.1"
+                            min="0.1"></input>
                     </div>
                     <div class="option">
-                        <label>Show Tab Details: </label>
-                        <div id="option-details" class="ui-switch"></div>
+                        <label class="matter-switch">
+                            <input id="option-show-tab-details" type="checkbox" role="switch">
+                            <span>Show Tab Details:</span>
+                        </label>
                     </div>
                     <div class="option sub-option">
-                        <label>Show Tab Preview: </label>
-                        <div id="option-preview" class="ui-switch"></div>
+                        <label class="matter-switch">
+                            <input id="option-show-tab-preview" type="checkbox" role="switch">
+                            <span>Show Tab Preview:</span>
+                        </label>
                     </div>
                     <div class="option">
-                        <label>Hide popup after tab selection: </label>
-                        <div id="option-hide-after-tab-switch" class="ui-switch"></div>
+                        <label class="matter-switch">
+                            <input id="option-hide-popup-after-tab-selection" type="checkbox" role="switch">
+                            <span>Hide popup after tab selection:</span>
+                        </label>
                     </div>
                     <div class="option">
-                        <label>Search in URLs:</label>
-                        <div id="option-search-urls" class="ui-switch"></div>
+                        <label style="vertical-align: top;">Popup Theme: </label>
+                        <div style="display: inline-block;">
+                            <label class="matter-radio">
+                                <input class="popup-theme" type="radio" name="popup-theme" data-theme-id="classic">
+                                <span>Classic</span>
+                            </label><br/>
+                            <label class="matter-radio">
+                                <input class="popup-theme" type="radio" name="popup-theme" data-theme-id="dark">
+                                <span>Dark</span>
+                            </label><br/>
+                            <label class="matter-radio">
+                                <input class="popup-theme" type="radio" name="popup-theme" data-theme-id="">
+                                <span style="vertical-align: top;">Custom</span>
+                                <textarea id="popup-custom-theme" style="width: 15px; height: 15px;" placeholder=""></textarea>
+                            </label>
+                        </div>
                     </div>
+                    <div class="option">
+                        <label style="vertical-align: top;">Change Global Key Bindings: </label>
+                        <a target="_blank" rel="noopener" href="https://support.mozilla.org/en-US/kb/manage-extension-shortcuts-firefox">https://support.mozilla.org/en-US/kb/manage-extension-shortcuts-firefox</a>
+                    </div>
+                    <!-- <div class="option">
+                        <label class="matter-switch">
+                            <input id="option-search-in-urls" type="checkbox" role="switch">
+                            <span>Search in URLs:</span>
+                        </label>
+                    </div> -->
                 </div>
                 <div id="about" class="section">
                     <label>About</label>
                     <div class="option">
                         <label style="user-select: initial;" id="version"></label>
-                        <br/><br/>
+                        <br /><br />
                         <span style="font-size: 15px;">
-                            [<a target="_blank" rel="noopener" href="https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-2.1">What's new?</a>]<br/>
-                            [<a target="_blank" rel="noopener" href="https://github.com/Bill13579/tabby/issues">Bug Report with Github</a>]
-                            [<a target="_blank" rel="noopener" href="https://goo.gl/forms/hdEdjHo6RPwYCiJC2">Bug Report without Github</a>]
+                            <!-- [<a target="_blank" rel="noopener"
+                                href="https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-2.1">What's
+                                new?</a>]<br /> -->
+                            [<a target="_blank" rel="noopener" href="https://github.com/Bill13579/tabby/issues">Bug Report
+                                with Github</a>]
+                            [<a target="_blank" rel="noopener" href="https://goo.gl/forms/hdEdjHo6RPwYCiJC2">Bug Report
+                                without Github</a>]
                         </span>
                     </div>
                 </div>
             </div>
         </div>
+        <script src="./options.js"></script>
     </body>
 </html>

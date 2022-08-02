@@ -13,7 +13,10 @@
     "permissions": [
         "tabs",
         "storage",
-        "contextMenus"
+        "cookies",
+        "contextMenus",
+        "webNavigation",
+        "unlimitedStorage"
     ],
 
     "options_ui": {
@@ -24,7 +27,8 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["content/content.js"]
+            "js": ["content/content.js"],
+            "run_at": "document_start"
         }
     ],
     "browser_action": {
@@ -33,11 +37,12 @@
         "default_popup": "popup/index.html"
     },
     "background": {
-        "scripts": ["background/background.js"]
+        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"],
+        "persistent": false
     },
 
     "commands": {
-        "_execute_browser_action": {
+        "open-tabby-focus-search": {
             "suggested_key": {
                 "default": "Ctrl+Shift+Space",
                 "mac": "MacCtrl+Shift+Space"

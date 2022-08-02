@@ -2,8 +2,13 @@ node_modules/
 dist/popup/popup.js
 dist/popup/popup.js.map
 dist/background/background.js
+dist/background/captureTab.js
+dist/background/tmpClear.js
+dist/background/commands.js
+dist/background/tabby2-background.js
 dist/content/content.js
 dist/options/options.js
 dist/manifest.json
 .DS_Store
 *.map
+dist/*.module.wasm

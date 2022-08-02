@@ -1,44 +1,27 @@
 import "Polyfill"
-import G from "./globals"
-import { onMessage } from "./event-listeners/message"
-import { tabActivated, tabUpdated, tabRemoved } from "./event-listeners/tab"
-import { windowFocusChanged, windowRemoved, windowCreated } from "./event-listeners/window"
-import { onCommand } from "./event-listeners/command"
-import { onInstalled } from "./event-listeners/installed"
-import { updateContextMenu } from "./contextMenu"
+import { $local$, $sync$ } from "../tapi/store";
+import { TSession } from "../tapi/tsession";
 
-if (!browser.runtime.onInstalled.hasListener(onInstalled)) {
-    browser.runtime.onInstalled.addListener(onInstalled);
-}
+// import { TSession } from "tapi/tsession";
 
-// Set initial tab id
-browser.tabs.query({
-    active: true,
-    currentWindow: true
-}).then(tabs => {
-    G.currentTabId = tabs[0].id;
-    G.dropCurrentTabId = true;
+// (async () => {
+//     window.sess = await TSession.read_from_current();
+//     window.sess.enableBrowserHooks();
+// })();
+
+browser.runtime.onMessage.addListener((message) => {
+    if (message["_"] !== "sflv1_openSession") return;
+    let { store, mozContextualIdentityMap } = message;
+    if (store === "local") {
+        store = $local$;
+    } else if (store === "sync") {
+        store = $sync$;
+    }
+    store.getOne("sflv1_rel").then(rel => {
+        store.retrieveLarge("sflv1_tabs").then(async tabs => {
+            let sess = TSession.fromSerializable({ rel: JSON.parse(rel), tabs: JSON.parse(LZString.decompressFromUTF16(tabs)) });
+            await sess.openAll(mozContextualIdentityMap);
+        });
+    });
 });
 
-// Set initial window id
-browser.windows.getLastFocused({}).then(w => {
-    G.currentWindowId = w.id;
-    G.dropCurrentWindowId = true;
-});
-
-// Watch out for any changes in tabs & windows
-browser.tabs.onUpdated.addListener(tabUpdated);
-browser.tabs.onActivated.addListener(tabActivated);
-browser.tabs.onRemoved.addListener(tabRemoved);
-browser.windows.onRemoved.addListener(windowRemoved);
-browser.windows.onFocusChanged.addListener(windowFocusChanged);
-browser.windows.onCreated.addListener(windowCreated);
-
-// Watch out for any commands
-browser.commands.onCommand.addListener(onCommand);
-
-// Watch out for any messages
-browser.runtime.onMessage.addListener(onMessage);
-
-// Update context menus
-updateContextMenu();

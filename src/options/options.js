@@ -1,133 +1,163 @@
 import "Polyfill"
-import { SWITCH_ON, SWITCH_LOCKED_ON, SWITCH_OFF, SWITCH_LOCKED_OFF, INITIAL_OPTIONS } from "./states"
-import { stbool } from "../options"
 
-function fillInVersion() {
-    document.getElementById("version").innerText = "Tabby " + require("../../ext-info").EXT_VERSION;
-}
+import { $local$ } from "../tapi/store"
+import { TargetBrowser } from "../polyfill"
+import { EXT_VERSION } from "../../ext-info"
+import { resolveDefault } from "./exports"
 
-function setSwitchState(switchElement, state) {
-    switch (state) {
-        case SWITCH_ON: {
-            switchElement.setAttribute("value", "on");
-            break;
-        }
-        case SWITCH_LOCKED_ON: {
-            switchElement.setAttribute("value", "on");
-            switchElement.setAttribute("disabled", "");
-            break;
-        }
-        case SWITCH_OFF: {
-            switchElement.setAttribute("value", "off");
-            break;
-        }
-        case SWITCH_LOCKED_OFF: {
-            switchElement.setAttribute("value", "off");
-            switchElement.setAttribute("disabled", "");
-            break;
-        }
+// Fill version
+document.querySelector("#version").innerText = `Tabby ${EXT_VERSION}`;
+
+//option:popup-size
+$local$.fulfill("option:popup-size", (popupSize) => {
+    // Get elements
+    let width = document.querySelector("#option-popup-width");
+    let height = document.querySelector("#option-popup-height");
+
+    // Set on change listeners
+    width.oninput = (evt) => {
+        $local$.modify("option:popup-size", (current) => {
+            current[0] = parseInt(width.value);
+            return current;
+        }, true);
+    };
+    height.oninput = (evt) => {
+        $local$.modify("option:popup-size", (current) => {
+            current[1] = parseInt(height.value);
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    width.value = popupSize[0];
+    height.value = popupSize[1];
+}, resolveDefault("option:popup-size"));
+
+//option:popup-scale
+$local$.fulfill("option:popup-scale", (popupScale) => {
+    // Get elements
+    let scale = document.querySelector("#option-popup-scale");
+
+    // Set on change listeners
+    scale.oninput = (evt) => {
+        $local$.modify("option:popup-scale", (current) => {
+            current = parseFloat(scale.value);
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    scale.value = popupScale;
+}, resolveDefault("option:popup-scale"));
+
+//option:show-tab-info
+//legend:
+// 1=none
+// 2=details
+// 3=details+preview
+$local$.fulfill("option:show-tab-info", (showTabInfo) => {
+    // Get elements
+    let showTabDetails = document.querySelector("#option-show-tab-details");
+    let showTabPreview = document.querySelector("#option-show-tab-preview");
+
+    // Browser based restrictions
+    if (TargetBrowser === "chrome") {
+        showTabPreview.setAttribute("disabled", "");
     }
-}
 
-function getSwitchState(switchElement) {
-    if (switchElement.getAttribute("value") === "on") {
-        if (switchElement.hasAttribute("disabled")) {
-            return SWITCH_LOCKED_ON;
-        } else {
-            return SWITCH_ON;
-        }
-    } else if (switchElement.getAttribute("value") === "off") {
-        if (switchElement.hasAttribute("disabled")) {
-            return SWITCH_LOCKED_OFF;
-        } else {
-            return SWITCH_OFF;
-        }
+    // Set on change listeners
+    showTabDetails.oninput = (evt) => {
+        $local$.modify("option:show-tab-info", (current) => {
+            current = showTabDetails.checked ? 2 : 1;
+            return current;
+        }, true);
+    };
+    showTabPreview.oninput = (evt) => {
+        $local$.modify("option:show-tab-info", (current) => {
+            current = showTabPreview.checked ? 3 : 2;
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    if (showTabInfo === 1) {
+        showTabDetails.checked = false;
+        showTabPreview.checked = false;
+    } else if (showTabInfo === 2) {
+        showTabDetails.checked = true;
+        showTabPreview.checked = false;
+    } else if (showTabInfo === 3) {
+        showTabDetails.checked = true;
+        showTabPreview.checked = true;
     }
-}
+}, resolveDefault("option:show-tab-info"));
 
-function readOptions() {
-    browser.storage.local.get(["options"]).then(data => {
-        let options = data.options;
-        document.getElementById("option-popup-width").value = options.popup.size.width;
-        document.getElementById("option-popup-height").value = options.popup.size.height;
-        document.getElementById("option-popup-scale").value = options.popup.scale;
-        setSwitchState(document.getElementById("option-details"), options.popup.showDetails);
-        setSwitchState(document.getElementById("option-preview"), options.popup.showPreview);
-        setSubOptionState(options.popup.showDetails, document.getElementById("option-preview").parentElement);
-        setSwitchState(document.getElementById("option-hide-after-tab-switch"), options.popup.hideAfterTabSelection);
-        setSwitchState(document.getElementById("option-search-urls"), options.popup.searchInURLs);
-    });
-}
+//option:hide-popup-after-tab-selection
+$local$.fulfill("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
+    // Get elements
+    let hidePopupSwitch = document.querySelector("#option-hide-popup-after-tab-selection");
 
-function setSubOptionState(parentState, subOption) {
-    if (parentState === SWITCH_ON) {
-        if (subOption.hasAttribute("disabled")) {
-            subOption.removeAttribute("disabled");
-        }
-    } else if (parentState === SWITCH_OFF) {
-        subOption.setAttribute("disabled", "");
+    // Set on change listeners
+    hidePopupSwitch.oninput = (evt) => {
+        $local$.modify("option:hide-popup-after-tab-selection", (current) => {
+            current = hidePopupSwitch.checked;
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    hidePopupSwitch.checked = hidePopupAfterTabSelection;
+}, resolveDefault("option:hide-popup-after-tab-selection"));
+
+//option:search-in-urls
+// $local$.fulfill("option:search-in-urls", (searchInUrls) => {
+//     // Get elements
+//     let searchInUrlsSwitch = document.querySelector("#option-search-in-urls");
+
+//     // Set on change listeners
+//     searchInUrlsSwitch.oninput = (evt) => {
+//         $local$.modify("option:search-in-urls", (current) => {
+//             current = searchInUrlsSwitch.checked;
+//             return current;
+//         }, true);
+//     };
+
+//     // Set current values
+//     searchInUrlsSwitch.checked = searchInUrls;
+// }, resolveDefault("option:search-in-urls"));
+
+//option:popup-theme
+$local$.fulfill("option:popup-theme", (popupTheme) => {
+    // Get elements
+    let radios = document.querySelectorAll(".popup-theme");
+
+    // Set on change listeners
+    for (let radio of radios) {
+        radio.oninput = (evt) => {
+            $local$.modify("option:popup-theme", () => radio.getAttribute("data-theme-id"), false);
+        };
     }
-}
 
-function addEventListeners() {
-    document.getElementById("option-popup-width").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.size.width = parseFloat(e.target.value);
-            browser.storage.local.set(data);
-        });
-    });
-    document.getElementById("option-popup-height").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.size.height = parseFloat(e.target.value);
-            browser.storage.local.set(data);
-        });
-    });
+    // Set current values
+    let radio = document.querySelector(`.popup-theme[data-theme-id="${popupTheme}"]`);
+    if (radio) {
+        radio.checked = true;
+    }
+}, resolveDefault("option:popup-theme"));
 
-    document.getElementById("option-popup-scale").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.scale = parseFloat(e.target.value);
-            browser.storage.local.set(data);
-        });
-    });
+//option:popup-custom-theme
+$local$.fulfill("option:popup-custom-theme", (popupCustomTheme) => {
+    // Get elements
+    let customThemeBox = document.querySelector("#popup-custom-theme");
 
-    document.getElementById("option-details").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.showDetails = getSwitchState(e.target);
-            setSubOptionState(data.options.popup.showDetails, document.getElementById("option-preview").parentElement);
-            browser.storage.local.set(data);
-        });
-    });
+    // Set on change listeners
+    customThemeBox.oninput = (evt) => {
+        $local$.modify("option:popup-custom-theme", (current) => {
+            current = customThemeBox.value;
+            return current;
+        }, true);
+    };
 
-    document.getElementById("option-preview").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.showPreview = getSwitchState(e.target);
-            browser.storage.local.set(data);
-        });
-    });
-
-    document.getElementById("option-hide-after-tab-switch").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.hideAfterTabSelection = getSwitchState(e.target);
-            browser.storage.local.set(data);
-        });
-    });
-
-    document.getElementById("option-search-urls").addEventListener("input", e => {
-        browser.storage.local.get(["options"]).then(data => {
-            data.options.popup.searchInURLs = getSwitchState(e.target);
-            browser.storage.local.set(data);
-        });
-    });
-}
-
-function main() {
-    fillInVersion();
-    readOptions();
-    addEventListeners();
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", main);
-} else {
-    main();
-}
+    // Set current values
+    customThemeBox.value = popupCustomTheme;
+}, resolveDefault("option:popup-custom-theme"));
