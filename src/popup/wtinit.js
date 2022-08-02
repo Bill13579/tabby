@@ -114,6 +114,9 @@ export async function updateTabs(windows) {
 
         let windowTabsListFragment = document.createDocumentFragment();
         // Loop through tabs
+        if(G.sortByLastAccessed){
+            w.tabs.sort((a,b)=>a.lastAccessed < b.lastAccessed)
+        }
         for (let i = 0; i < w.tabs.length; i++) {
             let tab = w.tabs[i];
             // Check tab id

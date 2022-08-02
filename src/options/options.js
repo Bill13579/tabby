@@ -56,6 +56,7 @@ function readOptions() {
         setSubOptionState(options.popup.showDetails, document.getElementById("option-preview").parentElement);
         setSwitchState(document.getElementById("option-hide-after-tab-switch"), options.popup.hideAfterTabSelection);
         setSwitchState(document.getElementById("option-search-urls"), options.popup.searchInURLs);
+        setSwitchState(document.getElementById("option-show-most-recent-top"), options.popup.sortByLastAccessed);
     });
 }
 
@@ -115,6 +116,13 @@ function addEventListeners() {
     document.getElementById("option-search-urls").addEventListener("input", e => {
         browser.storage.local.get(["options"]).then(data => {
             data.options.popup.searchInURLs = getSwitchState(e.target);
+            browser.storage.local.set(data);
+        });
+    });
+
+    document.getElementById("option-show-most-recent-top").addEventListener("input", e => {
+        browser.storage.local.get(["options"]).then(data => {
+            data.options.popup.sortByLastAccessed = getSwitchState(e.target);
             browser.storage.local.set(data);
         });
     });
