@@ -247,6 +247,7 @@ export class TSession {
                 try {
                     let tab = await TTab.toTab(ttab, window.id, mozContextualIdentityMap ? mozContextualIdentityMap[ttab.cookieStoreId] : undefined);
                     await new TTabActions(tab.id).openerTabId(ttab.openerTabId);
+                    await new TTabActions(tab.id).mute(ttab.mutedInfo.muted);
                 } catch (e) {
                     console.error(`could not recreate tab`, ttab, `due to`, e);
                 }

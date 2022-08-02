@@ -62,7 +62,6 @@ $local$.fulfill("option:show-tab-info", (showTabInfo) => {
 
     // Browser based restrictions
     if (TargetBrowser === "chrome") {
-        $local$.modify("option:show-tab-info", () => 2, false);
         showTabPreview.setAttribute("disabled", "");
     }
 
@@ -111,21 +110,21 @@ $local$.fulfill("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelec
 }, resolveDefault("option:hide-popup-after-tab-selection"));
 
 //option:search-in-urls
-$local$.fulfill("option:search-in-urls", (searchInUrls) => {
-    // Get elements
-    let searchInUrlsSwitch = document.querySelector("#option-search-in-urls");
+// $local$.fulfill("option:search-in-urls", (searchInUrls) => {
+//     // Get elements
+//     let searchInUrlsSwitch = document.querySelector("#option-search-in-urls");
 
-    // Set on change listeners
-    searchInUrlsSwitch.oninput = (evt) => {
-        $local$.modify("option:search-in-urls", (current) => {
-            current = searchInUrlsSwitch.checked;
-            return current;
-        }, true);
-    };
+//     // Set on change listeners
+//     searchInUrlsSwitch.oninput = (evt) => {
+//         $local$.modify("option:search-in-urls", (current) => {
+//             current = searchInUrlsSwitch.checked;
+//             return current;
+//         }, true);
+//     };
 
-    // Set current values
-    searchInUrlsSwitch.checked = searchInUrls;
-}, resolveDefault("option:search-in-urls"));
+//     // Set current values
+//     searchInUrlsSwitch.checked = searchInUrls;
+// }, resolveDefault("option:search-in-urls"));
 
 //option:popup-theme
 $local$.fulfill("option:popup-theme", (popupTheme) => {

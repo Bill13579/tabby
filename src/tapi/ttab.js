@@ -1,4 +1,5 @@
 import "Polyfill"
+import { TargetBrowser } from "../polyfill";
 
 export const TTAB_TRACK_ONUPDATED = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "attention", "audible", "hidden", "status", "discarded"];
 export const TTAB_TRACK_ONUPDATED_MANUAL = ["isInReaderMode", "lastAccessed"];
@@ -153,17 +154,22 @@ export class TTab {
         //                 "active",
         //                 "windowId",
         //                 "cookieStoreId", "incognito", "openerTabId"]; "hidden" is currently not recovered, "openerTabId" must be done separately later
-        return browser.tabs.create({
+        let prefs = {
             active: ttab.active,
-            cookieStoreId, //TODO: cookieStoreId changes by the computer
-            discarded: ttab.discarded,
-            muted: ttab.mutedInfo.muted,
-            openInReaderMode: ttab.isInReaderMode,
             pinned: ttab.pinned,
-            title: ttab.discarded ? ttab.title : undefined,
             url: ttab.url,
             windowId
-        });
+        };
+        if (cookieStoreId) {
+            prefs.cookieStoreId = cookieStoreId;
+        }
+        if (TargetBrowser === "firefox") {
+            prefs.discarded = ttab.discarded;
+            prefs.openInReaderMode = ttab.isInReaderMode;
+            prefs.title = ttab.discarded ? ttab.title : undefined;
+            prefs.muted = ttab.mutedInfo.muted;
+        }
+        return browser.tabs.create(prefs);
     }
     /**
      * Create an instance of TTab from a Tab object

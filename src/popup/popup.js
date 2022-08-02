@@ -27,6 +27,7 @@ import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 import { resolveDefault } from "../options/exports"
 import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
+import { TargetBrowser } from "../polyfill";
 
 class TUIListOptions {
     constructor() {
@@ -2102,13 +2103,13 @@ class TUITabsList extends TUIListDataInterpret {
         });
     };
     restoreNow.addEventListener("click", async (evt) => {
-        let mozContextualIdentities = await $local$.getOne("sflv1_mozContextualIdentities");
-        if (await hasSFLvt2() && !mozContextualIdentities) {
+        if (await hasSFLvt2() && !(saveTimestamps.local || saveTimestamps.sync)) {
             await restoreSFLvt2();
         } else {
+            let mozContextualIdentities = await $local$.getOne("sflv1_mozContextualIdentities");
             mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
             mozContextualIdentities = JSON.parse(mozContextualIdentities);
-            let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
+            let mozContextualIdentityMap = TargetBrowser === "firefox" ? await resolveMozContextualIdentities(mozContextualIdentities) : undefined;
             browser.runtime.sendMessage({
                 _: "sflv1_openSession",
                 store: "local",
@@ -2122,7 +2123,7 @@ class TUITabsList extends TUIListDataInterpret {
         let mozContextualIdentities = await $sync$.getOne("sflv1_mozContextualIdentities");
         mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
         mozContextualIdentities = JSON.parse(mozContextualIdentities);
-        let mozContextualIdentityMap = await resolveMozContextualIdentities(mozContextualIdentities);
+        let mozContextualIdentityMap = TargetBrowser === "firefox" ? await resolveMozContextualIdentities(mozContextualIdentities) : undefined;
         browser.runtime.sendMessage({
             _: "sflv1_openSession",
             store: "sync",

@@ -1,4 +1,5 @@
 import "Polyfill"
+import { TargetBrowser } from "../polyfill";
 
 export class TTabActions {
     constructor(...tabIds) {
@@ -47,7 +48,11 @@ export class TWindowActions {
         return Promise.all(this.ids.map(id => browser.windows.remove(id)));
     }
     titlePreface(title) {
-        return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: title})));
+        if (TargetBrowser === "firefox") {
+            return Promise.all(this.ids.map(id => browser.windows.update(id, {titlePreface: title})));
+        } else {
+            return Promise.resolve();
+        }
     }
 }
 
