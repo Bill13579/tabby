@@ -17,7 +17,7 @@
         "build:firefox": "npm run build:webext",
         "build:firefox.dev": "npm run build:webext.dev",
 
-        "build:v2-compat": "git clone -b v2-compat https://github.com/Bill13579/tabby.git v2-compat && cd v2-compat && npm i && npm run build:firefox && mv dist/tabby2-background.js ../dist/background/tabby2-background.js && cd .. && rimraf v2-compat",
+        "build:v2-compat": "git clone -b v2-compat https://github.com/Bill13579/tabby.git v2-compat && cd v2-compat && npm i && npm run build:firefox && mkdir -p ../dist/background/ && mv dist/tabby2-background.js ../dist/background/tabby2-background.js && cd .. && rimraf v2-compat",
         
         "clean:background": "rimraf dist/background/background.js* dist/background/captureTab.js* dist/background/commands.js* dist/background/tmpClear.js*",
         "clean:content": "rimraf dist/content/content.js*",
