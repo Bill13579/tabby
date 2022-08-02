@@ -1105,12 +1105,17 @@ class SearchDiv extends TUIEditableDiv {
             this.tabsList.documentHook_keyUp(evt);
         });
         this.editing = true;
-        $localtmp$.fulfillOnce("memory:search-value", (val) => {
-            if (val && val.trim() !== "" && this.value !== val) {
-                this.value = val;
-                this.onInput(val);
+        $local$.fulfillOnce("option:dont-clear-search", (dontClearSearch) => {
+            if (dontClearSearch) {
+                $localtmp$.fulfillOnce("memory:search-value", (val) => {
+                    if (val && val.trim() !== "" && this.value !== val) {
+                        this.value = val;
+                        this.onInput(val);
+                        setTimeout(() => TUIEditableDiv.focus(this.root), 100);
+                    }
+                }, "");
             }
-        });
+        }, resolveDefault("option:dont-clear-search"));
         // this._offset = 0;
     }
     reconstructQuery(query, last=false) {
@@ -1426,7 +1431,7 @@ class TUITabsList extends TUIListDataInterpret {
                 this.sess.getWindowActions(tabObj.windowId).activate();
                 $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
                     if (hidePopupAfterTabSelection) window.close();
-                });
+                }, resolveDefault("option:hide-popup-after-tab-selection"));
             }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
@@ -1455,7 +1460,7 @@ class TUITabsList extends TUIListDataInterpret {
                 await actions.activate();
                 $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
                     if (hidePopupAfterTabSelection) window.close();
-                });
+                }, resolveDefault("option:hide-popup-after-tab-selection"));
             }
         }
     }
@@ -1860,13 +1865,37 @@ class TUITabsList extends TUIListDataInterpret {
             $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
                 // Load custom CSS
                 document.getElementById("theming").appendChild(document.createTextNode(popupCustomTheme));
-            });
+            }, resolveDefault("option:popup-custom-theme"));
         }
     }, resolveDefault("option:popup-theme"));
 
     // Single save implementation
     let saveForLater = document.getElementById("save-for-later");
-    saveForLater.addEventListener("click", async (evt) => {
+    $local$.fulfill("option:separate-save", (separateSave) => {
+        if (separateSave) {
+            saveForLater.title = "Click to save locally\nRight click to save to sync storage";
+        } else {
+            saveForLater.title = "Save websites for later";
+        }
+    }, resolveDefault("option:separate-save"));
+    saveForLater.addEventListener("click", (evt) => {
+        $local$.fulfillOnce("option:separate-save", (separateSave) => {
+            if (separateSave) {
+                saveForLaterRunner(evt, true, false);
+            } else {
+                saveForLaterRunner(evt, true, true);
+            }
+        }, resolveDefault("option:separate-save"));
+    });
+    saveForLater.addEventListener("contextmenu", (evt) => {
+        evt.preventDefault();
+        $local$.fulfillOnce("option:separate-save", (separateSave) => {
+            if (separateSave) {
+                saveForLaterRunner(evt, false, true);
+            }
+        }, resolveDefault("option:separate-save"));
+    });
+    let saveForLaterRunner = async (evt, local=true, sync=true) => {
         saveForLater.setAttribute("data-disabled", "");
         let done = () => {
             saveForLater.removeAttribute("data-disabled");
@@ -1880,22 +1909,24 @@ class TUITabsList extends TUIListDataInterpret {
         save.mozContextualIdentities = await sess.mozContextualIdentities;
 
         let timestamp = new Date().getTime();
-        await $local$.set("sflv1_timestamp", timestamp);
-
         save.mozContextualIdentities = LZString.compressToUTF16(JSON.stringify(save.mozContextualIdentities));
-        await $local$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
-
         save.rel = JSON.stringify(save.rel);
-        await $local$.set("sflv1_rel", save.rel);
-
         save.tabs = LZString.compressToUTF16(JSON.stringify(save.tabs));
-        await $local$.storeLarge("sflv1_tabs", save.tabs);
+        
+        if (local) {
+            await $local$.set("sflv1_timestamp", timestamp);
+            await $local$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
+            await $local$.set("sflv1_rel", save.rel);
+            await $local$.storeLarge("sflv1_tabs", save.tabs);
+        }
 
         try {
-            await $sync$.set("sflv1_timestamp", timestamp);
-            await $sync$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
-            await $sync$.set("sflv1_rel", save.rel);
-            await $sync$.storeLarge("sflv1_tabs", save.tabs);
+            if (sync) {
+                await $sync$.set("sflv1_timestamp", timestamp);
+                await $sync$.set("sflv1_mozContextualIdentities", save.mozContextualIdentities);
+                await $sync$.set("sflv1_rel", save.rel);
+                await $sync$.storeLarge("sflv1_tabs", save.tabs);
+            }
             done();
         } catch (e) {
             await $sync$.unset("sflv1_timestamp", "sflv1_mozContextualIdentities", "sflv1_rel");
@@ -1907,7 +1938,7 @@ class TUITabsList extends TUIListDataInterpret {
                 done();
             }).make());
         }
-    });
+    };
     let saveTimestamps = {
         local: undefined,
         sync: undefined

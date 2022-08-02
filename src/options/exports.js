@@ -8,7 +8,9 @@ let defaults = {
     "option:hide-popup-after-tab-selection": true,
     "option:search-in-urls": true, // Currently unused since search has become a bit more complicated,
     "option:popup-custom-theme": "",
-    "option:popup-theme": "classic"
+    "option:popup-theme": "classic",
+    "option:dont-clear-search": true,
+    "option:separate-save": false
 };
 export function resolveDefault(optionID) {
     return defaults[optionID];

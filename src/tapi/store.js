@@ -263,7 +263,12 @@ export class StorageSpace {
   async __fulfill(optionID, fulfiller) {
     return this.__manual_fulfill(await this.getOne(optionID), fulfiller);
   }
-  async fulfillOnce(optionID, fulfiller) {
+  async fulfillOnce(optionID, fulfiller, defaultValue=undefined) {
+    if (defaultValue !== undefined) { //TODO: Evaluate if this needs to be wrapped in a modify
+      if (!(await this.hasOne(optionID))) {
+        await this.set(optionID, defaultValue);
+      }
+    }
     return this.__fulfill(optionID, fulfiller);
   }
   addFulfiller(optionID, fulfiller) {
@@ -285,7 +290,7 @@ export class StorageSpace {
       }
     }
     this.addFulfiller(optionID, fulfiller);
-    return this.fulfillOnce(optionID, fulfiller);
+    return this.fulfillOnce(optionID, fulfiller, undefined);
   }
   async __onChange(changes) {
     for (let key in changes) {

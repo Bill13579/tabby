@@ -161,3 +161,38 @@ $local$.fulfill("option:popup-custom-theme", (popupCustomTheme) => {
     // Set current values
     customThemeBox.value = popupCustomTheme;
 }, resolveDefault("option:popup-custom-theme"));
+
+//option:dont-clear-search
+$local$.fulfill("option:dont-clear-search", (dontClearSearch) => {
+    // Get elements
+    let dontClearSearchSwitch = document.querySelector("#option-dont-clear-search");
+
+    // Set on change listeners
+    dontClearSearchSwitch.oninput = (evt) => {
+        $local$.modify("option:dont-clear-search", (current) => {
+            current = dontClearSearchSwitch.checked;
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    dontClearSearchSwitch.checked = dontClearSearch;
+}, resolveDefault("option:dont-clear-search"));
+
+//option:separate-save
+$local$.fulfill("option:separate-save", (separateSave) => {
+    // Get elements
+    let separateSaveSwitch = document.querySelector("#option-separate-save");
+
+    // Set on change listeners
+    separateSaveSwitch.oninput = (evt) => {
+        $local$.modify("option:separate-save", (current) => {
+            current = separateSaveSwitch.checked;
+            return current;
+        }, true);
+    };
+
+    // Set current values
+    separateSaveSwitch.checked = separateSave;
+}, resolveDefault("option:separate-save"));
+
