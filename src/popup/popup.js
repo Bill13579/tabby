@@ -1422,7 +1422,7 @@ class TUITabsList extends TUIListDataInterpret {
                 await actions.remove();
             } else {
                 if (evt.key && evt.key !== "Enter") return;
-                await actions.activate();
+                await new TTabActions(tabId).activate();
                 this.sess.getWindowActions(tabObj.windowId).activate();
                 $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
                     if (hidePopupAfterTabSelection) window.close();
