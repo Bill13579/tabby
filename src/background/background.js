@@ -9,6 +9,15 @@ import { TSession } from "../tapi/tsession";
 //     window.sess.enableBrowserHooks();
 // })();
 
+browser.runtime.onInstalled.addListener(({ reason }) => {
+    if (reason !== "install") {
+        browser.tabs.create({
+            active: true,
+            url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-3.0"
+        });
+    }
+});
+
 browser.runtime.onMessage.addListener((message) => {
     if (message["_"] !== "sflv1_openSession") return;
     let { store, mozContextualIdentityMap } = message;

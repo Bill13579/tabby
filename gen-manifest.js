@@ -17,7 +17,6 @@ switch (process.argv[2]) {
             }
         };
         manifest.permissions.push("<all_urls>");
-        manifest.permissions.push("cookies");
         manifest.permissions.push("contextualIdentities");
         break;
     case "chrome":
