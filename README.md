@@ -15,11 +15,16 @@ Tabby is an open-source project and is in active development, so feel free to su
 
 ## Prerequisites
 
-- Git
-- Node.js
+- [Git](https://git-scm.com/)
+- [Rustup](https://www.rust-lang.org/tools/install) (rustc >= 1.62.1)
+- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) >= 0.10.3
+- [Node.js](https://nodejs.org/en/) >= 16.15.0 LTS
 - Firefox >= 59 (recommended)<br/>
   or<br/>
   Chrome >= 49 (fully tested on Chrome 72)
+  
+**IMPORTANT NOTE:** If you encounter an issue compiling the "lindera-ipadic" dependency on the `npm run build:firefox` step, it is likely that you do not have enough memory or CPU. This is especially an issue on virtual machines, and is hard to detect since the error messages are incredibly vague.  
+On an Ubuntu VM, 4gb RAM + 2 cores has been proven to work.
 
 ## Building Tabby
 
@@ -36,6 +41,8 @@ Tabby is an open-source project and is in active development, so feel free to su
 Firefox: `npm run build:firefox`  
 Chrome: `npm run build:chrome`  
 WebExtension: `npm run build:webext`
+
+The `dist` folder, after the build, can then be packaged as a zip file and installed.
 
 ## Installation
 
