@@ -90,7 +90,7 @@ README&#46;md - README file
 
 ## libs/ (Libraries Used)
 
-Tabby uses the great `lz-string` library for compression!
-Used min.js file: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.min.js
-Source: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.js
+Tabby uses the great `lz-string` library for compression!<br/>
+Used min.js file: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.min.js<br/>
+Source: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.js<br/>
 Source tree: https://github.com/pieroxy/lz-string/tree/1.4.4
