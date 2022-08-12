@@ -1191,6 +1191,7 @@ class WindowName extends TUIEditableLabel {
         let i = 1;
         for (let [, windowName] of WindowName.__instances) {
             windowName.initialWindowName = `Window ${i}`;
+            windowName.windowOrder = i;
             i++;
         }
     }
@@ -1207,6 +1208,7 @@ class WindowName extends TUIEditableLabel {
         super();
 
         this.windowId = windowId;
+        this.windowOrder = -1;
         this.sess = sess;
 
         WindowName.__instances.set(windowId, this);
@@ -1259,8 +1261,18 @@ class WindowName extends TUIEditableLabel {
         if (v.trim() === "") {
             super.value = this.__initialWindowName;
         } else {
-            super.value = v;
+            super.value = `${v} (${this.windowOrder})`;
         }
+    }
+    get displayedValue() {
+        if (this.__currentValue.trim() === "") {
+            super.value = this.__initialWindowName;
+        } else {
+            super.value = `${this.__currentValue} (${this.windowOrder})`;
+        }
+    }
+    get value() {
+        return this.__currentValue;
     }
     get editing() {
         return super.editing;
@@ -1269,6 +1281,8 @@ class WindowName extends TUIEditableLabel {
         super.editing = v;
         if (this.__currentValue === "" && v) {
             super.value = "";
+        } else if (this.__currentValue) {
+            super.value = this.__currentValue;
         }
         if (this.wrapper && this.wrapper.parentElement) {
             if (v) {
@@ -1723,6 +1737,17 @@ class TUITabsList extends TUIListDataInterpret {
 }
 
 (async () => {
+    // Fullfill theming options before doing anything else
+    $local$.fulfill("option:popup-theme", (popupTheme) => {
+        document.querySelector(":root").setAttribute("data-theme", popupTheme);
+        if (popupTheme === "") {
+            $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
+                // Load custom CSS
+                document.getElementById("theming").appendChild(document.createTextNode(popupCustomTheme));
+            }, resolveDefault("option:popup-custom-theme"));
+        }
+    }, resolveDefault("option:popup-theme"));
+
     let _alt = false;
     let altPressed = () => {
         if (!_alt) {
@@ -1859,15 +1884,6 @@ class TUITabsList extends TUIListDataInterpret {
             document.querySelector("#main #details-pane").removeAttribute("data-no-preview");
         }
     }, resolveDefault("option:show-tab-info"));
-    $local$.fulfill("option:popup-theme", (popupTheme) => {
-        document.querySelector(":root").setAttribute("data-theme", popupTheme);
-        if (popupTheme === "") {
-            $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
-                // Load custom CSS
-                document.getElementById("theming").appendChild(document.createTextNode(popupCustomTheme));
-            }, resolveDefault("option:popup-custom-theme"));
-        }
-    }, resolveDefault("option:popup-theme"));
 
     // Single save implementation
     let saveForLater = document.getElementById("save-for-later");
