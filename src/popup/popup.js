@@ -1737,7 +1737,7 @@ class TUITabsList extends TUIListDataInterpret {
 }
 
 (async () => {
-    // Fullfill theming options before doing anything else
+    // Fullfill options before doing anything else
     $local$.fulfill("option:popup-theme", (popupTheme) => {
         document.querySelector(":root").setAttribute("data-theme", popupTheme);
         if (popupTheme === "") {
@@ -1747,6 +1747,27 @@ class TUITabsList extends TUIListDataInterpret {
             }, resolveDefault("option:popup-custom-theme"));
         }
     }, resolveDefault("option:popup-theme"));
+    $local$.fulfill("option:popup-size", (popupSize) => {
+        document.documentElement.style.setProperty("--width", `${popupSize[0]}px`);
+        document.documentElement.style.setProperty("--height", `${popupSize[1]}px`);
+    }, resolveDefault("option:popup-size"));
+    $local$.fulfill("option:popup-scale", (popupScale) => {
+        document.documentElement.style.setProperty("--scale", `${popupScale}`);
+    }, resolveDefault("option:popup-scale"));
+    $local$.fulfill("option:show-tab-info", (showTabInfo) => {
+        if (showTabInfo === 1) {
+            document.querySelector("#main").setAttribute("data-no-details-pane", "");
+            document.querySelector("#main #details-placeholder").setAttribute("data-no-details-pane", "");
+        } else if (showTabInfo === 2) {
+            document.querySelector("#main").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-pane").setAttribute("data-no-preview", "");
+        } else if (showTabInfo === 3) {
+            document.querySelector("#main").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
+            document.querySelector("#main #details-pane").removeAttribute("data-no-preview");
+        }
+    }, resolveDefault("option:show-tab-info"));
 
     let _alt = false;
     let altPressed = () => {
@@ -1862,28 +1883,6 @@ class TUITabsList extends TUIListDataInterpret {
         browser.runtime.openOptionsPage();
         window.close();
     });
-    // Fulfill settings
-    $local$.fulfill("option:popup-size", (popupSize) => {
-        document.documentElement.style.setProperty("--width", `${popupSize[0]}px`);
-        document.documentElement.style.setProperty("--height", `${popupSize[1]}px`);
-    }, resolveDefault("option:popup-size"));
-    $local$.fulfill("option:popup-scale", (popupScale) => {
-        document.documentElement.style.setProperty("--scale", `${popupScale}`);
-    }, resolveDefault("option:popup-scale"));
-    $local$.fulfill("option:show-tab-info", (showTabInfo) => {
-        if (showTabInfo === 1) {
-            document.querySelector("#main").setAttribute("data-no-details-pane", "");
-            document.querySelector("#main #details-placeholder").setAttribute("data-no-details-pane", "");
-        } else if (showTabInfo === 2) {
-            document.querySelector("#main").removeAttribute("data-no-details-pane");
-            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
-            document.querySelector("#main #details-pane").setAttribute("data-no-preview", "");
-        } else if (showTabInfo === 3) {
-            document.querySelector("#main").removeAttribute("data-no-details-pane");
-            document.querySelector("#main #details-placeholder").removeAttribute("data-no-details-pane");
-            document.querySelector("#main #details-pane").removeAttribute("data-no-preview");
-        }
-    }, resolveDefault("option:show-tab-info"));
 
     // Single save implementation
     let saveForLater = document.getElementById("save-for-later");
