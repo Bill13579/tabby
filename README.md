@@ -36,7 +36,7 @@ On an Ubuntu VM, 4gb RAM + 2 cores has been proven to work.
 4. Install dependencies with npm  
 `npm install`
 5. Build `v2-compat`  
-`npm run build:v2-compat`
+`npm run build:v2-compat -- firefox/firefox.dev/chrome/chrome.dev/webext/etc`
 6. Build Tabby  
 Firefox: `npm run build:firefox`  
 Chrome: `npm run build:chrome`  
