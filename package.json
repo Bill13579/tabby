@@ -26,7 +26,7 @@
         "clean:manifest": "rimraf dist/manifest.json",
         "clean:cartographer": "rimraf dist/*.module.wasm && rimraf cartographer/target cartographer/pkg",
         "clean:v2-compat": "rimraf dist/background/tabby2-background.js",
-        "clean": "npm run clean:background & npm run clean:content & npm run clean:options & npm run clean:popup & npm run clean:manifest & npm run clean:cartographer & npm run clean:v2-compat"
+        "clean": "npm run clean:background && npm run clean:content && npm run clean:options && npm run clean:popup && npm run clean:manifest && npm run clean:cartographer && npm run clean:v2-compat"
     },
     "repository": {
         "type": "git",
