@@ -17,7 +17,7 @@
         "build:firefox": "npm run build:webext",
         "build:firefox.dev": "npm run build:webext.dev",
 
-        "build:v2-compat": "git clone -b v2-compat https://github.com/Bill13579/tabby.git v2-compat && cd v2-compat && npm i && npm run build:firefox && mkdir -p ../dist/background/ && mv dist/tabby2-background.js ../dist/background/tabby2-background.js && cd .. && rimraf v2-compat",
+        "build:v2-compat": "node build-v2-compat",
         
         "clean:background": "rimraf dist/background/background.js* dist/background/captureTab.js* dist/background/commands.js* dist/background/tmpClear.js*",
         "clean:content": "rimraf dist/content/content.js*",
@@ -26,7 +26,7 @@
         "clean:manifest": "rimraf dist/manifest.json",
         "clean:cartographer": "rimraf dist/*.module.wasm && rimraf cartographer/target cartographer/pkg",
         "clean:v2-compat": "rimraf dist/background/tabby2-background.js",
-        "clean": "npm run clean:background & npm run clean:content & npm run clean:options & npm run clean:popup & npm run clean:manifest & npm run clean:cartographer & npm run clean:v2-compat"
+        "clean": "npm run clean:background && npm run clean:content && npm run clean:options && npm run clean:popup && npm run clean:manifest && npm run clean:cartographer && npm run clean:v2-compat"
     },
     "repository": {
         "type": "git",
