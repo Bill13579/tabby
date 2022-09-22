@@ -19,6 +19,7 @@ import "Polyfill"
 
 import { TSession, TSessionListener } from "tapi/tsession";
 import { TTabActions, TWindowActions } from "../tapi/taction";
+import { callContentScript } from "../tapi/content";
 import { DetailsController } from "./details";
 import { TUIEditableColorDot, TUIEditableDiv, TUIEditableLabel } from "./editablespan";
 import { parse_query, shard_doc, query as query_all } from "../../cartographer/pkg/cartographer";
@@ -26,6 +27,7 @@ import { parse_query, shard_doc, query as query_all } from "../../cartographer/p
 import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 import { resolveDefault } from "../options/exports"
+import { cycleLayout, LAYOUT_POPUP, LAYOUT_SIDEBAR, openTabby } from "../background/exports"
 import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
 import { TargetBrowser } from "../polyfill";
 
@@ -282,6 +284,7 @@ class TUIList {
             let lastHover = this.root.querySelector(".-tui-list-hover");
             let nextHover;
             if (evt.key === 'ArrowUp') {
+                evt.preventDefault();
                 if (lastHover) {
                     let lastHoverPrevious = this.previous(lastHover, TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
                     if (lastHoverPrevious) {
@@ -292,6 +295,7 @@ class TUIList {
                     nextHover = this.last(TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
                 }
             } else if (evt.key === 'ArrowDown') {
+                evt.preventDefault();
                 if (lastHover) {
                     let lastHoverNext = this.next(lastHover, TUIList.and(TUIList.isElementVisible, this.isElementKeyboardNavigable.bind(this)));
                     if (lastHoverNext) {
@@ -944,6 +948,7 @@ class TUISessionView extends TUIListView {
                 } else if (prop === "active") {
                     if (value) e.setAttribute("data-current", "");
                     else e.removeAttribute("data-current");
+                    this.scrollCurrentIntoView(undefined, false, { behavior: 'smooth', block: 'nearest' });
                 } else if (prop === "title") {
                     let title = e.querySelector(".title");
                     if (title) {
@@ -1038,7 +1043,7 @@ class TUISessionView extends TUIListView {
     /**
      * Scrolls into view and selects the current tab
      */
-    scrollCurrentIntoView(evt, select=true) {
+    scrollCurrentIntoView(evt, select=true, scrollIntoViewOptions={ behavior: 'smooth', block: 'center' }) {
         let current = this.root.querySelector(".tab-list .window-entry[data-current] ~ .tab-entry[data-current]");
         if (current) {
             if (select && TUIList.isElementVisible(current)) {
@@ -1047,7 +1052,7 @@ class TUISessionView extends TUIListView {
                 current.classList.add("-tui-list-hover");
                 this.dataInterpret.handleHover(current, evt);
             }
-            current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            current.scrollIntoView(scrollIntoViewOptions);
         }
     }
 }
@@ -1423,8 +1428,9 @@ class TUITabsList extends TUIListDataInterpret {
     async handleClick(element, allMultiselected, evt) {
         allMultiselected = Array.from(allMultiselected);
         let elementIsInMultiselection = allMultiselected.some(node => node.isSameNode(element));
+        let tabId;
         if (element.classList.contains("tab-entry")) {
-            let tabId = parseInt(element.getAttribute("data-tab-id"));
+            tabId = parseInt(element.getAttribute("data-tab-id"));
             let tabObj = this.sess.getTab(tabId);
             let actions;
             if (elementIsInMultiselection) {
@@ -1449,6 +1455,7 @@ class TUITabsList extends TUIListDataInterpret {
             }
         } else if (element.classList.contains("window-entry")) {
             let windowId = parseInt(element.getAttribute("data-window-id"));
+            tabId = this.sess._rel.getActiveTab(windowId);
             let actions = new TWindowActions(windowId);
             if (evt["type"] && evt["type"] === "contextmenu") {
                 let nameWindow;
@@ -1475,6 +1482,25 @@ class TUITabsList extends TUIListDataInterpret {
                 $local$.fulfillOnce("option:hide-popup-after-tab-selection", (hidePopupAfterTabSelection) => {
                     if (hidePopupAfterTabSelection) window.close();
                 }, resolveDefault("option:hide-popup-after-tab-selection"));
+            }
+        }
+        if (tabId !== undefined) {
+            await callContentScript(tabId, "focusd", {action: "checkPrevious"});
+            let passthroughListener = (data, sender) => {
+                if (data["_"] !== "initialKeyEventsPassthrough") return;
+                if (sender.tab.id !== tabId) return;
+                if (data.type === "keydown" || data.type === "keyup") {
+                    document.dispatchEvent(new KeyboardEvent(data["type"], {key: data["key"]}));
+                } else if (data.type === "passthroughover") {
+                    browser.runtime.onMessage.removeListener(passthroughListener);
+                }
+            };
+            browser.runtime.onMessage.addListener(passthroughListener);
+            try {
+                await callContentScript(tabId, "focusd", undefined);
+            } catch (e) {
+                console.error(`failed to passthrough keyboard commands from tab with id ${tabId}`, e);
+                browser.runtime.onMessage.removeListener(passthroughListener);
             }
         }
     }
@@ -1737,7 +1763,7 @@ class TUITabsList extends TUIListDataInterpret {
 }
 
 (async () => {
-    // Fullfill options before doing anything else
+    // Fulfill options before doing anything else
     $local$.fulfill("option:popup-theme", (popupTheme) => {
         document.querySelector(":root").setAttribute("data-theme", popupTheme);
         if (popupTheme === "") {
@@ -1748,13 +1774,14 @@ class TUITabsList extends TUIListDataInterpret {
         }
     }, resolveDefault("option:popup-theme"));
     $local$.fulfill("option:popup-size", (popupSize) => {
-        document.documentElement.style.setProperty("--width", `${popupSize[0]}px`);
-        document.documentElement.style.setProperty("--height", `${popupSize[1]}px`);
+        document.documentElement.style.setProperty("--width", `${Math.min(popupSize[0], 800)}px`);
+        document.documentElement.style.setProperty("--height", `${Math.min(popupSize[1], 600)}px`);
     }, resolveDefault("option:popup-size"));
     $local$.fulfill("option:popup-scale", (popupScale) => {
         document.documentElement.style.setProperty("--scale", `${popupScale}`);
     }, resolveDefault("option:popup-scale"));
     $local$.fulfill("option:show-tab-info", (showTabInfo) => {
+        if (window.__TUI_SIDEBAR) showTabInfo = 1;
         if (showTabInfo === 1) {
             document.querySelector("#main").setAttribute("data-no-details-pane", "");
             document.querySelector("#main #details-placeholder").setAttribute("data-no-details-pane", "");
@@ -1782,6 +1809,10 @@ class TUITabsList extends TUIListDataInterpret {
             document.body.classList.remove("alt-pressed");
         }
     };
+    let LAYOUT_CACHE = LAYOUT_POPUP;
+    await $local$.fulfill("memory:layout", layout => {
+        LAYOUT_CACHE = layout;
+    });
     let standardShortcuts = (evt) => {
         if (evt.key === 's') {
             setTimeout(() => search.editing = true, 1);
@@ -1866,7 +1897,7 @@ class TUITabsList extends TUIListDataInterpret {
     //tabsList.enableMultiselect();
 
     let initialFocus = await browser.runtime.sendMessage({ "_": "initialFocus" });
-    if (initialFocus.search === true || initialFocus.search === undefined) {
+    if (initialFocus.search === true || (initialFocus.search === undefined && !window.__TUI_SIDEBAR)) {
         search.editing = true;
         search.editing = true;
         search.editing = true;

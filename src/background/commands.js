@@ -1,6 +1,8 @@
 import "Polyfill"
+import { $local$ } from "../tapi/store";
 
 import { TTabActions, TWindowActions } from "../tapi/taction"
+import { closeTabby, cycleLayout, LAYOUT_POPUP, openTabby } from "./exports";
 
 let currentTabId = undefined;
 let lastTabId = undefined;
@@ -10,7 +12,17 @@ let dropCurrentTabId = false;
 let dropCurrentWindowId = false;
 
 let __search = undefined;
+let __justOpened = false;
 
+browser.runtime.onMessage.addListener((message) => {
+    if (message["_"] !== "justOpened") return;
+    let promise = Promise.resolve({
+        "_": "justOpened",
+        "justOpened": __justOpened
+    });
+    if (__justOpened) __justOpened = false;
+    return promise;
+});
 browser.runtime.onMessage.addListener((message) => {
     if (message["_"] !== "initialFocus") return;
     let promise = Promise.resolve({
@@ -71,7 +83,7 @@ browser.windows.onRemoved.addListener((windowId) => {
     }
 });
 
-browser.commands.onCommand.addListener((name) => {
+browser.commands.onCommand.addListener(async (name) => {
     switch (name) {
         case "last-used-tab": {
             if (lastTabId !== undefined) {
@@ -95,14 +107,28 @@ browser.commands.onCommand.addListener((name) => {
         }
         case "open-tabby-focus-current": {
             __search = false;
-            browser.browserAction.openPopup();
+            __justOpened = true;
+            openTabby(LAYOUT_CACHE);
             break;
         }
         case "open-tabby-focus-search": {
             __search = true;
-            browser.browserAction.openPopup();
+            __justOpened = true;
+            openTabby(LAYOUT_CACHE);
+            break;
+        }
+        case "open-tabby-switch-view": {
+            __search = false;
+            __justOpened = true;
+            closeTabby();
+            openTabby(cycleLayout(LAYOUT_CACHE));
+            $local$.modify("memory:layout", layout => cycleLayout(layout), true);
             break;
         }
     }
+});
+let LAYOUT_CACHE = LAYOUT_POPUP;
+$local$.fulfill("memory:layout", layout => {
+    LAYOUT_CACHE = layout;
 });
 

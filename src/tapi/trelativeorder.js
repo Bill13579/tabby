@@ -114,10 +114,11 @@ export class TRelativeOrder {
      * Append a single tab to the specified window (also records the window's active tab if given tab is active)
      * @param {Integer} windowId 
      * @param {Tab} t 
+     * @param {boolean} inferActive Whether or not to infer if the tab is active from the `active` property or to ignore it
      */
-    appendTabToWindow(windowId, t) {
+    appendTabToWindow(windowId, t, inferActive=true) {
         this._order[windowId].insert(t.id, t.index);
-        if (t.active) this._active[windowId] = t.id;
+        if (t.active && inferActive) this._active[windowId] = t.id;
     }
     /**
      * Remove tab from specified window on record

@@ -24,6 +24,8 @@ export class TSession {
             this._tabs[tabId].mergeChanges(changeInfo);
         };
         this._tab_activated_hook = (activeInfo) => {
+            // console.log(this._rel);
+            console.log(activeInfo.windowId, " => ", activeInfo.tabId);
             this._tabs[this._rel.getActiveTab(activeInfo.windowId)].mergeChanges({active: false});
             this._rel.setActiveTab(activeInfo.windowId, activeInfo.tabId);
             this._tabs[activeInfo.tabId].mergeChanges({active: true});
@@ -45,7 +47,7 @@ export class TSession {
         };
         this._tab_created_hook = (t) => {
             if (!this._rel.hasWindow(t.windowId)) this._rel.registerWindow(t.windowId);
-            this._rel.appendTabToWindow(t.windowId, t);
+            this._rel.appendTabToWindow(t.windowId, t, false);
             this._tabs[t.id] = TTab.fromTab(t);
             for (let listener of this._listeners) listener.onTabCreated(this._tabs[t.id]);
         };

@@ -36,6 +36,13 @@
         "default_title": "Tabby",
         "default_popup": "popup/index.html"
     },
+    "sidebar_action": {
+        "default_icon": "icons/tabby-32.png",
+        "default_title": "Tabby",
+        "default_panel": "popup/sidebar.html",
+        "browser_style": false,
+        "open_at_install": false
+    },
     "background": {
         "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"],
         "persistent": false
@@ -55,6 +62,13 @@
                 "mac": "MacCtrl+Shift+X"
             },
             "description": "Open Tabby, with focus on the current tab"
+        },
+        "open-tabby-switch-view": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+P",
+                "mac": "MacCtrl+Shift+P"
+            },
+            "description": "Switch views"
         },
         "last-used-tab": {
             "suggested_key": {

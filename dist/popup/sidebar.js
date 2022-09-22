@@ -1,0 +1,1 @@
+window.__TUI_SIDEBAR = true;

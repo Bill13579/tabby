@@ -1,0 +1,92 @@
+<!-- Mirror of `index.html` with width and height set to 100% -->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="../stylesheets/prelude.css">
+        <link rel="stylesheet" href="../stylesheets/options.css">
+        <link rel="stylesheet" href="../stylesheets/theming.css">
+        <style id="theming"></style>
+        <link rel="stylesheet" href="./popup.css">
+        <script src="../lib/lz-string.min.js"></script>
+
+        <style>
+            :root {
+                --width: 100% !important;
+                --height: 100% !important;
+            }
+        </style>
+        <title>Tabby</title>
+        <link rel="icon" type="image/x-icon" href="../icons/tabby-128.png">
+
+    </head>
+    <body>
+        <div id="main" data-view="0">
+            <span id="details-placeholder">Click a tab to open it.<br/>Hover over a tab to preview it.</span>
+            <div id="details-pane">
+                <img id="_details_pane_image_holder" class="preview-image" src="" width="100%" />
+                <div id="unloaded-tab-preview-placeholder">
+                    <span id="unloaded-tab-preview-placeholder-text"></span>
+                </div>
+                <br/>
+                <label>Title</label><div class="-copy inline-button inline-text-button" data-target="_title_txt"></div>
+                <div class="title -horizontal-scroll">
+                    <span id="_title_txt">Lorem Picsum, get your own images with this API</span>
+                </div>
+                <label>URL</label><div class="-copy inline-button inline-text-button" data-target="_url_txt"></div>
+                <div class="url -horizontal-scroll" tabindex="-1">
+                    <span id="_url_txt"><a href="https://www.youtube.com/watch?v=8BIeGdBjJiU">https://www.youtube.com/watch?v=8BIeGdBjJiU</a></span>
+                </div>
+            </div>
+            <div id="session-display-pane" data-static="0">
+                <div id="session-top-pane">
+                    <div id="access-controls">
+                        <div id="save-for-later" title="Save websites for later"></div>
+                        <div id="restore-now" title="Restore websites that have been saved for later"></div>
+                    </div>
+                    <!-- <input id="_search" class="search" type="text" placeholder="Search Tabs" /> -->
+                    <span id="_access_settings" class="settings-button inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme"></span>
+                </div>
+                <div id="where-to-put-the-tab-list" data-keyboard-first>
+                    <!-- <ul id="tab-list" class="tab-list -tui-list-container">
+                        <li class="window-entry">
+                            <span class="title">Window 1 - Current</span>
+                            <span class="single-controls">
+                                <span class="inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme close-window"></span>
+                            </span>
+                        </li>
+                        <li class="tab-entry -tui-list-selected" draggable="true" tabindex="0" data-tab-id="4">
+                            <div class="last-selected-indicator"></div>
+                            <div class="selected-indicator"></div>
+                            <div class="contextual-identity-indicator" style="--contextual-identity-color: rgb(255, 159, 0);"></div>
+                            <img class="favicon" src="chrome://branding/content/icon32.png">
+                            <div class="title-wrapper">
+                                <span class="title">New Tab</span>
+                            </div>
+                            <span class="single-controls">
+                                <span class="inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme hide-when-not-selected pin"></span>
+                                <span class="inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme speaker"></span>
+                                <span class="inline-button inline-icon-button close-tab"></span>
+                            </span>
+                        </li>
+                        <li class="tab-entry" draggable="true" tabindex="0" data-tab-id="4">
+                            <div class="last-selected-indicator"></div>
+                            <div class="contextual-identity-indicator"></div>
+                            <img class="favicon" src="chrome://branding/content/icon32.png">
+                            <div class="title-wrapper">
+                                <span class="title">New Tab</span>
+                            </div>
+                            <span class="single-controls">
+                                <span class="inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme hide-when-not-selected pin"></span>
+                                <span class="inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme speaker"></span>
+                                <span class="inline-button inline-icon-button close-tab"></span>
+                            </span>
+                        </li>
+                    </ul> -->
+                </div>
+            </div>
+            <div id="session-pane"></div>
+        </div>
+        <script type="text/javascript" src="ui.js"></script>
+        <script type="text/javascript" src="popup.js"></script>
+    </body>
+</html>
