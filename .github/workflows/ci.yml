@@ -24,11 +24,11 @@ jobs:
         npm run build:firefox
         mv dist/ firefox/
         npm run clean
-        npm run build:v2-compat
+        npm run build:v2-compat -- chrome
         npm run build:chrome
         mv dist/ chrome/
         npm run clean
-        npm run build:v2-compat
+        npm run build:v2-compat -- webext
         npm run build:webext
         mv dist/ webext/
         npm run clean
