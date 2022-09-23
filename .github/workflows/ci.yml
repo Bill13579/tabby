@@ -20,7 +20,7 @@ jobs:
     - name: npm install and build
       run: |
         npm install
-        npm run build:v2-compat
+        npm run build:v2-compat -- firefox
         npm run build:firefox
         mv dist/ firefox/
         npm run clean
