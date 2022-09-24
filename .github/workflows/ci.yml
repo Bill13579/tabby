@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install and build
+      run: |
+        npm install
+        npm run build:v2-compat -- firefox
+        npm run build:firefox
+        mv dist/ firefox/
+        npm run clean
+        npm run build:v2-compat -- chrome
+        npm run build:chrome
+        mv dist/ chrome/
+        npm run clean
+        npm run build:v2-compat -- webext
+        npm run build:webext
+        mv dist/ webext/
+        npm run clean
+    - name: Firefox artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: firefox
+        path: firefox/**/*
+    - name: Chrome artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: chrome
+        path: chrome/**/*
+    - name: Webext artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: webext
+        path: webext/**/*
