@@ -1,5 +1,7 @@
 # What is it?
 
+[![ci](https://github.com/Bill13579/tabby/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Bill13579/tabby/actions/workflows/ci.yml)
+
 Tabby is an open-source window & tab manager that can manage great amounts of windows and tabs at ease.
 
 You can install the latest stable version of Tabby on it's Firefox Add-on page: https://addons.mozilla.org/addon/tabby-window-tab-manager/
