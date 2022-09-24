@@ -7,9 +7,8 @@ on:
   pull_request:
 
 jobs:
-  build:
+  firefox:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -17,33 +16,137 @@ jobs:
       with:
         node-version: 16.x
     - uses: jetli/wasm-pack-action@v0.3.0
-    - name: npm install and build
+    - name: npm install
       run: |
         npm install
+    - name: npm firefox
+      run: |
         npm run build:v2-compat -- firefox
         npm run build:firefox
         mv dist/ firefox/
         npm run clean
-        npm run build:v2-compat -- chrome
-        npm run build:chrome
-        mv dist/ chrome/
-        npm run clean
-        npm run build:v2-compat -- webext
-        npm run build:webext
-        mv dist/ webext/
-        npm run clean
-    - name: Firefox artifact
+    - name: artifact firefox
       uses: actions/upload-artifact@v3
       with:
         name: firefox
         path: firefox/**/*
-    - name: Chrome artifact
+
+  firefox-dev:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install
+      run: |
+        npm install
+    - name: npm firefox-dev
+      run: |
+        npm run build:v2-compat -- firefox.dev
+        npm run build:firefox.dev
+        mv dist/ firefox-dev/
+        npm run clean
+    - name: artifact firefox-dev
+      uses: actions/upload-artifact@v3
+      with:
+        name: firefox-dev
+        path: firefox-dev/**/*
+
+  chrome:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install
+      run: |
+        npm install
+    - name: npm chrome
+      run: |
+        npm run build:v2-compat -- chrome
+        npm run build:chrome
+        mv dist/ chrome/
+        npm run clean
+    - name: artifact chrome
       uses: actions/upload-artifact@v3
       with:
         name: chrome
         path: chrome/**/*
-    - name: Webext artifact
+
+  chrome-dev:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install
+      run: |
+        npm install
+    - name: npm chrome-dev
+      run: |
+        npm run build:v2-compat -- chrome.dev
+        npm run build:chrome.dev
+        mv dist/ chrome-dev/
+        npm run clean
+    - name: artifact chrome-dev
+      uses: actions/upload-artifact@v3
+      with:
+        name: chrome-dev
+        path: chrome-dev/**/*
+
+  webext:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install
+      run: |
+        npm install
+    - name: npm webext
+      run: |
+        npm run build:v2-compat -- webext
+        npm run build:webext
+        mv dist/ webext/
+        npm run clean
+    - name: artifact webext
       uses: actions/upload-artifact@v3
       with:
         name: webext
         path: webext/**/*
+
+  webext-dev:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: npm install
+      run: |
+        npm install
+    - name: npm webext-dev
+      run: |
+        npm run build:v2-compat -- webext.dev
+        npm run build:webext.dev
+        mv dist/ webext-dev/
+        npm run clean
+    - name: artifact webext-dev
+      uses: actions/upload-artifact@v3
+      with:
+        name: webext-dev
+        path: webext-dev/**/*
