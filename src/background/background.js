@@ -10,7 +10,7 @@ import { TSession } from "../tapi/tsession";
 // })();
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
-    if (reason !== "install") {
+    if (reason !== "browser_update" && reason !== "chrome_update" && reason !== "shared_module_update") {
         browser.tabs.create({
             active: true,
             url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-3.0"
