@@ -53,12 +53,13 @@ module("focusd", data => {
         document.addEventListener("keyup", passthroughListener);
         let stopped = false;
         let stop = (evt) => {
-            if (!evt.isTrusted) return; // Make sure that the web page cannot alter things maliciously
+            // This test crashes `lastStop` above
+            // if (!evt.isTrusted) return; // Make sure that the web page cannot alter things maliciously
             if (!stopped) {
                 document.removeEventListener("keydown", passthroughListener);
                 document.removeEventListener("keyup", passthroughListener);
-                document.removeEventListener("focus", stop);
-                document.removeEventListener("blur", stop);
+                // document.removeEventListener("focus", stop);
+                // document.removeEventListener("blur", stop);
                 document.removeEventListener("mousedown", stop);
                 stopped = true;
                 return flush().then(() => passthrough("passthroughover", undefined));
@@ -67,8 +68,11 @@ module("focusd", data => {
             }
         };
         lastStop = stop;
-        document.addEventListener("focus", stop);
-        document.addEventListener("blur", stop);
+        // Enabling this causes switching tabs to stop passthrough.
+        // document.addEventListener("focus", stop);
+        // Enabling this causes switching tabs to stop passthrough. However if the user 
+        // switches back to this tab, they will then unable to control Tabby anymore.
+        // document.addEventListener("blur", stop);
         document.addEventListener("mousedown", stop);
         return Promise.resolve();
     }

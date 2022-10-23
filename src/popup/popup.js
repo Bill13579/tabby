@@ -1488,6 +1488,7 @@ class TUITabsList extends TUIListDataInterpret {
             await callContentScript(tabId, "focusd", {action: "checkPrevious"});
             let passthroughListener = (data, sender) => {
                 if (data["_"] !== "initialKeyEventsPassthrough") return;
+                console.log(`event passthrough from tab ${sender.tab.id} on listener for tab ${tabId}`, data);
                 if (sender.tab.id !== tabId) return;
                 if (data.type === "keydown" || data.type === "keyup") {
                     document.dispatchEvent(new KeyboardEvent(data["type"], {key: data["key"]}));
