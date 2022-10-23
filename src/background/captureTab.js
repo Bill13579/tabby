@@ -58,8 +58,66 @@ async function initializeCartographerFromStore() {
 
 let lastUpdatePromise; // Make sure that updates are made sequentially
 
+class GenericUpdateObject {
+    constructor(update_type, ...args) {
+        this.update_type = update_type;
+        this.args = args;
+    }
+}
+class GenericUpdateBuffer {
+    constructor() {
+        this.update_buffer = [];
+        this.running = false;
+    }
+    do(update_type, ...args) {
+        this.update_buffer.push(new GenericUpdateObject(update_type, ...args));
+        this.start();
+    }
+    async update(update_object) {
+        console.log("!!UNIMPLEMENTED GENERIC UPDATE BUFFERS DON'T DO ANYTHING!!");
+    }
+    async start() {
+        if (this.running) return;
+        else this.running = true;
+        const check_buffer = async () => {
+            if (this.update_buffer.length === 0) return 0;
+            else await Promise.resolve(this.update(this.update_buffer.shift()));
+        };
+        while (true) {
+            if (await check_buffer() === 0) {
+                break;
+            }
+        }
+        this.running = false;
+    }
+}
+
+// const CartographerUpdateType = {
+//     Init: 'Init',
+//     GenerateUnindexerAndUnshard: 'GenerateUnindexerAndUnshard',
+//     GenerateIndexerAndShard: 'GenerateIndexerAndShard',
+// };
+// class CartographerUpdateBuffer extends GenericUpdateBuffer {
+//     async update(update_object) {
+//         switch (update.update_type) {
+//             case CartographerUpdateType.Init:
+//                 // Re-index
+//                 if (shard_uninitialized()) {
+//                     await initializeCartographerFromStore();
+//                 }
+//             break;
+//             case CartographerUpdateType.GenerateUnindexerAndUnshard:
+
+//             break;
+//             case CartographerUpdateType.GenerateIndexerAndShard:
+
+//             break;
+//         }
+//     }
+// }
+
 let urlDB = {};
-browser.webNavigation.onCompleted.addListener(({tabId, url}) => {
+const webNavigationListener = async ({tabId, url}) => {
     if (!urlDB.hasOwnProperty(tabId)) {
         urlDB[tabId] = url;
     } else {
@@ -69,6 +127,30 @@ browser.webNavigation.onCompleted.addListener(({tabId, url}) => {
             urlDB[tabId] = url;
         }
     }
+
+    let a = new Date();
+    let content;
+    try {
+        try {
+            content = await callContentScript(tabId, "packd", {
+                action: "innerText"
+            });
+        } catch (e) {
+            console.error(`could not contact tab ${tabId}, error: ${e}`);
+            console.error("falling back on title+url");
+            let tab = await browser.tabs.get(tabId);
+            content = {
+                innerText: "",
+                title: tab.title,
+                url: url
+            };
+        }
+    } catch (e) {
+        console.log(`could not index tab ${tabId}, error: ${e}`);
+
+        return;
+    }
+
     let updatePromise = lastUpdatePromise;
     lastUpdatePromise = new Promise(async (resolve, reject) => {
         try {
@@ -77,24 +159,6 @@ browser.webNavigation.onCompleted.addListener(({tabId, url}) => {
             // Re-index
             if (shard_uninitialized()) {
                 await initializeCartographerFromStore();
-            }
-
-            let a = new Date();
-
-            let content;
-            try {
-                content = await callContentScript(tabId, "packd", {
-                    action: "innerText"
-                });
-            } catch (e) {
-                console.error(`could not contact tab ${tabId}, error: ${e}`);
-                console.error("falling back on title+url");
-                let tab = await browser.tabs.get(tabId);
-                content = {
-                    innerText: "",
-                    title: tab.title,
-                    url: url
-                };
             }
             
             if (!await $localtmp$.hasOne("cartographerStats")) {
@@ -128,7 +192,9 @@ browser.webNavigation.onCompleted.addListener(({tabId, url}) => {
             resolve(); // Resolve anyways so the chain can keep going
         }
     });
-});
+};
+browser.webNavigation.onHistoryStateUpdated.addListener(webNavigationListener);
+browser.webNavigation.onCompleted.addListener(webNavigationListener);
 
 browser.tabs.onRemoved.addListener((tabId, _) => {
     let updatePromise = lastUpdatePromise;
