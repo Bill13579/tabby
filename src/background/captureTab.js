@@ -36,7 +36,7 @@ browser.runtime.onMessage.addListener(message => {
 /**
  * Gather cartographer documents from temp local store
  */
- async function gatherDocs() {
+async function gatherDocs() {
     let keys = (await $localtmp$.getKeys()).filter(key => key.startsWith("cartographer_"));
     return $localtmp$.get(...keys);
 }

@@ -24,6 +24,7 @@ export function cycleLayout(layout) {
 }
 
 export function closeTabby() {
+    browser.runtime.sendMessage({ "_": "batonPass" }); //TODO: await would be awesome here, but will break things
     browser.sidebarAction.close();
     let popupURL = browser.runtime.getURL("popup/tab.html");
     browser.tabs.query({ url: [`${popupURL}*`, `${popupURL}?*`] }).then(matches => {
@@ -37,7 +38,11 @@ export function openTabby(layout) {
     switch (layout) {
         case undefined:
         case LAYOUT_POPUP:
-            return browser.browserAction.openPopup();
+            if (browser.browserAction && browser.browserAction.openPopup) {
+                return browser.browserAction.openPopup();
+            } else {
+                return browser.action.openPopup();
+            }
         case LAYOUT_STANDALONE:
         case LAYOUT_TAB:
             let popupURL = browser.runtime.getURL("popup/tab.html");

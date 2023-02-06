@@ -5,6 +5,9 @@
 import "Polyfill"
 
 function special(type, id) {
+  if (id === "*") {
+    console.error("store: option id '*' is reserved! will lead to unexpected behavior");
+  }
   return "__" + type + "_$" + id;
 }
 function isSpecial(type, id) {
@@ -257,11 +260,11 @@ export class StorageSpace {
     return await browser.storage[this.type].get(optionIDs.map(id => special("conf", id)));
   }
   */
-  __manual_fulfill(optionValue, fulfiller) {
-    return Promise.resolve(fulfiller(optionValue));
+  __manual_fulfill(optionID, optionValue, fulfiller) {
+    return Promise.resolve(fulfiller(optionValue, optionID));
   }
   async __fulfill(optionID, fulfiller) {
-    return this.__manual_fulfill(await this.getOne(optionID), fulfiller);
+    return this.__manual_fulfill(optionID, await this.getOne(optionID), fulfiller);
   }
   async fulfillOnce(optionID, fulfiller, defaultValue=undefined) {
     if (defaultValue !== undefined) { //TODO: Evaluate if this needs to be wrapped in a modify
@@ -271,6 +274,8 @@ export class StorageSpace {
     }
     return this.__fulfill(optionID, fulfiller);
   }
+  // Use id "*" to listen for all changes
+  // NOTE: Currently, "*" can only be used with `addFulfiller`, and not with `fulfillOnce` or `fulfill`
   addFulfiller(optionID, fulfiller) {
     if (!this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID] = [];
     this.__fulfillers[optionID].push(fulfiller);
@@ -293,10 +298,12 @@ export class StorageSpace {
     return this.fulfillOnce(optionID, fulfiller, undefined);
   }
   async __onChange(changes) {
+    console.log(Object.keys(changes));
     for (let key in changes) {
       if (changes.hasOwnProperty(key) && isSpecial(this.name, key)) {
         let optionID = normal(this.name, key);
-        if (this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID].forEach(fulfiller => this.__manual_fulfill(changes[key].newValue, fulfiller));
+        if (this.__fulfillers.hasOwnProperty(optionID)) this.__fulfillers[optionID].forEach(fulfiller => this.__manual_fulfill(optionID, changes[key].newValue, fulfiller));
+        if (this.__fulfillers.hasOwnProperty("*")) this.__fulfillers["*"].forEach(fulfiller => this.__manual_fulfill(optionID, changes[key].newValue, fulfiller));
       }
     }
   }

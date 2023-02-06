@@ -3,6 +3,7 @@ import "Polyfill"
 import { $localtmp$ } from "./store";
 import { T1DLinkedList } from "./linkedlist";
 import { TWindowActions } from "./taction";
+import { ping } from "./ping";
 
 /**
  * Keeps track of the relative order of windows and tabs
@@ -47,7 +48,8 @@ export class TRelativeOrder {
      * @param {Integer} windowId 
      * @param {String} name 
      */
-    setName(windowId, name) {
+    async setName(windowId, name) {
+        await ping("listenForUpdatesToWindowName"); //TODO: Making this function (setName) async might have consequences!
         if (name.trim() === "") {
             name = undefined;
             $localtmp$.unset(`window${windowId}`);

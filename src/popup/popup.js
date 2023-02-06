@@ -945,6 +945,9 @@ class TUISessionView extends TUIListView {
                         i--;
                     }
                     after.parentElement.insertBefore(e, after.nextElementSibling);//TODO3
+
+                    if (e.hasAttribute("data-current"))
+                        this.scrollCurrentIntoView(undefined, false, { behavior: 'smooth', block: 'nearest' }); //TODO: This always scrolls the tab moved into view if it was a selected tab
                 } else if (prop === "active") {
                     if (value) e.setAttribute("data-current", "");
                     else e.removeAttribute("data-current");
@@ -1892,6 +1895,10 @@ class TUITabsList extends TUIListDataInterpret {
     browser.runtime.onMessage.addListener(data => {
         if (data["_"] !== "search") return;
         tabsList.filter(search.value, data.results);
+    });
+    browser.runtime.onMessage.addListener(data => {
+        if (data["_"] !== "batonPass") return;
+        window.close();
     });
     //tabsList = new TUISessionNoWindowsView(tabsList.cleanUp(), sess, dataInterpret);
     // === MULTISELECT TEST ===

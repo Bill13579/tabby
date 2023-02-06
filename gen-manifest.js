@@ -10,17 +10,17 @@ if (process.argv.length === 4 && process.argv[3] === "--pretty") indent = 4;
 switch (process.argv[2]) {
     case "webext":
     case "firefox":
-        manifest.applications = {
+        manifest.browser_specific_settings = {
             gecko: {
                 id: "tabby@whatsyouridea.com",
                 strict_min_version: "59.0"
             }
         };
-        manifest.permissions.push("<all_urls>");
         manifest.permissions.push("contextualIdentities");
+        manifest.host_permissions.push("<all_urls>");
         break;
     case "chrome":
-        manifest.content_security_policy = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'";
+        //none
         break;
 }
 manifest.version = Ext.EXT_VERSION;
