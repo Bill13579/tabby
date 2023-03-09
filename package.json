@@ -41,7 +41,7 @@
     "devDependencies": {
         "circular-dependency-plugin": "^5.2.2",
         "eslint": "^8.34.0",
-        "rimraf": "^3.0.2",
+        "rimraf": "^4.4.0",
         "webextension-polyfill": "^0.10.0",
         "webpack": "^5.75.0",
         "webpack-cli": "^5.0.1"
