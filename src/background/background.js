@@ -10,14 +10,6 @@ import { TSession } from "../tapi/tsession";
 //     window.sess.enableBrowserHooks();
 // })();
 
-browser.runtime.onInstalled.addListener(({ reason }) => {
-    if (reason !== "browser_update" && reason !== "chrome_update" && reason !== "shared_module_update") {
-        browser.tabs.create({
-            active: true,
-            url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-3.0"
-        });
-    }
-});
 
 // Setup "Send Tab to..."
 browser.contextMenus.onClicked.addListener((info, tab) => {
