@@ -47,7 +47,9 @@
         "webpack-cli": "^4.9.2"
     },
     "dependencies": {
+        "dompurify": "^3.0.1",
         "get-favicons": "github:Bill13579/get-favicons",
+        "marked": "^4.2.12",
         "proxy-polyfill": "^0.3.2",
         "smoothscroll-polyfill": "^0.4.4"
     }

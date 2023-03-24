@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+import { marked } from "marked";
 import "Polyfill"
 
 /**
@@ -129,10 +131,11 @@ export class TUIMenu extends TUIMenuListLayout {
     }
 }
 export class TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", data=undefined) {
+    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
         this.__labelText = label;
         this.__iconSrc = icon;
         this.iconTransform = iconTransform;
+        this.__markdown = markdown;
         this.data = data;
     }
     get root() {
@@ -144,9 +147,23 @@ export class TUIMenuItem {
     get labelText() {
         return this.__labelText;
     }
+    get markdown() {
+        return this.__markdown;
+    }
+    __setLabelContent(label, textContent, useMarkdown) {
+        if (useMarkdown) {
+            label.innerHTML = DOMPurify.sanitize(marked.parse(textContent));
+        } else {
+            label.innerText = textContent;
+        }
+    }
     set labelText(v) {
         this.__labelText = v;
-        this.__label.innerText = this.__labelText;
+        this.__setLabelContent(this.__label, this.__labelText, this.__markdown);
+    }
+    set markdown(v) {
+        this.__markdown = v;
+        this.__setLabelContent(this.__label, this.__labelText, this.__markdown);
     }
     get icon() {
         return this.__icon;
@@ -177,7 +194,7 @@ export class TUIMenuItem {
         let label = document.createElement("span");
         label.classList.add("-tui-menu-item-label");
         
-        label.innerText = this.__labelText;
+        this.__setLabelContent(label, this.__labelText, this.__markdown);
         icon.style.backgroundImage = `url(${this.__iconSrc})`;
         icon.style.webkitMaskImage = `url(${this.__iconSrc})`;
         icon.style.maskImage = `url(${this.__iconSrc})`;
@@ -225,8 +242,8 @@ export class TUIMenuItem {
     }
 }
 export class TUIMenuLabel extends TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", data=undefined) {
-        super(label, icon, iconTransform, data);
+    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+        super(label, icon, iconTransform, markdown, data);
     }
     make(ret) {
         let root = super.make(ret);
@@ -249,8 +266,8 @@ export class TUIMenuHR {
     }
 }
 export class TUIMenuDropdown extends TUIMenuItem {
-    constructor(onMake, onSelect, options, label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", data=undefined) {
-        super(label, icon, iconTransform, data);
+    constructor(onMake, onSelect, options, label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+        super(label, icon, iconTransform, markdown, data);
         this.__onMake = onMake;
         this.__onSelect = onSelect;
         this.options = options;

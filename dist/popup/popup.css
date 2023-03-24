@@ -193,6 +193,7 @@ input[type="text"]:focus {
     padding-bottom: 4px;
     flex: 1 1 auto;
     position: fixed;
+    z-index: 99999;
 }
 .-tui-menu.-tui-list-dropdown-menu {
     box-shadow: 0.4px 0.4px 2px 0.2px var(--bg);
@@ -202,7 +203,8 @@ input[type="text"]:focus {
 }
 .-tui-menu-item {
     display: inline-block;
-    height: calc(26px * var(--scale));
+    /* height: calc(26px * var(--scale)); */
+    line-height: calc(26px * var(--scale));
     padding-left: 8px;
     padding-right: calc(8px + 4.5px);
     /* border-radius: 2px; */

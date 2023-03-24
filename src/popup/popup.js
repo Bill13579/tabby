@@ -2215,4 +2215,39 @@ class TUITabsList extends TUIListDataInterpret {
             mozContextualIdentityMap
         });
     });
+    browser.permissions.contains({
+        origins: ["<all_urls>"]
+    }).then(hasPerms => Promise.all([
+        $local$.getOne("option:show-tab-info"),
+        Promise.resolve(hasPerms)
+    ])).then(([showTabInfo, hasPerms]) => {
+        if (showTabInfo === 3 && !hasPerms) {
+            openContextMenu({
+                clientX: 0,
+                clientY: 0
+            }, new TUIMenu(
+                new TUIMenuLabel("**Permission:** 'Access your data for all websites'", undefined, undefined, true),
+                new TUIMenuLabel("Tabby shows a preview of each tab, requiring access to this permission in order to do so. Manifest v3 and browser updates have made this permission request more explicit, and extensions must directly ask the user for this permission.", undefined, undefined, true),
+                new TUIMenuLabel("In the following screen you will be asked if you want to give Tabby that permission. If you do, click yes. If not, you can always visit the Firefox addons settings page ('about:addons' in the URL bar) to edit the permissions given if you change your mind.", undefined, undefined, true),
+                new TUIMenuLabel("Only the tab preview feature will be affected.", undefined, undefined, true),
+                new TUIMenuLabel("**NOTE: Restart Firefox afterwards to let the permissions take effect**", undefined, undefined, true),
+                new TUIMenuHR(),
+                new TUIMenuItem("Continue..."),
+            ).callback((root, mainMenu) => {
+                root.style.width = "100%";
+            }, () => {
+                browser.permissions.request({
+                    origins: ["<all_urls>"]
+                }).then(granted => {
+                    if (!granted) {
+                        $local$.modify("option:show-tab-info", current => {
+                            if (current === 3) {
+                                return 2;
+                            }
+                        }, true);
+                    }
+                });
+            }).make());
+        }
+    });
 })();
