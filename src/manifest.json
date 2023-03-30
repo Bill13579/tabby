@@ -49,8 +49,7 @@
         "open_at_install": false
     },
     "background": {
-        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"],
-        "persistent": false
+        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"]
     },
 
     "commands": {
