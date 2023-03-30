@@ -1,3 +1,3 @@
 module.exports = {
-    EXT_VERSION: "3.0.1"
+    EXT_VERSION: "3.1"
 };

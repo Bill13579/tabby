@@ -14,7 +14,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     if (reason !== "browser_update" && reason !== "chrome_update" && reason !== "shared_module_update") {
         browser.tabs.create({
             active: true,
-            url: "https://github.com/Bill13579/tabby/wiki/Everything-new-in-Tabby-3.0"
+            url: "https://github.com/Bill13579/tabby/wiki/3.1---The-Manifest-v3-and-Layout-Update"
         });
     }
 });

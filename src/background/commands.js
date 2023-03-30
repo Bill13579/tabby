@@ -139,7 +139,7 @@ browser.commands.onCommand.addListener((name) => {
             __search.set(false); //TODO: Add await after Mozilla removes user-action restrictions!
             __justOpened.set(true); //TODO: Add await after Mozilla removes user-action restrictions!
             closeTabby();
-            openTabby(cycleLayout(LAYOUT_CACHE));
+            openTabby(cycleLayout(LAYOUT_CACHE), true);
             $local$.modify("memory:layout", layout => cycleLayout(layout), true);
             break;
         }

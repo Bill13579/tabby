@@ -27,7 +27,7 @@ import { parse_query, shard_doc, query as query_all } from "../../cartographer/p
 import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 import { resolveDefault } from "../options/exports"
-import { cycleLayout, LAYOUT_POPUP, LAYOUT_SIDEBAR, openTabby } from "../background/exports"
+import { closeTabby, cycleLayout, LAYOUT_POPUP, LAYOUT_SIDEBAR, openTabby } from "../background/exports"
 import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
 import { TargetBrowser } from "../polyfill";
 
@@ -1871,8 +1871,9 @@ class TUITabsList extends TUIListDataInterpret {
     window.t_altReleasedEarly = altReleased;
 
     // Visually show when window is not focused
+    // DEPRECATED: With release of layouts update
     window.onblur = () => {
-        document.body.style.opacity = "0.8";
+        // document.body.style.opacity = "0.8";
     };
     window.onfocus = () => {
         document.body.style.opacity = "";
@@ -2251,3 +2252,9 @@ class TUITabsList extends TUIListDataInterpret {
         }
     });
 })();
+
+document.addEventListener("keydown", (evt) => {
+    if (evt.key === 'Escape') {
+        closeTabby();
+    }
+});

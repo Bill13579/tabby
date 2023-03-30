@@ -2,7 +2,7 @@ import "Polyfill"
 import { module } from "./module"
 
 const PASSTHROUGH = [
-    "Meta", "Control", "Shift", "Enter", "Delete",
+    "Meta", "Control", "Shift", "Enter", "Delete", "Escape",
     "ArrowUp", "ArrowDown",
     "a", "A", "i", "I", "s", "S", "m", "M", "p", "P"
 ];

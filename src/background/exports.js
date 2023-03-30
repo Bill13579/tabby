@@ -13,12 +13,12 @@ export function cycleLayout(layout) {
     switch (layout) {
         case undefined:
         case LAYOUT_POPUP:
+            return LAYOUT_STANDALONE;
+        case LAYOUT_STANDALONE:
             return LAYOUT_TAB;
         case LAYOUT_TAB:
             return LAYOUT_SIDEBAR;
         case LAYOUT_SIDEBAR:
-            return LAYOUT_STANDALONE;
-        case LAYOUT_STANDALONE:
             return LAYOUT_POPUP;
     }
 }
@@ -34,7 +34,7 @@ export function closeTabby() {
     });
 }
 
-export function openTabby(layout) {
+export function openTabby(layout, switching=false) {
     switch (layout) {
         case undefined:
         case LAYOUT_POPUP:
@@ -47,7 +47,7 @@ export function openTabby(layout) {
         case LAYOUT_TAB:
             let popupURL = browser.runtime.getURL("popup/tab.html");
             return browser.tabs.query({ url: [`${popupURL}*`, `${popupURL}?*`] }).then(async matches => {
-                if (matches.length > 0) {
+                if (matches.length > 0 && !switching) {
                     await new TTabActions(matches[0].id).activate();
                     await new TWindowActions(matches[0].windowId).activate();
                 } else {
