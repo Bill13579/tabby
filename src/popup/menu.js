@@ -1,5 +1,3 @@
-import DOMPurify from "dompurify";
-import { marked } from "marked";
 import "Polyfill"
 
 /**
@@ -152,7 +150,11 @@ export class TUIMenuItem {
     }
     __setLabelContent(label, textContent, useMarkdown) {
         if (useMarkdown) {
-            label.innerHTML = DOMPurify.sanitize(marked.parse(textContent));
+            (async () => {
+                let DOMPurify = (await import("dompurify")).default;
+                let { marked } = await import("marked");
+                label.innerHTML = DOMPurify.sanitize(marked.parse(textContent));
+            })();
         } else {
             label.innerText = textContent;
         }

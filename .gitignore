@@ -12,3 +12,5 @@ dist/manifest.json
 .DS_Store
 *.map
 dist/*.module.wasm
+dist/441.js*
+dist/856.js*
