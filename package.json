@@ -49,7 +49,7 @@
     "dependencies": {
         "dompurify": "^3.0.1",
         "get-favicons": "github:Bill13579/get-favicons",
-        "marked": "^4.2.12",
+        "marked": "^5.0.0",
         "proxy-polyfill": "^0.3.2",
         "smoothscroll-polyfill": "^0.4.4"
     }
