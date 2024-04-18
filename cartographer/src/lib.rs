@@ -48,6 +48,9 @@ impl Statistics {
         }
     }
     pub fn sub(&mut self, doc: &Document) {
+        if self.totalDocs == 0 {
+            return;
+        }
         if self.totalDocs != 1 {
             self.lengthAvg *= self.totalDocs as f64 / (self.totalDocs-1) as f64;
         } else {
@@ -60,13 +63,14 @@ impl Statistics {
             }
             for (key, _) in &part.occurences {
                 if !done_set.contains(key) {
-                    let old_val = self.occurences.get(key).unwrap();
-                    if old_val - 1 == 0 {
-                        // Remove the key from the map if they don't occur in any documents at all to avoid
-                        //  muddying the IDF calculations
-                        self.occurences.remove(key);
-                    } else {
-                        self.occurences.insert(key.clone(), old_val - 1);
+                    if let Some(old_val) = self.occurences.get(key) {
+                        if old_val - 1 == 0 {
+                            // Remove the key from the map if they don't occur in any documents at all to avoid
+                            //  muddying the IDF calculations
+                            self.occurences.remove(key);
+                        } else {
+                            self.occurences.insert(key.clone(), old_val - 1);
+                        }
                     }
                     done_set.insert(key.clone());
                 }
