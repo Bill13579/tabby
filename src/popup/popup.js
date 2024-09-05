@@ -15,19 +15,18 @@
 //     return workers.length === window.__workersReady;
 // };
 
-import "Polyfill"
+import "Polyfill";
 
-import { TSession, TSessionListener } from "tapi/tsession";
+import { TSession } from "tapi/tsession";
 import { TTabActions, TWindowActions } from "../tapi/taction";
 import { callContentScript } from "../tapi/content";
 import { DetailsController } from "./details";
-import { TUIEditableColorDot, TUIEditableDiv, TUIEditableLabel } from "./editablespan";
-import { parse_query, shard_doc, query as query_all } from "../../cartographer/pkg/cartographer";
+import { TUIEditableDiv, TUIEditableLabel } from "./editablespan";
 
-import { $local$, $localtmp$, $sync$, normal } from "../tapi/store";
+import { $local$, $localtmp$, $sync$ } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
-import { resolveDefault } from "../options/exports"
-import { closeTabby, cycleLayout, LAYOUT_POPUP, LAYOUT_SIDEBAR, openTabby } from "../background/exports"
+import { resolveDefault } from "../options/exports";
+import { closeTabby, LAYOUT_POPUP } from "../background/exports";
 import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
 import { TargetBrowser } from "../polyfill";
 
@@ -1768,23 +1767,23 @@ class TUITabsList extends TUIListDataInterpret {
 
 (async () => {
     // Fulfill options before doing anything else
-    $local$.fulfill("option:popup-theme", (popupTheme) => {
+    await $local$.fulfill("option:popup-theme", async (popupTheme) => {
         document.querySelector(":root").setAttribute("data-theme", popupTheme);
         if (popupTheme === "") {
-            $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
+            await $local$.fulfillOnce("option:popup-custom-theme", (popupCustomTheme) => {
                 // Load custom CSS
                 document.getElementById("theming").appendChild(document.createTextNode(popupCustomTheme));
             }, resolveDefault("option:popup-custom-theme"));
         }
     }, resolveDefault("option:popup-theme"));
-    $local$.fulfill("option:popup-size", (popupSize) => {
+    await $local$.fulfill("option:popup-size", (popupSize) => {
         document.documentElement.style.setProperty("--width", `${Math.min(popupSize[0], 800)}px`);
         document.documentElement.style.setProperty("--height", `${Math.min(popupSize[1], 600)}px`);
     }, resolveDefault("option:popup-size"));
-    $local$.fulfill("option:popup-scale", (popupScale) => {
+    await $local$.fulfill("option:popup-scale", (popupScale) => {
         document.documentElement.style.setProperty("--scale", `${popupScale}`);
     }, resolveDefault("option:popup-scale"));
-    $local$.fulfill("option:show-tab-info", (showTabInfo) => {
+    await $local$.fulfill("option:show-tab-info", (showTabInfo) => {
         if (window.__TUI_SIDEBAR) showTabInfo = 1;
         if (showTabInfo === 1) {
             document.querySelector("#main").setAttribute("data-no-details-pane", "");

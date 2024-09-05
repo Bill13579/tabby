@@ -1,8 +1,8 @@
-import "Polyfill"
+import "Polyfill";
 
-import { $local$ } from "../tapi/store"
-import { resolveDefault } from "../options/exports"
-import { TTabActions, TWindowActions } from "../tapi/taction"
+import { $local$ } from "../tapi/store";
+import { resolveDefault } from "../options/exports";
+import { TTabActions, TWindowActions } from "../tapi/taction";
 
 export const LAYOUT_POPUP = "popup";
 export const LAYOUT_STANDALONE = "standalone";

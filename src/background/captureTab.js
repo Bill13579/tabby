@@ -2,11 +2,11 @@
  * Capture various information about the tab (e.g. captureTab screenshot, indexing for full-text search)
  */
 
-import "Polyfill"
+import "Polyfill";
 import { TTabActions } from "../tapi/taction";
 import { callContentScript } from "../tapi/content";
 import { $localtmp$ } from "../tapi/store";
-import { greet, index, init_shard, parse_query, query, shard_doc, shard_uninitialized, unindex, unshard_doc, update_stats } from "../../cartographer/pkg/cartographer";
+import { index, init_shard, parse_query, query, shard_doc, shard_uninitialized, unindex, unshard_doc, update_stats } from "../../cartographer/pkg/cartographer";
 
 let _captureTabAbortController;
 

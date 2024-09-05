@@ -43,4 +43,5 @@ module.exports = {
         // syncWebAssembly: true,
         topLevelAwait: true,
     },
+    cache: false,
 };

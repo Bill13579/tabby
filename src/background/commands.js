@@ -1,8 +1,8 @@
-import "Polyfill"
+import "Polyfill";
 import { $local$ } from "../tapi/store";
 import { StorageSpacePersistentObject } from "../tapi/storeobj";
 
-import { TTabActions, TWindowActions } from "../tapi/taction"
+import { TTabActions, TWindowActions } from "../tapi/taction";
 import { closeTabby, cycleLayout, LAYOUT_POPUP, openTabby } from "./exports";
 
 // For tracking the tab and window last selected by the user

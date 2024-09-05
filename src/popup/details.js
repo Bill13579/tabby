@@ -1,5 +1,4 @@
-import "Polyfill"
-import { TTabActions } from "../tapi/taction";
+import "Polyfill";
 
 export class DetailsController {
     constructor() {
