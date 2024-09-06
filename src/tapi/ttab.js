@@ -167,6 +167,8 @@ export class TTab {
             prefs.discarded = ttab.discarded;
             prefs.openInReaderMode = ttab.isInReaderMode;
             prefs.title = ttab.discarded ? ttab.title : undefined;
+        }
+        if (TargetBrowser === "firefox" || TargetBrowser === "webext") {
             prefs.muted = ttab.mutedInfo.muted;
         }
         return browser.tabs.create(prefs);

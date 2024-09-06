@@ -194,7 +194,9 @@ const webNavigationListener = async ({tabId, url}) => {
     });
 };
 browser.webNavigation.onHistoryStateUpdated.addListener(webNavigationListener);
+browser.webNavigation.onReferenceFragmentUpdated.addListener(webNavigationListener);
 browser.webNavigation.onCompleted.addListener(webNavigationListener);
+browser.tabs.onUpdated.addListener((tabId, {url}, _) => webNavigationListener({tabId, url}));
 
 browser.tabs.onRemoved.addListener((tabId, _) => {
     let updatePromise = lastUpdatePromise;

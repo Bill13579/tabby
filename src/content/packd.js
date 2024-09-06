@@ -52,12 +52,12 @@ function waitForElementValueToChange(element) {
 const MUTATION_OBSERVERS = {
     "www.youtube.com": () => new Promise(async (resolve, reject) => {
         if (window.location.pathname.startsWith("/watch")) {
-            let ele = document.querySelector('#meta-contents #description yt-formatted-string.content');
+            let ele = document.querySelector('ytd-watch-metadata');
             if (ele) {
                 let value = await waitForElementValueToChange(ele);
                 resolve(value);
             } else {
-                let value = await waitForElementToExist('#meta-contents #description yt-formatted-string.content');
+                let value = await waitForElementToExist('ytd-watch-metadata');
                 resolve(value.textContent);
             }
         } else {

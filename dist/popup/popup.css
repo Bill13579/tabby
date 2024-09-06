@@ -203,7 +203,7 @@ input[type="text"]:focus {
 }
 .-tui-menu-item {
     display: inline-block;
-    /* height: calc(26px * var(--scale)); */
+    height: calc(26px * var(--scale));
     line-height: calc(26px * var(--scale));
     padding-left: 8px;
     padding-right: calc(8px + 4.5px);
@@ -229,7 +229,7 @@ input[type="text"]:focus {
     vertical-align: middle;
 
     mask-repeat: no-repeat;
-    mask-size: contain;
+    /* mask-size: contain; */
 }
 .-tui-menu-item .-tui-menu-item-label {
     color: var(--fg-lite);
