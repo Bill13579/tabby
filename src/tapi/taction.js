@@ -32,6 +32,9 @@ export class TTabActions {
             return Promise.resolve(undefined);
         }
     }
+    moveTo(windowId, index) {
+        return TTabActions.move(this.ids, windowId, index);
+    }
     static move(tabIds, windowId, index) {
         return browser.tabs.move(tabIds, {windowId, index});
     }

@@ -13,6 +13,8 @@
     --fg-label: #c1c1c1;
     --fg-user-content: #ebebeb;
 
+    --hr-color: #808080;
+    --menu-shadow: #131313;
     --input-border: #dadada;
     --input-focus: #91c3ec;
     --btn-inline-text: rgb(0, 153, 255);
@@ -52,6 +54,8 @@
     --fg-label: #000000;
     --fg-user-content: #000000;
 
+    --hr-color: #f4f4f4;
+    --menu-shadow: #131313;
     --input-border: #dadada;
     --input-focus: #91c3ec;
     --btn-inline-text: rgb(0, 153, 255);

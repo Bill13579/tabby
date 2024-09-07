@@ -149,6 +149,13 @@ export class TRelativeOrder {
         this._order[windowId].move(tabId, i);
     }
     /**
+     * Returns an array containing window ids representing the entire session's order of windows
+     * @returns {Array<Integer>}
+     */
+    getWindowIds() {
+        return this._worder.toArray();
+    }
+    /**
      * Returns an array of arrays containing tab ids representing the entire session's order of windows and tabs
      * @returns {Array<Array<Integer>>}
      */

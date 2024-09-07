@@ -27,6 +27,7 @@ input[type="text"]:focus {
 }
 
 .inline-button {
+    align-self: center;
     font-weight: normal;
     font-size: calc(15.5px * var(--scale));
     display: inline-block;
@@ -199,29 +200,30 @@ input[type="text"]:focus {
     display: inline-flex;
     flex-direction: column;
     background-color: var(--bg-indented-3);
-    box-shadow: 0.4px 0.4px 2px 0.2px var(--bg);
+    box-shadow: 0.4px 0.4px 2px 0.2px var(--menu-shadow);
     justify-content: center;
     border-radius: 2px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-top: .8px;
+    padding-bottom: .8px;
     flex: 1 1 auto;
     position: fixed;
     z-index: 99999;
 }
 .-tui-menu.-tui-list-dropdown-menu {
-    box-shadow: 0.4px 0.4px 2px 0.2px var(--bg);
+    box-shadow: 0.4px 0.4px 2px 0.2px var(--menu-shadow);
 }
 .-tui-menu-flex-layout {
     display: flex;
 }
 .-tui-menu-item {
-    display: inline-block;
-    height: calc(26px * var(--scale));
+    display: inline-flex;
+    height: calc(24px * var(--scale));
     line-height: calc(26px * var(--scale));
-    padding-left: 8px;
-    padding-right: calc(8px + 4.5px);
+    padding-left: 4px;
+    padding-right: calc(2px + 4.5px);
+    /* padding-right: calc(8px + 4.5px); */
     /* border-radius: 2px; */
-    font-size: 16px;
+    font-size: calc(15px * var(--scale));
 }
 .-tui-menu-item.-tui-menu-item-disabled {
     pointer-events: none;
@@ -245,6 +247,7 @@ input[type="text"]:focus {
     /* mask-size: contain; */
 }
 .-tui-menu-item .-tui-menu-item-label {
+    flex-grow: 1;
     color: var(--fg-lite);
     font-family: Helvetica, Arial, Sans-Serif;
     vertical-align: middle;
@@ -252,6 +255,9 @@ input[type="text"]:focus {
 }
 .-tui-menu-item.-tui-menu-no-icon .-tui-menu-item-icon {
     display: none;
+}
+.-tui-menu-hr {
+    border-color: var(--hr-color);
 }
 .-tui-menu-item.-tui-menu-label .-tui-menu-item-label {
     font-size: 14px;

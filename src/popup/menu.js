@@ -263,21 +263,25 @@ export class TUIMenuHR {
     }
     make(ret) {
         let root = document.createElement("hr");
+        root.classList.add("-tui-menu-hr");
         this.__root = root;
         return root;
     }
 }
-export class TUIMenuDropdown extends TUIMenuItem {
-    constructor(onMake, onSelect, options, label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+export class TUISubMenu extends TUIMenuItem {
+    constructor(onMake, onSelect, options, dropdown=false, label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
         super(label, icon, iconTransform, markdown, data);
         this.__onMake = onMake;
         this.__onSelect = onSelect;
         this.options = options;
+        this.__dropdown = dropdown;
     }
     set selection(target) {
         this.__selection = target;
-        this.labelText = target.labelText;
-        this.iconSrc = target.iconSrc;
+        if (this.__dropdown) {
+            this.labelText = target.labelText;
+            this.iconSrc = target.iconSrc;
+        }
         this.__onSelect(this.selection, this);
     }
     get selection() {
@@ -297,8 +301,8 @@ export class TUIMenuDropdown extends TUIMenuItem {
         this.__positioner = () => {
             let rect = root.getBoundingClientRect();
             return {
-                clientX: rect.left-1.7,
-                clientY: rect.top + rect.height
+                clientX: rect.left + rect.width * (11/12),
+                clientY: rect.top - rect.height / 8
             };
         };
         this.__dropdownClick = (evt) => {
@@ -317,6 +321,10 @@ export class TUIMenuDropdown extends TUIMenuItem {
                     this.__menuOpen = false;
                     if (state.target) {
                         this.selection = state.target;
+                        if (!this.__dropdown) {
+                            ret.state.target = state.target;
+                            ret();
+                        }
                     }
                 }).make();
                 menu.classList.add("-tui-list-dropdown-menu");
@@ -358,5 +366,5 @@ export function openSubContextMenu(evt, menu, pos) {
     x -= Math.max((window.innerWidth - pos.clientX - rect.width) * -1, 0);
     y -= Math.max((window.innerHeight - pos.clientY - rect.height) * -1, 0);
     menu.style.top = y + "px";
-    menu.style.left = x+1 + "px";
+    menu.style.left = x + "px";
 }

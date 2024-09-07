@@ -24,7 +24,7 @@ import { DetailsController } from "./details";
 import { TUIEditableDiv, TUIEditableLabel } from "./editablespan";
 
 import { $local$, $localtmp$, $sync$ } from "../tapi/store";
-import { openContextMenu, TUIMenu, TUIMenuDropdown, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
+import { openContextMenu, TUIMenu, TUISubMenu, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 import { resolveDefault } from "../options/exports";
 import { closeTabby, LAYOUT_POPUP } from "../background/exports";
 import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
@@ -1276,9 +1276,9 @@ class WindowName extends TUIEditableLabel {
     }
     get displayedValue() {
         if (this.__currentValue.trim() === "") {
-            super.value = this.__initialWindowName;
+            return this.__initialWindowName;
         } else {
-            super.value = `${this.__currentValue} (${this.windowOrder})`;
+            return `${this.__currentValue} (${this.windowOrder})`;
         }
     }
     get value() {
@@ -1444,7 +1444,26 @@ class TUITabsList extends TUIListDataInterpret {
             } else {
                 actions = new TTabActions(tabId);
             }
-            if (evt.target.classList.contains("pin") || evt.key === "p" || evt.key === "P") {
+            if (evt["type"] && evt["type"] === "contextmenu") {
+                let moveTabs;
+                openContextMenu(evt, new TUIMenu(
+                    moveTabs = new TUISubMenu(() => {}, (selection) => {
+                        if (selection.data.windowId !== undefined) {
+                            actions.moveTo(selection.data.windowId, -1);
+                        } else {
+                            // Creating windows, along with other window related operations, tends to have a habit of closing the popup, so the work must be passed to the background script to complete.
+                            browser.runtime.sendMessage({
+                                _: "menuMoveTabsToANewWindow",
+                                tabIds: actions.ids
+                            });
+                        }
+                    }, [...this.sess._rel.getWindowIds().map((windowId, _) => {
+                        return new TUIMenuItem(WindowName.getInstance(windowId).displayedValue, "", undefined, undefined, {
+                            windowId
+                        });
+                    }), new TUIMenuHR(), new TUIMenuItem("A New Window", "", undefined, undefined, {  })], false, "Move Tab(s) to...", "")
+                ).callback(() => {}, (_) => {  }).make());
+            } else if (evt.target.classList.contains("pin") || evt.key === "p" || evt.key === "P") {
                 await actions.pin(!tabObj.pinned);
             } else if (evt.target.classList.contains("speaker") || evt.key === "m" || evt.key === "M") {
                 await actions.mute(!tabObj.mutedInfo.muted);
@@ -2130,7 +2149,7 @@ class TUITabsList extends TUIListDataInterpret {
                             new TUIMenuLabel(savedCIIdMap[key].name, savedCIIdMap[key].iconUrl, undefined, {
                                 colorCode: savedCIIdMap[key].colorCode
                             }).pushInto(labels),
-                            new TUIMenuDropdown((_, options) => {
+                            new TUISubMenu((_, options) => {
                                 for (let item of options) {
                                     TUIMenuItem.colorIcon(item.icon, item.data.colorCode);
                                 }
@@ -2140,7 +2159,7 @@ class TUITabsList extends TUIListDataInterpret {
                                 if (Object.values(map).every(value => value !== undefined)) {
                                     ok.enabled = true;
                                 }
-                            }, generateDropdownOptions(), "Select...", "", undefined, { initialSelection: value ? ciIndex(value) : -1 }).pushInto(dropdowns)
+                            }, generateDropdownOptions(), true, "Select...", "", undefined, { initialSelection: value ? ciIndex(value) : -1 }).pushInto(dropdowns)
                         ).pushInto(rows))
                 ),
                 actions = new TUIMenuFlexLayout(

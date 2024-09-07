@@ -2,6 +2,7 @@ import "Polyfill"
 import { $local$, $sync$, $localtmp$ } from "../tapi/store";
 import { ExecutionState } from "../tapi/ping";
 import { TSession } from "../tapi/tsession";
+import { TTabActions } from "../tapi/taction";
 
 // import { TSession } from "tapi/tsession";
 
@@ -95,6 +96,22 @@ browser.runtime.onMessage.addListener((message) => {
             await sess.openAll(mozContextualIdentityMap);
         });
     });
+});
+
+// Mechanism for taking over from the popup when it needs to move tabs to a new window
+// Note: async onMessage listeners always return a Promise, thus, if the listener is async, it will always take over and sendResponse before the correct one can, ruining every single piece of code that needs to return something after
+browser.runtime.onMessage.addListener(message => {
+    if (message["_"] !== "menuMoveTabsToANewWindow") return;
+    return (async () => {
+        if (message.tabIds.length > 0) {
+            let firstTab = await browser.tabs.get(message.tabIds[0])
+            let window = await browser.windows.create({ incognito: firstTab.incognito });
+            await new TTabActions(...message.tabIds).moveTo(window.id, -1);
+            if (window.tabs.length > 0) {
+                await new TTabActions(window.tabs[0].id).remove();
+            }
+        }
+    })();
 });
 
 // Mechanism for updating the menu when the window name is changed from the popup
