@@ -179,8 +179,21 @@ input[type="text"]:focus {
 .-tui-editable-div .-tui-editable-div-placeholder::before {
     content: "Placeholder Text";
 }
-.-tui-editable-singleline-div * { display: inline }
-.-tui-editable-singleline-div br { display: none; }
+.-tui-editable-multiline-div *, .-tui-editable-singleline-div * { display: inline }
+.-tui-editable-multiline-div br, .-tui-editable-singleline-div br { display: none; }
+.-tui-editable-multiline-div {
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+
+    height: auto;
+
+    max-height: calc(96px * var(--scale));
+
+    overflow-y: scroll;
+}
 
 .-tui-menu {
     display: inline-flex;
@@ -392,6 +405,7 @@ html, body {
     display: grid;
     grid-template-columns: 52px 1fr 30px;
     transition: grid-template-columns 1s;
+    grid-template-rows: auto 1fr;
 }
 
 #main[data-view="1"] #session-display-pane #session-top-pane {
@@ -401,6 +415,11 @@ html, body {
 /** Save for later buttons styling **/
 
 #session-display-pane #session-top-pane #access-controls {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: calc(35px * var(--scale));
+    max-height: calc(48px * var(--scale));
+
     margin-left: 5.3px;
     margin-right: 5.3px;
     margin-top: 4.75px;
@@ -503,6 +522,9 @@ html, body {
 /** Search bar layout **/
 
 #session-display-pane #session-top-pane .search {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+
     width: 100%;
     padding: 7px 6.5px;
     margin: 6px 0;
@@ -520,10 +542,16 @@ html, body {
 #session-display-pane #session-top-pane .search .-tui-editable-div-placeholder::before {
     content: "Search Tabs";
 }
+/* #session-display-pane #session-top-pane .search:focus .-tui-editable-div-placeholder::before {
+    content: "";
+} */
 
 /* Settings button layout */
 
 #session-display-pane #session-top-pane .settings-button {
+    grid-row: 1;
+    grid-column: 3;
+
     height: 23px;
     align-self: center;
     background-image: url(../icons/settings.svg);

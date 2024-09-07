@@ -592,7 +592,7 @@ fn match_case(original: &str, target: &str) -> String {
     result
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum QueryType {
     WORD,
     SENTENCE,
@@ -600,7 +600,7 @@ pub enum QueryType {
     NOOP,
     ALL
 }
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Query {
     pub t: QueryType,
     #[serde(skip)]
@@ -661,6 +661,7 @@ impl Query {
         let mut textg = text.graphemes(true);
         while textg.as_str() != "" {
             let (skip_graphemes, query_component) = Self::match_query(textg.as_str(), stats).unwrap();
+            log(&format!("{:?}", query_component));
             q.children.as_mut().unwrap().push(query_component);
             for _ in 0..skip_graphemes {
                 textg.next().unwrap(); // This should never error
@@ -673,8 +674,8 @@ impl Query {
         lazy_static! {
             static ref MATCH_REGEX: Regex = Regex::new(r"^re:(?<!\\)\/(.*?)(?<!\\)\/([imsuUx]*)").unwrap();
             static ref MATCH_SENTENCE: Regex = Regex::new(r#"^(?<!\\)"([^"\\]*(?:\\.[^"\\]*)*)""#).unwrap();
-            static ref MATCH_WORD: Regex = Regex::new(r"^([^ ]+)").unwrap();
-            static ref MATCH_SPACES: Regex = Regex::new(r"^( +)").unwrap();
+            static ref MATCH_WORD: Regex = Regex::new(r"^([^ \n]+)").unwrap();
+            static ref MATCH_SPACES: Regex = Regex::new(r"^([ \n]+)").unwrap();
         }
         let m = Self::match_regex(&MATCH_REGEX, t);
         if let Some((skip_, content, flags)) = m {

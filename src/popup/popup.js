@@ -824,6 +824,7 @@ class TUISessionView extends TUIListView {
         return count >= Math.max(2, total / 2.0);
     }
     static search(s, key) {
+        key = key.replace("\n", " ").trim();
         return s.toUpperCase().includes(key.toUpperCase()) || TUISessionView.keywordSearch(s, key);
     }
     /**
@@ -1095,7 +1096,7 @@ class TUIListDataInterpret {
 
 class SearchDiv extends TUIEditableDiv {
     constructor(sess, tabsList) {
-        super(true);
+        super(false);
         this.sess = sess;
         this.tabsList = tabsList;
         this.root.id = "_search";
@@ -1105,7 +1106,9 @@ class SearchDiv extends TUIEditableDiv {
         this.root.addEventListener("keydown", (evt) => {
             this.tabsList.documentHook_keyDown(evt);
             if (evt.key === "ArrowDown") {
-                this.onEnter(this.value, evt); // Move to list
+                if (!this.value.includes("\n")) { // Make sure if there's multiline text to not trigger this
+                    this.onEnter(this.value, evt); // Move to list
+                }
             }
         });
         this.root.addEventListener("keyup", (evt) => {
@@ -1115,7 +1118,7 @@ class SearchDiv extends TUIEditableDiv {
         $local$.fulfillOnce("option:dont-clear-search", (dontClearSearch) => {
             if (dontClearSearch) {
                 $localtmp$.fulfillOnce("memory:search-value", (val) => {
-                    if (val && val.trim() !== "" && this.value !== val) {
+                    if (val && this.value !== val) {
                         this.value = val;
                         this.onInput(val);
                         setTimeout(() => TUIEditableDiv.focus(this.root), 100);

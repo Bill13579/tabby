@@ -35,10 +35,20 @@ export class TUIEditableDiv {
     constructor(singleLine=true) {
         this.root = document.createElement("pre");
         this.root.setAttribute("contenteditable", "true");
-        this.root.addEventListener("paste", function(e) {
+        this.root.addEventListener("paste", e => {
             e.preventDefault();
             let text = e.clipboardData.getData("text/plain");
-            document.execCommand("insertText", false, text);
+            if (this.singleLine) {
+                document.execCommand("insertText", false, text);
+            } else {
+                let lines = text.split("\n");
+                lines.forEach((line, index) => {
+                    document.execCommand("insertText", false, line);
+                    if (index < lines.length - 1) {
+                        document.execCommand('insertParagraph', false);
+                    }
+                });
+            }
         });
         this.singleLine = singleLine;
 
@@ -48,7 +58,10 @@ export class TUIEditableDiv {
         this.root.classList.add("-tui-editable-div");
         this.root.addEventListener("keypress", e => {
             e.stopPropagation();
-            if (e.key === "Enter" && this.singleLine) return false;
+            if (e.key === "Enter") {
+                if (this.singleLine || !e.shiftKey) e.preventDefault();
+                return false;
+            }
         });
         this.root.addEventListener("keydown", e => {
             e.stopPropagation();
@@ -57,7 +70,19 @@ export class TUIEditableDiv {
             e.stopPropagation();
             if (this.editing) {
                 if (e.key === "Enter") {
-                    this.onEnter(this.value, e);
+                    if (this.singleLine || !e.shiftKey) {
+                        this.onEnter(this.value, e);
+                    } else {
+                        e.preventDefault();
+                        let selection = window.getSelection();
+                        let range = selection.getRangeAt(0);
+                        let br = document.createElement('br');
+                        range.insertNode(br);
+                        range.setStartAfter(br);
+                        range.setEndAfter(br);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
                 }
             }
         });
@@ -66,15 +91,26 @@ export class TUIEditableDiv {
         });
         this.root.addEventListener("input", e => {
             this.onInput(this.value);
+
+            // Strip any <br>'s if div is empty so that the cursor shows when there's nothing in the box
+            if (this.value === "") {
+                let placeholderBrs = this.root.querySelectorAll("br");
+                for (let placeholderBr of placeholderBrs) {
+                    this.root.removeChild(placeholderBr);
+                }
+            }
+
             this.autoPlaceholder();
         });
+
+        this.autoPlaceholder();
     }
     get value() {
-        return this.root.innerText.replaceAll("\n", "");
+        return this.root.innerText;
     }
     set value(v) {
         this.rememberCaretPosition();
-        this.root.innerText = v;
+        this.root.textContent = v; // textContent since newlines need to be kept intact
         this.recoverCaretPosition();
         this.autoPlaceholder();
     }
@@ -124,8 +160,10 @@ export class TUIEditableDiv {
         this._singleLine = bool;
         if (bool) {
             this.root.classList.add("-tui-editable-singleline-div");
+            this.root.classList.remove("-tui-editable-multiline-div");
         } else {
             this.root.classList.remove("-tui-editable-singleline-div");
+            this.root.classList.add("-tui-editable-multiline-div");
         }
     }
     get editing() {
