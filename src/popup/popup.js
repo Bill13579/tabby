@@ -254,7 +254,7 @@ class TUIList {
         this.kbMap = {};
         this.documentHook_keyDown = (evt) => {
             this.kbMap[evt.key] = true;
-            if (this.kbMap["Meta"] || this.kbMap["Control"]) {
+            if (!evt.repeat && (this.kbMap["Meta"] || this.kbMap["Control"])) {
                 this.enableMultiselect();
                 this.root.parentElement.style.overflowY = "hidden"; //TODO: Consider replacing with class
             }
@@ -279,7 +279,9 @@ class TUIList {
         document.addEventListener("keyup", this.documentHook_keyUp);
         this.documentHook_keyDownKBOnly = (evt) => {
             //ArrowUp,ArrowDown
-            this.kb = true;
+            if (!evt.repeat) {
+                this.kb = true;
+            }
             let lastHover = this.root.querySelector(".-tui-list-hover");
             let nextHover;
             if (evt.key === 'ArrowUp') {
