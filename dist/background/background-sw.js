@@ -1,0 +1,1 @@
+importScripts("background.js", "captureTab.js", "tmpClear.js", "commands.js")

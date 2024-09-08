@@ -49,7 +49,8 @@
         "open_at_install": false
     },
     "background": {
-        "scripts": ["lib/lz-string.min.js", "background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js", "background/tabby2-background.js"]
+        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
+        "service_worker": "background/background-sw.js"
     },
 
     "commands": {
@@ -62,15 +63,15 @@
         },
         "open-tabby-focus-current": {
             "suggested_key": {
-                "default": "Ctrl+Shift+X",
-                "mac": "MacCtrl+Shift+X"
+                "default": "Alt+Period",
+                "mac": "Alt+Period"
             },
             "description": "Open Tabby, with focus on the current tab"
         },
         "open-tabby-switch-view": {
             "suggested_key": {
-                "default": "Alt+F8",
-                "mac": "Alt+F8"
+                "default": "Alt+Comma",
+                "mac": "Alt+Comma"
             },
             "description": "Switch views"
         },

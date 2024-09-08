@@ -27,8 +27,8 @@ import { $local$, $localtmp$, $sync$ } from "../tapi/store";
 import { openContextMenu, TUIMenu, TUISubMenu, TUIMenuFlexLayout, TUIMenuHR, TUIMenuItem, TUIMenuLabel, TUIMenuListLayout } from "./menu";
 import { resolveDefault } from "../options/exports";
 import { closeTabby, LAYOUT_POPUP } from "../background/exports";
-import { hasSFLvt2, restoreSFLvt2 } from "./tabby2-compat";
 import { TargetBrowser } from "../polyfill";
+import LZString from "lz-string";
 
 class TUIListOptions {
     constructor() {
@@ -2035,11 +2035,7 @@ class TUITabsList extends TUIListDataInterpret {
         }
         if (title === "") {
             title += "Restore websites that have been saved for later";
-            hasSFLvt2().then(has => {
-                if (!has) {
-                    restoreNow.setAttribute("data-greyed-out", "");
-                }
-            });
+            restoreNow.setAttribute("data-greyed-out", "");
         } else {
             restoreNow.removeAttribute("data-greyed-out");
         }
@@ -2212,9 +2208,7 @@ class TUITabsList extends TUIListDataInterpret {
         });
     };
     restoreNow.addEventListener("click", async (evt) => {
-        if (await hasSFLvt2() && !(saveTimestamps.local || saveTimestamps.sync)) {
-            await restoreSFLvt2();
-        } else {
+        if (saveTimestamps.local || saveTimestamps.sync) {
             let mozContextualIdentities = await $local$.getOne("sflv1_mozContextualIdentities");
             mozContextualIdentities = LZString.decompressFromUTF16(mozContextualIdentities);
             mozContextualIdentities = JSON.parse(mozContextualIdentities);

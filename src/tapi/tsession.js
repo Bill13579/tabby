@@ -26,7 +26,9 @@ export class TSession {
         this._tab_activated_hook = (activeInfo) => {
             // console.log(this._rel);
             console.log(activeInfo.windowId, " => ", activeInfo.tabId);
-            this._tabs[this._rel.getActiveTab(activeInfo.windowId)].mergeChanges({active: false});
+            if (this._tabs[this._rel.getActiveTab(activeInfo.windowId)]) { //TODO: When does this happen? Only saw this in Edge (and I assume Chrome will have the problem too). My guess is when the tab is a special tab like a popup?
+                this._tabs[this._rel.getActiveTab(activeInfo.windowId)].mergeChanges({active: false});
+            }
             this._rel.setActiveTab(activeInfo.windowId, activeInfo.tabId);
             this._tabs[activeInfo.tabId].mergeChanges({active: true});
         };
@@ -49,19 +51,19 @@ export class TSession {
             if (!this._rel.hasWindow(t.windowId)) this._rel.registerWindow(t.windowId);
             this._rel.appendTabToWindow(t.windowId, t, false);
             this._tabs[t.id] = TTab.fromTab(t);
-            for (let listener of this._listeners) listener.onTabCreated(this._tabs[t.id]);
+            for (let listener of this._listeners) if (listener.onTabCreated) listener.onTabCreated(this._tabs[t.id]);
         };
         this._window_removed_hook = (windowId) => {
-            for (let listener of this._listeners) listener.onWindowClosed(windowId);
+            for (let listener of this._listeners) if (listener.onWindowClosed) listener.onWindowClosed(windowId);
             this._rel.unregisterWindow(windowId);
         };
         this._window_created_hook = (window) => {
-            for (let listener of this._listeners) listener.onWindowCreated(window);
+            for (let listener of this._listeners) if (listener.onWindowCreated) listener.onWindowCreated(window);
         };
         this._window_focus_changed_hook = (windowId) => {
             windowId = windowId === browser.windows.WINDOW_ID_NONE ? -1 : windowId;
             this._rel.setFocusedWindow(windowId);
-            for (let listener of this._listeners) listener.onWindowFocusChanged(windowId);
+            for (let listener of this._listeners) if (listener.onWindowFocusChanged) listener.onWindowFocusChanged(windowId);
         };
     }
     /**

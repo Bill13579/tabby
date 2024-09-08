@@ -1,13 +1,22 @@
 import smoothscroll from 'smoothscroll-polyfill';
 // kick off the polyfill!
-smoothscroll.polyfill();
+try {
+    smoothscroll.polyfill();
+} catch (e) {
+    console.log(e); // Will fail in service workers, but that's ok.
+}
 
 import 'proxy-polyfill';
 
 export const TargetBrowser = TARGET;
 
+let globalScope; // `self` is the global scope inside a service worker.
+
 if (TARGET === "chrome") {
-    window["browser"] = require("webextension-polyfill");
+    globalScope = self;
+    globalScope["browser"] = require("webextension-polyfill");
+} else {
+    globalScope = window;
 }
 
 if (!Array.from) {
@@ -88,18 +97,18 @@ if (!Array.from) {
     }());
 }
 
-window["t_delay"] = ms => new Promise(res => setTimeout(res, ms));
+globalScope["t_delay"] = ms => new Promise(res => setTimeout(res, ms));
 
-window["t_in"] = (obj, key) => obj.hasOwnProperty(key);
+globalScope["t_in"] = (obj, key) => obj.hasOwnProperty(key);
 
-window["t_arrayBufferToBase64"] = function arrayBufferToBase64(buffer) {
+globalScope["t_arrayBufferToBase64"] = function arrayBufferToBase64(buffer) {
     let binary = "";
     let bytes = [].slice.call(new Uint8Array(buffer));
     bytes.forEach((b) => binary += String.fromCharCode(b));
-    return window.btoa(binary);
+    return globalScope.btoa(binary);
 };
 
-window["t_getImage"] = function (url, noCache=false) {
+globalScope["t_getImage"] = function (url, noCache=false) {
     return new Promise((resolve, reject) => {
         try {
             if (!url.startsWith("chrome://")) {
@@ -133,7 +142,7 @@ window["t_getImage"] = function (url, noCache=false) {
     });
 };
 
-window["t_ctrlCmdKey"] = function () {
+globalScope["t_ctrlCmdKey"] = function () {
     if (navigator.platform.indexOf("Mac") >= 0 || navigator.platform === "iPhone") {
         return "Meta";
     } else {
@@ -141,7 +150,7 @@ window["t_ctrlCmdKey"] = function () {
     }
 };
 
-window["t_getElementsBetween"] = function (node1, node2, condition=_ => true) {
+globalScope["t_getElementsBetween"] = function (node1, node2, condition=_ => true) {
     if (!node1.parentElement.isSameNode(node2.parentElement)) return undefined; // can't perform function
     if (node1.isSameNode(node2)) return [];
     let between = [];
@@ -163,7 +172,7 @@ window["t_getElementsBetween"] = function (node1, node2, condition=_ => true) {
     return between;
 };
 
-window["t_getInView"] = function (e, frame, alignToTop) {
+globalScope["t_getInView"] = function (e, frame, alignToTop) {
     let tbounding = frame.getBoundingClientRect();
     let bounding = e.getBoundingClientRect();
     if (tbounding.y > bounding.y
@@ -175,7 +184,7 @@ window["t_getInView"] = function (e, frame, alignToTop) {
 }
 
 // https://stackoverflow.com/questions/4811822/get-a-ranges-start-and-end-offsets-relative-to-its-parent-container/4812022#4812022
-window["t_getCaretPosition"] = function (element) {
+globalScope["t_getCaretPosition"] = function (element) {
     var caretOffset = 0;
     var doc = element.ownerDocument || element.document;
     var win = doc.defaultView || doc.parentWindow;
@@ -211,7 +220,7 @@ function setCaret(element, pos) {
 }
 
 // t_setCaretPosition with consideration for child elements
-window["t_setCaretPosition"] = function (element, caretPos) {
+globalScope["t_setCaretPosition"] = function (element, caretPos) {
     let pos = 0;
     let relativeCaretPos = caretPos;
     for (let node of element.childNodes) {
@@ -234,14 +243,14 @@ window["t_setCaretPosition"] = function (element, caretPos) {
     }
 }
 
-window["t_stripHtml"] = function (html) {
+globalScope["t_stripHtml"] = function (html) {
     let doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent || "";
 }
 
-window["t_byteLen"] = (str) => new Blob([str]).size;
+globalScope["t_byteLen"] = (str) => new Blob([str]).size;
 
-window["t_chunkSubstr"] = function (str, size) {
+globalScope["t_chunkSubstr"] = function (str, size) {
     const numChunks = Math.ceil(str.length / size)
     const chunks = new Array(numChunks)
 
@@ -251,7 +260,7 @@ window["t_chunkSubstr"] = function (str, size) {
 
     return chunks
 }
-window["t_chunkBytes"] = function (str, size) {
+globalScope["t_chunkBytes"] = function (str, size) {
     let numChunks = Math.ceil(t_byteLen(str) / size);
     let chunks = new Array(numChunks);
 
@@ -271,7 +280,7 @@ window["t_chunkBytes"] = function (str, size) {
     return chunks;
 }
 
-window["t_browserDetection"] = function () {
+globalScope["t_browserDetection"] = function () {
     let url = browser.runtime.getURL("/");
     if (url.startsWith("moz")) {
         return "moz";
@@ -286,7 +295,7 @@ window["t_browserDetection"] = function () {
  * @param {HTMLElement} [element=document] element
  * @returns {Array}
  */
-window["t_getKeyboardFocusableElements"] = (element = document) => {
+globalScope["t_getKeyboardFocusableElements"] = (element = document) => {
     return [
         ...element.querySelectorAll(
             'a[href], button, input, textarea, select, details,[tabindex]:not([tabindex="-1"])'

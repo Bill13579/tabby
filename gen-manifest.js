@@ -20,7 +20,8 @@ switch (process.argv[2]) {
         manifest.host_permissions.push("<all_urls>");
         break;
     case "chrome":
-        //none
+        // Remove suggested keys for last-used-window, since only 4 are allowed.
+        manifest.commands["last-used-window"]["suggested_key"] = undefined;
         break;
 }
 manifest.version = Ext.EXT_VERSION;

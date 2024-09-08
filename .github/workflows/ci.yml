@@ -21,7 +21,6 @@ jobs:
         npm install
     - name: npm firefox
       run: |
-        npm run build:v2-compat -- firefox
         npm run build:firefox
         mv dist/ firefox/
         npm run clean
@@ -45,7 +44,6 @@ jobs:
         npm install
     - name: npm firefox-dev
       run: |
-        npm run build:v2-compat -- firefox.dev
         npm run build:firefox.dev
         mv dist/ firefox-dev/
         npm run clean
@@ -69,7 +67,6 @@ jobs:
         npm install
     - name: npm chrome
       run: |
-        npm run build:v2-compat -- chrome
         npm run build:chrome
         mv dist/ chrome/
         npm run clean
@@ -93,7 +90,6 @@ jobs:
         npm install
     - name: npm chrome-dev
       run: |
-        npm run build:v2-compat -- chrome.dev
         npm run build:chrome.dev
         mv dist/ chrome-dev/
         npm run clean
@@ -117,7 +113,6 @@ jobs:
         npm install
     - name: npm webext
       run: |
-        npm run build:v2-compat -- webext
         npm run build:webext
         mv dist/ webext/
         npm run clean
@@ -141,7 +136,6 @@ jobs:
         npm install
     - name: npm webext-dev
       run: |
-        npm run build:v2-compat -- webext.dev
         npm run build:webext.dev
         mv dist/ webext-dev/
         npm run clean

@@ -37,9 +37,7 @@ On an Ubuntu VM, 4gb RAM + 2 cores has been proven to work.
 `cd tabby`
 4. Install dependencies with npm  
 `npm install`
-5. Build `v2-compat`  
-`npm run build:v2-compat -- firefox/firefox.dev/chrome/chrome.dev/webext/etc`
-6. Build Tabby  
+5. Build Tabby  
 Firefox: `npm run build:firefox`  
 Chrome: `npm run build:chrome`  
 WebExtension: `npm run build:webext`
@@ -67,7 +65,7 @@ This will install Tabby as a temporary add-on, so you will need to re-do this ev
 
 After you edit the code, you will need to build again.
 
-Re-do Step 6 of [Building Tabby](#building-tabby) and<br/>
+Re-do Step 5 of [Building Tabby](#building-tabby) and<br/>
 - on Firefox, press the `Reload` button in the Tabby section of the `about:debugging` page.<br/>
 - on Chrome, press the <img src="https://i.imgur.com/FcVtjot.png" alt="Chrome Reload Icon" width="23px" /><!-- https://imgur.com/a/VHMbJ4l --> button in the Tabby section of the `chrome://extensions` page.
 
@@ -89,10 +87,3 @@ src/ - Source code directory (for more info, go to the [README.md](src/README.md
 
 LICENSE - License file<br/>
 README&#46;md - README file
-
-## libs/ (Libraries Used)
-
-Tabby uses the great `lz-string` library for compression!<br/>
-Used min.js file: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.min.js<br/>
-Source: https://raw.githubusercontent.com/pieroxy/lz-string/1.4.4/libs/lz-string.js<br/>
-Source tree: https://github.com/pieroxy/lz-string/tree/1.4.4

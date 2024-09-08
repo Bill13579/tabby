@@ -3,6 +3,7 @@ import { $local$, $sync$, $localtmp$ } from "../tapi/store";
 import { ExecutionState } from "../tapi/ping";
 import { TSession } from "../tapi/tsession";
 import { TTabActions } from "../tapi/taction";
+import LZString from "lz-string";
 
 // import { TSession } from "tapi/tsession";
 
@@ -48,7 +49,7 @@ let updateContextMenu = async () => {
     await browser.contextMenus.create({
         id: "tabby-send-tab-to-",
         title: "Send Tab to...",
-        contexts: ["audio", "editable", "frame", "image", "link", "page", "password", "selection", "tab", "video"],
+        contexts: ["audio", "editable", "frame", "image", "link", "page", "selection", "video"],
     });
     let windows = await browser.windows.getAll({
         populate: false,

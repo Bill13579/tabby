@@ -14,15 +14,13 @@
         "build:webext.dev": "npm run build:cartographer && webpack --config webext.webpack.dev.config.js && npm run gen-manifest:webext",
         "build:firefox": "npm run build:cartographer && webpack --config firefox.webpack.config.js && npm run gen-manifest:firefox",
         "build:firefox.dev": "npm run build:cartographer && webpack --config firefox.webpack.dev.config.js && npm run gen-manifest:firefox",
-        "build:v2-compat": "node build-v2-compat",
         "clean:background": "rimraf dist/background/background.js* dist/background/captureTab.js* dist/background/commands.js* dist/background/tmpClear.js*",
         "clean:content": "rimraf dist/content/content.js*",
         "clean:options": "rimraf dist/options/options.js*",
         "clean:popup": "rimraf dist/popup/popup.js*",
         "clean:manifest": "rimraf dist/manifest.json",
         "clean:cartographer": "rimraf dist/*.module.wasm && rimraf cartographer/target cartographer/pkg",
-        "clean:v2-compat": "rimraf dist/background/tabby2-background.js",
-        "clean": "npm run clean:background && npm run clean:content && npm run clean:options && npm run clean:popup && npm run clean:manifest && npm run clean:cartographer && npm run clean:v2-compat"
+        "clean": "npm run clean:background && npm run clean:content && npm run clean:options && npm run clean:popup && npm run clean:manifest && npm run clean:cartographer"
     },
     "repository": {
         "type": "git",
@@ -45,6 +43,7 @@
     "dependencies": {
         "dompurify": "^3.0.1",
         "get-favicons": "github:Bill13579/get-favicons",
+        "lz-string": "^1.5.0",
         "marked": "^4.2.12",
         "proxy-polyfill": "^0.3.2",
         "smoothscroll-polyfill": "^0.4.4",
