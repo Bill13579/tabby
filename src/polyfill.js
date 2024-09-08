@@ -305,3 +305,10 @@ globalScope["t_getKeyboardFocusableElements"] = (element = document) => {
     )
 }
 
+// https://stackoverflow.com/questions/6268508/restart-animation-in-css3-any-better-way-than-removing-the-element
+globalScope["t_resetAnimation"] = function (el) {
+    el.style.animation = 'none';
+    el.offsetHeight; /* trigger reflow */
+    el.style.animation = null;
+};
+

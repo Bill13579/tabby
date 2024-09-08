@@ -332,6 +332,10 @@ html, body {
 #details-pane::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
 }
+#session-display-pane {
+    display: flex;
+    flex-direction: column;
+}
 #session-pane, #session-display-pane {
     box-sizing: border-box;
     overflow: hidden;
@@ -371,7 +375,7 @@ html, body {
 #details-pane #unloaded-tab-preview-placeholder {
     display: none;
     width: 100%;
-    height: calc(150px * var(--scale));
+    height: calc(220px * var(--scale));
     color: var(--fg-label);
     justify-content: center;
 }
@@ -576,6 +580,35 @@ html, body {
     background-image: none;
 }
 
+/* Filter indicator layout */
+/* #session-display-pane #session-top-pane .manual-filter-indicator-label {
+    grid-row: 3;
+    grid-column: 3 span;
+    align-self: end;
+    justify-self: end;
+    font-weight: bold;
+    color: var(--highlight-1);
+} */
+.manual-filter-indicator {
+    position: absolute;
+    border-radius: 4px;
+    box-shadow: 0 0 0 4px var(--highlight-1);
+    animation-name: pop;
+    animation-duration: .5s;
+    pointer-events: none;
+    background: #ff835426;
+    z-index: 10000;
+}
+.manual-filter-indicator[data-inactive] {
+    display: none;
+}
+@keyframes pop {
+    0% { box-shadow: 0 0 0 4px var(--highlight-1); }
+    3% { box-shadow: 0 0 0 5px var(--highlight-1); }
+    10% { box-shadow: 0 0 0 6px var(--highlight-1); }
+    100% { box-shadow: 0 0 0 4px var(--highlight-1); }
+}
+
 /* Tab list layout (huge chunk of css incoming) */
 
 #where-to-put-the-tab-list {
@@ -597,6 +630,9 @@ html, body {
     margin-bottom: 3px;
 }
 .tab-list .tab-entry.-tui-list-hidden--filter {
+    display: none;
+}
+.tab-list .tab-entry.-tui-list-hidden--manual-filter {
     display: none;
 }
 .tab-list .tab-entry.-tui-list-selected .selected-indicator {
@@ -664,6 +700,9 @@ html, body {
     border-style: dashed;
 }
 
+.tab-list .window-entry:first-child {
+    margin-top: 0px;
+}
 .tab-list .window-entry {
     display: -ms-flex;
     display: -webkit-flex;
@@ -800,6 +839,13 @@ html, body {
 .tab-list .tab-entry.incognito[data-current] {
     border-color: var(--current-tab90);
     background-color: var(--current-tab90);
+}
+
+.tab-list .tab-entry[data-discarded] {
+    /* CSS rule that can be used to style discarded tabs differently. */
+    /* height: calc(13px * var(--scale)); */
+    /* background-color: var(--bg-indented-translucent); */
+    /* opacity: 0.9; */
 }
 
 .tab-list .tab-entry.-tui-list-hover,

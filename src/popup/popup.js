@@ -199,19 +199,25 @@ class TUIList {
     static levelOf(ele) {
         return parseInt(ele.getAttribute("data-level"));
     }
-    hideElement(ele, reason) {
-        for (let e of [ele, ...this.children(ele, true)]) {//TODO3
+    isElementHiddenBy(ele, reason) {
+        return ele.classList.contains("-tui-list-hidden--" + reason);
+    }
+    hideElement(ele, reason, includeSub=true) {
+        for (let e of [ele, ...this.children(ele, includeSub)]) {//TODO3
             const event = new Event("-tui-list-hidden");
             e.dispatchEvent(event);
             e.classList.add("-tui-list-hidden--" + reason);
         }
     }
-    showElement(ele, reason) {
-        for (let e of [ele, ...this.children(ele, true)]) {//TODO3
+    showElement(ele, reason, includeSub=true) {
+        for (let e of [ele, ...this.children(ele, includeSub)]) {//TODO3
             const event = new Event("-tui-list-shown");
             e.dispatchEvent(event);
             e.classList.remove("-tui-list-hidden--" + reason);
         }
+    }
+    getSelected() {
+        return Array.from(this.root.getElementsByClassName("-tui-list-selected"));
     }
     modifySelected(callback) {
         // Setup a fake dragging environment
@@ -940,10 +946,11 @@ class TUISessionView extends TUIListView {
     
                 if (prop === "#position" && hookPos) {
                     let after = list.root.querySelector(`.window-entry[data-window-id="${value.newWindowId}"]`);
-                    after.parentElement.removeChild(e);
+                    // after.parentElement.removeChild(e); // insertBefore will automatically move the element, so no need to manually remove here. However, this also means that the original tab will interfere with the following calculations, which will take that into account.
                     let i = value.newPosition;
                     while (i > 0) {
                         after = after.nextElementSibling;//TODO3
+                        if (after && after.isEqualNode(e)) after = after.nextElementSibling; // Deal with the aforementioned self-interference.
                         i--;
                     }
                     after.parentElement.insertBefore(e, after.nextElementSibling);//TODO3
@@ -976,6 +983,9 @@ class TUISessionView extends TUIListView {
                     favIconPromise.then(base64Image => {
                         favicon.src = base64Image;
                     });
+                } else if (prop === "discarded") {
+                    if (value) e.setAttribute("data-discarded", "");
+                    else e.removeAttribute("data-discarded");
                 } else if (prop === "mutedInfo") {
                     let speaker = e.querySelector(".speaker");
                     if (speaker) {
@@ -1160,7 +1170,7 @@ class SearchDiv extends TUIEditableDiv {
         if (value.trim() === "") {
             this.tabsList.filter(value, undefined);
         } else {
-            let ids = this.sess.getAllTabIdsAsStrings();
+            let ids = this.tabsList.children(this.tabsList.root, true, ele => !this.tabsList.isElementHiddenBy(ele, "manual-filter") && ele.hasAttribute("data-tab-id")).map(ele => ele.getAttribute("data-tab-id"));
             await browser.runtime.sendMessage({
                 _: "search",
                 queryString: value,
@@ -1416,6 +1426,8 @@ class TUITabsList extends TUIListDataInterpret {
             tmp.appendChild(tmp2);
             entry.appendChild(tmp);
 
+            if (data.discarded) entry.setAttribute("data-discarded", "");
+
             tmp = document.createElement("div");
             tmp.className = "single-controls";
             let pin = document.createElement("span");
@@ -1447,7 +1459,7 @@ class TUITabsList extends TUIListDataInterpret {
                 actions = new TTabActions(tabId);
             }
             if (evt["type"] && evt["type"] === "contextmenu") {
-                let moveTabs;
+                let moveTabs, unload, reload;
                 openContextMenu(evt, new TUIMenu(
                     moveTabs = new TUISubMenu(() => {}, (selection) => {
                         if (selection.data.windowId !== undefined) {
@@ -1463,8 +1475,16 @@ class TUITabsList extends TUIListDataInterpret {
                         return new TUIMenuItem(WindowName.getInstance(windowId).displayedValue, "", undefined, undefined, {
                             windowId
                         });
-                    }), new TUIMenuHR(), new TUIMenuItem("A New Window", "", undefined, undefined, {  })], false, "Move Tab(s) to...", "")
-                ).callback(() => {}, (_) => {  }).make());
+                    }), new TUIMenuHR(), new TUIMenuItem("A New Window", "", undefined, undefined, {  })], false, "Move Tab(s) to...", ""),
+                    unload = new TUIMenuItem("Unload", ""),
+                    reload = new TUIMenuItem("Reload", "../icons/refresh.svg")
+                ).callback(() => {}, (state) => {
+                    if (state.target === unload) {
+                        actions.discard();
+                    } else if (state.target === reload) {
+                        actions.reload();
+                    }
+                }).make());
             } else if (evt.target.classList.contains("pin") || evt.key === "p" || evt.key === "P") {
                 await actions.pin(!tabObj.pinned);
             } else if (evt.target.classList.contains("speaker") || evt.key === "m" || evt.key === "M") {
@@ -1856,6 +1876,51 @@ class TUITabsList extends TUIListDataInterpret {
                     }
                 }
             });
+        } else if (evt.key === 'd' || evt.key === 'D') {
+            // Clear manual filters
+            for (let child of tabsList.children(tabsList.root, true)) {
+                tabsList.showElement(child, "manual-filter");
+            }
+            // Hide the manual filter indicator
+            let indicator = tabsList.root.parentElement.querySelector(".manual-filter-indicator");
+            if (indicator) indicator.setAttribute("data-inactive", "");
+
+            // Clear the search
+            search.value = "";
+            search.onInput(search.value);
+            search.root.blur();
+        } else if (evt.key === 'f' || evt.key === 'F') {
+            let allMultiselected = tabsList.getSelected();
+            for (let ele of (allMultiselected.length === 0 ?
+                    tabsList.children(tabsList.root, true, TUIList.isElementHidden) :
+                    tabsList.children(tabsList.root, true, ele => ele.hasAttribute("data-tab-id") && !allMultiselected.includes(ele)))) {
+                tabsList.hideElement(ele, "manual-filter");
+            }
+
+            let indicator = tabsList.root.parentElement.querySelector(".manual-filter-indicator");
+            if (!indicator) {
+                indicator = document.createElement("div");
+                indicator.classList.add("manual-filter-indicator");
+                let rect = tabsList.root.getBoundingClientRect();
+                let rectParent = tabsList.root.parentElement.getBoundingClientRect();
+                indicator.style.width = `${rect.width}px`;
+                indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
+                indicator.style.left = `${rect.left}px`;
+                indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
+                let resizeObserver = new ResizeObserver((_) => {
+                    let rect = tabsList.root.getBoundingClientRect();
+                    let rectParent = tabsList.root.parentElement.getBoundingClientRect();
+                    indicator.style.width = `${rect.width}px`;
+                    indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
+                    indicator.style.left = `${rect.left}px`;
+                    indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
+                });
+                resizeObserver.observe(tabsList.root);
+                resizeObserver.observe(tabsList.root.parentElement);
+                tabsList.root.parentElement.appendChild(indicator);
+            }
+            indicator.removeAttribute("data-inactive");
+            t_resetAnimation(indicator);
         } else if (evt.key === 'i' || evt.key === 'I') {
             tabsList.modifySelected((processSelectCB) => {
                 for (let child of tabsList.children(tabsList.root, true)) {

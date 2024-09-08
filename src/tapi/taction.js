@@ -17,6 +17,18 @@ export class TTabActions {
     openerTabId(v) {
         return Promise.all(this.ids.map(id => browser.tabs.update(id, {openerTabId: v})));
     }
+    reload(bypassCache=false) {
+        return Promise.all(this.ids.map(id => browser.tabs.reload(id, {bypassCache})));
+    }
+    discard() {
+        if (TargetBrowser === "firefox") {
+            return browser.tabs.discard(this.ids);
+        } else if (browser.tabs.discard) {
+            return Promise.all(this.ids.map(id => browser.tabs.discard(id)));
+        } else {
+            // This should be fine for now, since there's not much that can be done if the API itself is unavailable.
+        }
+    }
     remove() {
         return browser.tabs.remove(this.ids);
     }

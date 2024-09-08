@@ -129,7 +129,7 @@ export class TUIMenu extends TUIMenuListLayout {
     }
 }
 export class TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
         this.__labelText = label;
         this.__iconSrc = icon;
         this.iconTransform = iconTransform;
@@ -175,7 +175,7 @@ export class TUIMenuItem {
     }
     set iconSrc(v) {
         this.__iconSrc = v;
-        this.__icon.style.backgroundImage = `url(${this.__iconSrc})`;
+        this.__icon.style.backgroundColor = `black`;
         this.__icon.style.webkitMaskImage = `url(${this.__iconSrc})`;
         this.__icon.style.maskImage = `url(${this.__iconSrc})`;
     }
@@ -197,7 +197,7 @@ export class TUIMenuItem {
         label.classList.add("-tui-menu-item-label");
         
         this.__setLabelContent(label, this.__labelText, this.__markdown);
-        icon.style.backgroundImage = `url(${this.__iconSrc})`;
+        icon.style.backgroundColor = "black";
         icon.style.webkitMaskImage = `url(${this.__iconSrc})`;
         icon.style.maskImage = `url(${this.__iconSrc})`;
         icon.style.transform = this.iconTransform;
@@ -234,17 +234,15 @@ export class TUIMenuItem {
     }
     static colorIcon(icon, color) {
         icon.style.backgroundColor = color;
-        icon.style.backgroundImage = "none";
         icon.classList.remove("-force-filter-svg-to-match-theme");
     }
     static matchThemeIcon(icon) {
         icon.style.backgroundColor = "";
-        icon.style.backgroundImage = "";
         icon.classList.add("-force-filter-svg-to-match-theme");
     }
 }
 export class TUIMenuLabel extends TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
         super(label, icon, iconTransform, markdown, data);
     }
     make(ret) {
@@ -269,7 +267,7 @@ export class TUIMenuHR {
     }
 }
 export class TUISubMenu extends TUIMenuItem {
-    constructor(onMake, onSelect, options, dropdown=false, label="Label", icon="", iconTransform="scale(90%) translateY(-4%)", markdown=false, data=undefined) {
+    constructor(onMake, onSelect, options, dropdown=false, label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
         super(label, icon, iconTransform, markdown, data);
         this.__onMake = onMake;
         this.__onSelect = onSelect;
