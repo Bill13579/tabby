@@ -221,8 +221,8 @@ input[type="text"]:focus {
 }
 .-tui-menu-item {
     display: inline-flex;
-    height: calc(24px * var(--scale));
-    line-height: calc(26px * var(--scale));
+    min-height: calc(24px * var(--scale));
+    line-height: calc(24px * var(--scale));
     padding-left: 4px;
     padding-right: calc(2px + 4.5px);
     /* padding-right: calc(8px + 4.5px); */
@@ -243,7 +243,8 @@ input[type="text"]:focus {
     background-color: var(--bg-lite);
 }
 .-tui-menu-item .-tui-menu-item-icon {
-    height: 100%;
+    /* height: 100%; */
+    align-self: stretch; /* Alternative to height: 100% in this situation */
     width: calc(24px * var(--scale));
     vertical-align: middle;
 

@@ -2188,7 +2188,7 @@ class TUITabsList extends TUIListDataInterpret {
         let generateDropdownOptions = function () {
             let options = [];
             for (let ci of currentCI) {
-                options.push(new TUIMenuItem(ci.name, ci.iconUrl, undefined, {
+                options.push(new TUIMenuItem(ci.name, ci.iconUrl, undefined, undefined, {
                     colorCode: ci.colorCode,
                     cookieStoreId: ci.cookieStoreId
                 }));
@@ -2209,7 +2209,7 @@ class TUITabsList extends TUIListDataInterpret {
                 new TUIMenuListLayout(
                     ...Object.entries(map).filter(([key, value]) => value === undefined).map(([key, value]) => 
                         new TUIMenuFlexLayout(
-                            new TUIMenuLabel(savedCIIdMap[key].name, savedCIIdMap[key].iconUrl, undefined, {
+                            new TUIMenuLabel(savedCIIdMap[key].name, savedCIIdMap[key].iconUrl, undefined, undefined, {
                                 colorCode: savedCIIdMap[key].colorCode
                             }).pushInto(labels),
                             new TUISubMenu((_, options) => {
@@ -2222,7 +2222,7 @@ class TUITabsList extends TUIListDataInterpret {
                                 if (Object.values(map).every(value => value !== undefined)) {
                                     ok.enabled = true;
                                 }
-                            }, generateDropdownOptions(), true, "Select...", "", undefined, { initialSelection: value ? ciIndex(value) : -1 }).pushInto(dropdowns)
+                            }, generateDropdownOptions(), true, "Select...", "", undefined, undefined, { initialSelection: value ? ciIndex(value) : -1 }).pushInto(dropdowns)
                         ).pushInto(rows))
                 ),
                 actions = new TUIMenuFlexLayout(

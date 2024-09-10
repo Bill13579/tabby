@@ -129,7 +129,7 @@ export class TUIMenu extends TUIMenuListLayout {
     }
 }
 export class TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
+    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-4.5%)", markdown=false, data=undefined) {
         this.__labelText = label;
         this.__iconSrc = icon;
         this.iconTransform = iconTransform;
@@ -242,7 +242,7 @@ export class TUIMenuItem {
     }
 }
 export class TUIMenuLabel extends TUIMenuItem {
-    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
+    constructor(label="Label", icon="", iconTransform="scale(80%) translateY(-4.5%)", markdown=false, data=undefined) {
         super(label, icon, iconTransform, markdown, data);
     }
     make(ret) {
@@ -267,7 +267,7 @@ export class TUIMenuHR {
     }
 }
 export class TUISubMenu extends TUIMenuItem {
-    constructor(onMake, onSelect, options, dropdown=false, label="Label", icon="", iconTransform="scale(80%) translateY(-2.8%)", markdown=false, data=undefined) {
+    constructor(onMake, onSelect, options, dropdown=false, label="Label", icon="", iconTransform="scale(80%) translateY(-4.5%)", markdown=false, data=undefined) {
         super(label, icon, iconTransform, markdown, data);
         this.__onMake = onMake;
         this.__onSelect = onSelect;
