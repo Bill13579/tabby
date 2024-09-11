@@ -590,17 +590,14 @@ html, body {
     font-weight: bold;
     color: var(--highlight-1);
 } */
-.manual-filter-indicator {
+.-tui-list-manual-filter-indicator {
     position: absolute;
     border-radius: 4px;
-    box-shadow: 0 0 0 4px var(--highlight-1);
     animation-name: pop;
     animation-duration: .5s;
     pointer-events: none;
-    background: #ff835426;
-    z-index: 10000;
 }
-.manual-filter-indicator[data-inactive] {
+.-tui-list-manual-filter-indicator[data-inactive] {
     display: none;
 }
 @keyframes pop {
@@ -608,6 +605,11 @@ html, body {
     3% { box-shadow: 0 0 0 5px var(--highlight-1); }
     10% { box-shadow: 0 0 0 6px var(--highlight-1); }
     100% { box-shadow: 0 0 0 4px var(--highlight-1); }
+}
+
+.-tui-list-manual-filter-indicator--manual-filter {
+    box-shadow: 0 0 0 4px var(--highlight-1);
+    background: var(--highlight-1-translucent);
 }
 
 /* Tab list layout (huge chunk of css incoming) */

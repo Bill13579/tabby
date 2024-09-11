@@ -109,6 +109,11 @@ class TUIList {
     static isElementHidden(ele) {
         let compStyles = window.getComputedStyle(ele);
         return compStyles.getPropertyValue("display") === "none";
+
+        // Alternative implementation:
+        // return ele.classList.contains("-tui-list-hidden--filter") ||
+        //         ele.classList.contains("-tui-list-hidden--manual-filter") ||
+        //         ele.classList.contains("-tui-list-hidden--llm-filter");
     }
     static isElementVisible(ele) {
         return !TUIList.isElementHidden(ele);
@@ -892,6 +897,79 @@ class TUISessionView extends TUIListView {
         }
     }
     /**
+     * Filter list manually (undefined to reset, "recall" to recall)
+     */
+    manualFilter(filterFunction, reason) {
+        if (filterFunction === "recall") {
+            return $localtmp$.fulfillOnce(`memory:filter-recall--${reason}`, val => {
+                if (val !== undefined) {
+                    let includedTabIds = new Set(JSON.parse(val));
+                    return this.manualFilter(ele => {
+                        if (ele.hasAttribute("data-tab-id")) {
+                            return includedTabIds.has(parseInt(ele.getAttribute("data-tab-id")));
+                        } else {
+                            return true;
+                        }
+                    }, reason);
+                }
+            });
+        }
+        let toInclude = [];
+        this.children(this.root, true, ele => {
+            if (filterFunction === undefined) {
+                this.showElement(ele, reason);
+            } else if (!filterFunction(ele)) {
+                this.hideElement(ele, reason);
+            } else {
+                if (ele.hasAttribute("data-tab-id")) toInclude.push(parseInt(ele.getAttribute("data-tab-id")));
+            }
+            return false;
+        });
+        if (filterFunction === undefined) {
+            // Hide the manual filter indicator
+            let indicator = this.root.parentElement.querySelector(`.-tui-list-manual-filter-indicator--${reason}`); //TODO: Consider replacing with class
+            if (indicator) indicator.setAttribute("data-inactive", "");
+
+            return $localtmp$.unset(`memory:filter-recall--${reason}`);
+        } else {
+            // Show the manual filter indicator
+            let indicator = this.root.parentElement.querySelector(`.-tui-list-manual-filter-indicator--${reason}`);
+            if (!indicator) {
+                indicator = document.createElement("div");
+                indicator.classList.add("-tui-list-manual-filter-indicator");
+                indicator.classList.add(`-tui-list-manual-filter-indicator--${reason}`);
+                let rect = this.root.getBoundingClientRect();
+                let rectParent = this.root.parentElement.getBoundingClientRect();
+                indicator.style.width = `${rect.width}px`;
+                indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
+                indicator.style.left = `${rect.left}px`;
+                indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
+                let resizeObserver = new ResizeObserver((_) => {
+                    let rect = this.root.getBoundingClientRect();
+                    let rectParent = this.root.parentElement.getBoundingClientRect();
+                    indicator.style.width = `${rect.width}px`;
+                    indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
+                    indicator.style.left = `${rect.left}px`;
+                    indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
+                });
+                resizeObserver.observe(this.root);
+                resizeObserver.observe(this.root.parentElement);
+                this.root.parentElement.appendChild(indicator);
+            }
+            for (let otherIndicator of this.root.parentElement.getElementsByClassName("-tui-list-manual-filter-indicator")) {
+                if (otherIndicator.classList.contains(`-tui-list-manual-filter-indicator--${reason}`)) {
+                    otherIndicator.style.zIndex = "999999";
+                } else {
+                    otherIndicator.style.zIndex = "";
+                }
+            }
+            indicator.removeAttribute("data-inactive");
+            t_resetAnimation(indicator);
+
+            return $localtmp$.set(`memory:filter-recall--${reason}`, JSON.stringify(toInclude));
+        }
+    }
+    /**
      * Resort the view completely, as well as any heavy operations concerning going through the entire list,
      *  in order to fix the list's order
      */
@@ -1051,6 +1129,14 @@ class TUISessionView extends TUIListView {
                 e.dispatchEvent(event);
                 e.parentElement.removeChild(e);
             });
+        }
+
+        //TODO: This is ugly but necessary for now, the ideal solution is to have something more flexible built-in that redoes filtering automatically on change, but that's way out of scope for now.
+        if (this.root.getElementsByClassName("-tui-list-hidden--manual-filter").length > 0) {
+            e.classList.add("-tui-list-hidden--manual-filter");
+        }
+        if (this.root.getElementsByClassName("-tui-list-hidden--llm-filter").length > 0) {
+            e.classList.add("-tui-list-hidden--llm-filter");
         }
 
         return e;
@@ -1878,12 +1964,7 @@ class TUITabsList extends TUIListDataInterpret {
             });
         } else if (evt.key === 'd' || evt.key === 'D') {
             // Clear manual filters
-            for (let child of tabsList.children(tabsList.root, true)) {
-                tabsList.showElement(child, "manual-filter");
-            }
-            // Hide the manual filter indicator
-            let indicator = tabsList.root.parentElement.querySelector(".manual-filter-indicator");
-            if (indicator) indicator.setAttribute("data-inactive", "");
+            tabsList.manualFilter(undefined, "manual-filter");
 
             // Clear the search
             search.value = "";
@@ -1891,36 +1972,13 @@ class TUITabsList extends TUIListDataInterpret {
             search.root.blur();
         } else if (evt.key === 'f' || evt.key === 'F') {
             let allMultiselected = tabsList.getSelected();
-            for (let ele of (allMultiselected.length === 0 ?
-                    tabsList.children(tabsList.root, true, TUIList.isElementHidden) :
-                    tabsList.children(tabsList.root, true, ele => ele.hasAttribute("data-tab-id") && !allMultiselected.includes(ele)))) {
-                tabsList.hideElement(ele, "manual-filter");
-            }
 
-            let indicator = tabsList.root.parentElement.querySelector(".manual-filter-indicator");
-            if (!indicator) {
-                indicator = document.createElement("div");
-                indicator.classList.add("manual-filter-indicator");
-                let rect = tabsList.root.getBoundingClientRect();
-                let rectParent = tabsList.root.parentElement.getBoundingClientRect();
-                indicator.style.width = `${rect.width}px`;
-                indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
-                indicator.style.left = `${rect.left}px`;
-                indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
-                let resizeObserver = new ResizeObserver((_) => {
-                    let rect = tabsList.root.getBoundingClientRect();
-                    let rectParent = tabsList.root.parentElement.getBoundingClientRect();
-                    indicator.style.width = `${rect.width}px`;
-                    indicator.style.height = `${Math.min(rect.height, rectParent.height)}px`;
-                    indicator.style.left = `${rect.left}px`;
-                    indicator.style.top = `${Math.max(rect.top, rectParent.top)}px`;
-                });
-                resizeObserver.observe(tabsList.root);
-                resizeObserver.observe(tabsList.root.parentElement);
-                tabsList.root.parentElement.appendChild(indicator);
-            }
-            indicator.removeAttribute("data-inactive");
-            t_resetAnimation(indicator);
+            // Set the filter
+            tabsList.manualFilter(ele => {
+                return allMultiselected.length === 0 ?
+                    TUIList.isElementVisible(ele) :
+                    (ele.hasAttribute("data-tab-id") ? allMultiselected.includes(ele) : true);
+            }, "manual-filter");
         } else if (evt.key === 'i' || evt.key === 'I') {
             tabsList.modifySelected((processSelectCB) => {
                 for (let child of tabsList.children(tabsList.root, true)) {
@@ -1975,6 +2033,9 @@ class TUITabsList extends TUIListDataInterpret {
     let root = TUIList.makeRoot(dataInterpret, undefined);
     let tabsList = new TUISessionView(root, sess, dataInterpret);
     tabsList.root.setAttribute("data-live", "true");
+
+    // Recall manual filters
+    tabsList.manualFilter("recall", "manual-filter");
 
     // Create the search bar
     let search = new SearchDiv(sess, tabsList);
