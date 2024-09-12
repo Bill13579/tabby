@@ -1208,6 +1208,9 @@ class SearchDiv extends TUIEditableDiv {
                     this.onEnter(this.value, evt); // Move to list
                 }
             }
+            if (evt.key === 'Escape') {
+                closeTabby();
+            }
         });
         this.root.addEventListener("keyup", (evt) => {
             this.tabsList.documentHook_keyUp(evt);
