@@ -212,6 +212,10 @@ input[type="text"]:focus {
     flex: 1 1 auto;
     position: fixed;
     z-index: 99999;
+
+    /* For safety, since anything this large might make it impossible to close the menu */
+    max-height: 80vh;
+    overflow-y: auto;
 }
 .-tui-menu.-tui-list-dropdown-menu {
     box-shadow: 0.4px 0.4px 2px 0.2px var(--menu-shadow);
@@ -600,7 +604,7 @@ html, body {
 .-tui-list-manual-filter-indicator[data-inactive] {
     display: none;
 }
-@keyframes pop {
+@keyframes pop-highlight-1 {
     0% { box-shadow: 0 0 0 4px var(--highlight-1); }
     3% { box-shadow: 0 0 0 5px var(--highlight-1); }
     10% { box-shadow: 0 0 0 6px var(--highlight-1); }
@@ -608,6 +612,7 @@ html, body {
 }
 
 .-tui-list-manual-filter-indicator--manual-filter {
+    animation-name: pop-highlight-1;
     box-shadow: 0 0 0 4px var(--highlight-1);
     background: var(--highlight-1-translucent);
 }
