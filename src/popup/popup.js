@@ -702,8 +702,13 @@ class TUIList {
         });
         // The key down event is also artificially activated by ArrowDown and ArrowUp listeners
         e.addEventListener("keydown", (evt) => {
-            onSelection(e, evt);
-            this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
+            // Make sure that the key down event's target matches the current hover, which should be the keydown focus theoretically.
+            // Otherwise, it is likely that the item was focused but not hovered over, and -tui-list-hover takes precedence over browser hover.
+            let lastHover = this.root.querySelector(".-tui-list-hover");
+            if (evt.target.isSameNode(lastHover)) {
+                onSelection(e, evt);
+                this.dataInterpret.handleClick(e, this.root.getElementsByClassName("-tui-list-selected"), evt);
+            }
         });
         let setHoverToNearest = (reason) => {
             // Set hover to another element
@@ -1382,6 +1387,13 @@ class WindowName extends TUIEditableLabel {
             return `${this.__currentValue} (${this.windowOrder})`;
         }
     }
+    get verboseValue() {
+        if (this.__currentValue.trim() === "") {
+            return this.__initialWindowName;
+        } else {
+            return `${this.__currentValue} (Window ${this.windowOrder})`;
+        }
+    }
     get value() {
         return this.__currentValue;
     }
@@ -1509,10 +1521,12 @@ class TUITabsList extends TUIListDataInterpret {
 
             tmp = document.createElement("div");
             tmp.className = "title-wrapper";
+
             let tmp2 = document.createElement("span");
             tmp2.className = "title";
             tmp2.innerText = data.title;
             tmp.appendChild(tmp2);
+
             entry.appendChild(tmp);
 
             if (data.discarded) entry.setAttribute("data-discarded", "");

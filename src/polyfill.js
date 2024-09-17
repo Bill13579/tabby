@@ -312,3 +312,38 @@ globalScope["t_resetAnimation"] = function (el) {
     el.style.animation = null;
 };
 
+// https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string
+/**
+ * If you don't care about primitives and only objects then this function
+ * is for you, otherwise look elsewhere.
+ * This function will return `false` for any valid json primitive.
+ * EG, 'true' -> false
+ *     '123' -> false
+ *     'null' -> false
+ *     '"I'm a string"' -> false
+ */
+globalScope["t_tryParseJSONObject"] = function (jsonString) {
+    try {
+        var o = JSON.parse(jsonString);
+
+        // Handle non-exception-throwing cases:
+        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+        // but... JSON.parse(null) returns null, and typeof null === "object", 
+        // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+        if (o && typeof o === "object") {
+            return o;
+        }
+    }
+    catch (e) { }
+
+    return false;
+};
+
+globalScope["t_sanitizeXMLTags"] = function (text) {
+    return text.replace(/<\/?([a-zA-Z0-9]+)>/g, match => {
+        return match.replace('<', '&lt;').replace('>', '&gt;');
+    });
+};
+
+globalScope["t_errorToString"] = error => `${error.toString()}\n${error.stack || 'No stack trace available.'}`;
+

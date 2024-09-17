@@ -597,7 +597,6 @@ html, body {
 .-tui-list-manual-filter-indicator {
     position: absolute;
     border-radius: 4px;
-    animation-name: pop;
     animation-duration: .5s;
     pointer-events: none;
 }

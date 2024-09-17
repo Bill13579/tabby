@@ -10,7 +10,7 @@ export const TTAB_TRACK_UNCHANGING = ["cookieStoreId", "incognito", "openerTabId
 export const TTAB_TRACK = TTAB_TRACK_ONUPDATED.concat(TTAB_TRACK_ONUPDATED_MANUAL, TTAB_TRACK_ONACTIVATED, TTAB_TRACK_ONMOVED, TTAB_TRACK_ONATTACHED, TTAB_TRACK_UNCHANGING);
 
 export const TTAB_SERIALIZE = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "hidden", "discarded",
-                        "isInReaderMode",
+                        "isInReaderMode", "lastAccessed",
                         "active",
                         "windowId",
                         "cookieStoreId", "incognito", "openerTabId"];
@@ -150,7 +150,7 @@ export class TTab {
     static toTab(ttab, windowId, cookieStoreId) {
         // ============= FOR REFERENCE =============
         // export const TTAB_SERIALIZE = ["favIconUrl", "isArticle", "mutedInfo", "pinned", "title", "url", "hidden", "discarded",
-        //                 "isInReaderMode",
+        //                 "isInReaderMode", "lastAccessed",
         //                 "active",
         //                 "windowId",
         //                 "cookieStoreId", "incognito", "openerTabId"]; "hidden" is currently not recovered, "openerTabId" must be done separately later

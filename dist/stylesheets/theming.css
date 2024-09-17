@@ -26,6 +26,9 @@
     --selected-2: rgb(37, 81, 224);
     --highlight-1: #ff9500;
     --highlight-1-translucent: #ff835426;
+    --highlight-2: #fde50b;
+    --highlight-2-translucent: #fdee4926;
+    --subtitle: cyan;
 
     --input-focus90: #e791ec; /*currently unused*/
     --input-focus90t: #ea4af260; /*currently unused*/
@@ -70,6 +73,9 @@
     --selected-2: #dce9ff;
     --highlight-1: #ff9500;
     --highlight-1-translucent: #ff835426;
+    --highlight-2: #fde50b;
+    --highlight-2-translucent: #fdee4926;
+    --subtitle: darkblue;
 
     --input-focus90: #e791ec; /*currently unused*/
     --input-focus90t: #ea4af260; /*currently unused*/
