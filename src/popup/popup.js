@@ -1571,7 +1571,8 @@ class TUITabsList extends TUIListDataInterpret {
                             // Creating windows, along with other window related operations, tends to have a habit of closing the popup, so the work must be passed to the background script to complete.
                             browser.runtime.sendMessage({
                                 _: "menuMoveTabsToANewWindow",
-                                tabIds: actions.ids
+                                tabIds: actions.ids,
+                                anchorId: tabId
                             });
                         }
                     }, [...this.sess._rel.getWindowIds().map((windowId, _) => {
@@ -1971,8 +1972,17 @@ class TUITabsList extends TUIListDataInterpret {
             tabsList.kb = true;
         } else if (evt.key === 'a' || evt.key === 'A') {
             tabsList.modifySelected((processSelectCB) => {
-                for (let child of tabsList.children(tabsList.root, true)) {
-                    if (TUIList.isElementVisible(child)) {
+                let windowEntries = tabsList.children(tabsList.root, false);
+                let count = windowEntries.length;
+                for (let windowEntry of windowEntries) {
+                    let countPart = windowEntry.getAttribute("data-selected-children-count");
+                    if (countPart !== null) {
+                        count += parseInt(countPart);
+                    }
+                }
+                let allChildren = tabsList.children(tabsList.root, true);
+                for (let child of allChildren) {
+                    if (allChildren.length > count && TUIList.isElementVisible(child)) {
                         processSelectCB(child, evt, "selecting", true);
                     } else {
                         processSelectCB(child, evt, "unselecting", true);
