@@ -4,6 +4,7 @@ import { ExecutionState } from "../tapi/ping";
 import { TSession } from "../tapi/tsession";
 import { TTabActions } from "../tapi/taction";
 import LZString from "lz-string";
+import { TargetBrowser } from "../polyfill";
 
 // import { TSession } from "tapi/tsession";
 
@@ -46,10 +47,12 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 });
 let updateContextMenu = async () => {
     await browser.contextMenus.removeAll();
+    let contexts = ["audio", "editable", "frame", "image", "link", "page", "selection", "video"];
+    if (TargetBrowser === "firefox") contexts.push("tab");
     await browser.contextMenus.create({
         id: "tabby-send-tab-to-",
         title: "Send Tab to...",
-        contexts: ["audio", "editable", "frame", "image", "link", "page", "selection", "video"],
+        contexts,
     });
     let windows = await browser.windows.getAll({
         populate: false,
