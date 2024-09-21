@@ -5,6 +5,8 @@ import { TSession } from "../tapi/tsession";
 import { TTabActions } from "../tapi/taction";
 import LZString from "lz-string";
 import { TargetBrowser } from "../polyfill";
+import { resolveDefault } from "../options/exports";
+import { EXT_IS_MAJOR_RELEASE } from "../../ext-info";
 
 // import { TSession } from "tapi/tsession";
 
@@ -15,10 +17,14 @@ import { TargetBrowser } from "../polyfill";
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
     if (reason !== "browser_update" && reason !== "chrome_update" && reason !== "shared_module_update") {
-        browser.tabs.create({
-            active: true,
-            url: "https://github.com/Bill13579/tabby/wiki/3.2-The-Uwa!!-So-QoL%E2%99%AB-Update"
-        });
+        $local$.fulfillOnce("option:show-whats-new-on", (showWhatsNewOn) => {
+            if (showWhatsNewOn === "update" || (EXT_IS_MAJOR_RELEASE && showWhatsNewOn === "major-update")) {
+                browser.tabs.create({
+                    active: true,
+                    url: "https://github.com/Bill13579/tabby/wiki/3.2-The-Uwa!!-So-QoL%E2%99%AB-Update"
+                });
+            }
+        }, resolveDefault("option:show-whats-new-on"));
     }
 });
 

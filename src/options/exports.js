@@ -10,6 +10,7 @@ let defaults = {
     "option:popup-custom-theme": "",
     "option:popup-theme": "classic",
     "option:dont-clear-search": true,
+    "option:show-whats-new-on": "major-update",
     "option:separate-save": false
 };
 export function resolveDefault(optionID) {

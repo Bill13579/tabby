@@ -1981,8 +1981,11 @@ class TUITabsList extends TUIListDataInterpret {
                     }
                 }
                 let allChildren = tabsList.children(tabsList.root, true);
+                let visibleChildrenCount = allChildren.reduce((accum, child) => accum + (
+                    TUIList.isElementVisible(child) ? 1 : 0
+                ), 0);
                 for (let child of allChildren) {
-                    if (allChildren.length > count && TUIList.isElementVisible(child)) {
+                    if (visibleChildrenCount > count && TUIList.isElementVisible(child)) {
                         processSelectCB(child, evt, "selecting", true);
                     } else {
                         processSelectCB(child, evt, "unselecting", true);

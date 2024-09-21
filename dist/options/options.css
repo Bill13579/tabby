@@ -103,3 +103,17 @@ body {
     color: #ff0000;
     font-weight: bold;
 }
+
+/* Option specific declarations */
+#option-show-whats-new-on[data-state="update"]::after {
+    content: "Showing on updates";
+}
+#option-show-whats-new-on[data-state="major-update"]::after {
+    content: "Showing on major updates";
+}
+#option-show-whats-new-on[data-state="never"]::after {
+    content: "Never showing";
+}
+#option-show-whats-new-on {
+    font-size: small;
+}

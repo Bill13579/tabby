@@ -179,6 +179,29 @@ $local$.fulfill("option:dont-clear-search", (dontClearSearch) => {
     dontClearSearchSwitch.checked = dontClearSearch;
 }, resolveDefault("option:dont-clear-search"));
 
+//option:show-whats-new-on
+$local$.fulfill("option:show-whats-new-on", (showWhatsNewOn) => {
+    // Get elements
+    let showWhatsNewOnLabel = document.querySelector("#option-show-whats-new-on");
+
+    // Set on click listener
+    showWhatsNewOnLabel.onclick = (evt) => {
+        $local$.modify("option:show-whats-new-on", (current) => {
+            switch (current) {
+                case "update":
+                    return "major-update";
+                case "major-update":
+                    return "never";
+                case "never":
+                    return "update";
+            }
+        }, true);
+    };
+
+    // Set current values
+    showWhatsNewOnLabel.setAttribute("data-state", showWhatsNewOn);
+}, resolveDefault("option:show-whats-new-on"));
+
 //option:separate-save
 $local$.fulfill("option:separate-save", (separateSave) => {
     // Get elements
