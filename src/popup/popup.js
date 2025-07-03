@@ -1272,17 +1272,16 @@ class SearchDiv extends TUIEditableDiv {
             });
         }
     }
-    onEnter(_, originalEvent) {
-        if (originalEvent.key) {
-            // Select the first result
-            this.root.blur(); // Blur focus on search
-            let first = this.tabsList.first(TUIList.and(TUIList.isElementVisible, this.tabsList.isElementKeyboardNavigable.bind(this.tabsList)));
-            let lastHover = this.tabsList.root.querySelector(".-tui-list-hover");
-            if (lastHover) lastHover.classList.remove("-tui-list-hover");
-            if (first) {
-                first.classList.add("-tui-list-hover");
-                first.dispatchEvent(new KeyboardEvent("keydown", {'key': "ArrowDown"}));
-                first.dispatchEvent(new KeyboardEvent("keyup", {'key': "ArrowDown"}));
+    async onEnter(_, originalEvent) {
+        if (originalEvent.key) { 
+            this.root.blur();
+            let firstElement = this.tabsList.first(TUIList.and(TUIList.isElementVisible, this.tabsList.isElementKeyboardNavigable.bind(this.tabsList)));
+            if (firstElement) {
+                let lastHover = this.tabsList.root.querySelector(".-tui-list-hover");
+                if (lastHover) lastHover.classList.remove("-tui-list-hover");
+                firstElement.classList.add("-tui-list-hover");
+                this.tabsList.dataInterpret.handleHover(firstElement, originalEvent);
+                await this.tabsList.dataInterpret.handleClick(firstElement, [], originalEvent);
             }
         }
     }
