@@ -1,94 +1,107 @@
 {
+  "manifest_version": 3,
+  "name": "Tabby - Window and Tab Manager",
+  "version": "3.2.1",
+  "description": "Manage great amounts of windows and tabs at ease.",
 
-    "manifest_version": 3,
-    "name": "Tabby - Window and Tab Manager",
-    "version": "<this will be filled in when `gen-manifest` gets run>",
-
-    "description": "Manage great amounts of windows and tabs at ease.",
-    "icons": {
-        "48": "icons/tabby-48.png",
-        "96": "icons/tabby-96.png"
-    },
-
-    "permissions": [
-        "tabs",
-        "storage",
-        "cookies",
-        "contextMenus",
-        "webNavigation",
-        "unlimitedStorage"
-    ],
-    "host_permissions": [  ],
-    
-    "content_security_policy": {
-        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-    },
-
-    "options_ui": {
-        "page": "options/options.html",
-        "open_in_tab": true
-    },
-
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["content/content.js"],
-            "run_at": "document_start"
-        }
-    ],
-    "action": {
-        "default_icon": "icons/tabby-32.png",
-        "default_title": "Tabby",
-        "default_popup": "popup/index.html"
-    },
-    "sidebar_action": {
-        "default_icon": "icons/tabby-32.png",
-        "default_title": "Tabby",
-        "default_panel": "popup/sidebar.html",
-        "browser_style": false,
-        "open_at_install": false
-    },
-    "background": {
-        "scripts": ["background/background.js", "background/captureTab.js", "background/tmpClear.js", "background/commands.js"],
-        "service_worker": "background/background-sw.js"
-    },
-
-    "commands": {
-        "open-tabby-focus-search": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+Space",
-                "mac": "MacCtrl+Shift+Space"
-            },
-            "description": "Open Tabby, with focus on the search bar"
-        },
-        "open-tabby-focus-current": {
-            "suggested_key": {
-                "default": "Alt+Period",
-                "mac": "Alt+Period"
-            },
-            "description": "Open Tabby, with focus on the current tab"
-        },
-        "open-tabby-switch-view": {
-            "suggested_key": {
-                "default": "Alt+Comma",
-                "mac": "Alt+Comma"
-            },
-            "description": "Switch views"
-        },
-        "last-used-tab": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+L",
-                "mac": "MacCtrl+Shift+L"
-            },
-            "description": "Open last used tab"
-        },
-        "last-used-window": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+0",
-                "mac": "MacCtrl+Shift+0"
-            },
-            "description": "Open last used window"
-        }
+  "default_locale": "en",
+  
+  "icons": {
+    "48": "icons/tabby-48.png",
+    "96": "icons/tabby-96.png"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "cookies",
+    "contextMenus",
+    "webNavigation",
+    "unlimitedStorage",
+    "contextualIdentities"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_start"
     }
-
+  ],
+  "action": {
+    "default_icon": "icons/tabby-32.png",
+    "default_title": "Tabby",
+    "default_popup": "popup/index.html"
+  },
+  "sidebar_action": {
+    "default_icon": "icons/tabby-32.png",
+    "default_title": "Tabby",
+    "default_panel": "popup/sidebar.html",
+    "browser_style": false,
+    "open_at_install": false
+  },
+  "background": {
+    "scripts": [
+      "background/background.js",
+      "background/captureTab.js",
+      "background/tmpClear.js",
+      "background/commands.js"
+    ],
+    "service_worker": "background/background-sw.js"
+  },
+  "commands": {
+    "open-tabby-focus-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "MacCtrl+Shift+Space"
+      },
+      "description": "Open Tabby, with focus on the search bar"
+    },
+    "open-tabby-focus-current": {
+      "suggested_key": {
+        "default": "Alt+Period",
+        "mac": "Alt+Period"
+      },
+      "description": "Open Tabby, with focus on the current tab"
+    },
+    "open-tabby-switch-view": {
+      "suggested_key": {
+        "default": "Alt+Comma",
+        "mac": "Alt+Comma"
+      },
+      "description": "Switch views"
+    },
+    "last-used-tab": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "MacCtrl+Shift+L"
+      },
+      "description": "Open last used tab"
+    },
+    "last-used-window": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+0",
+        "mac": "MacCtrl+Shift+0"
+      },
+      "description": "Open last used window"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabby@whatsyouridea.com",
+      "strict_min_version": "59.0"
+    }
+  }
 }
