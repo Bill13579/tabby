@@ -1,0 +1,26 @@
+{
+  "click_tab_to_open": {
+    "message": "Click a tab to open it.",
+    "description": "Instruction to click a tab"
+  },
+  "hover_tab_to_preview": {
+    "message": "Hover over a tab to preview it.",
+    "description": "Instruction to hover over a tab"
+  },
+  "title_label": {
+    "message": "Title",
+    "description": "Label for the title field"
+  },
+  "url_label": {
+    "message": "URL",
+    "description": "Label for the URL field"
+  },
+  "save_for_later": {
+    "message": "Save websites for later",
+    "description": "Tooltip for saving websites for later"
+  },
+  "restore_now": {
+    "message": "Restore websites that have been saved for later",
+    "description": "Tooltip for restoring saved websites"
+  }
+}
