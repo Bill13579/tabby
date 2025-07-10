@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="../stylesheets/prelude.css">
+        <link rel="stylesheet" href="../stylesheets/options.css">
+        <link rel="stylesheet" href="../stylesheets/theming.css">
+        <style id="theming"></style>
+        <link rel="stylesheet" href="./popup.css">
+        <script src="./sidebar.js"></script>
+        <style>
+            :root {
+                --width: 100% !important;
+                --height: 100% !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main" data-view="0">
+            <span id="details-placeholder">__MSG_click_tab_to_open__<br/>__MSG_hover_tab_to_preview__</span>
+            <div id="details-pane">
+                <img id="_details_pane_image_holder" class="preview-image" src="" width="100%" />
+                <div id="unloaded-tab-preview-placeholder">
+                    <span id="unloaded-tab-preview-placeholder-text"></span>
+                </div>
+                <br/>
+                <label>__MSG_title_label__</label><div class="-copy inline-button inline-text-button" data-target="_title_txt"></div>
+                <div class="title -horizontal-scroll">
+                    <span id="_title_txt">Lorem Picsum, get your own images with this API</span>
+                </div>
+                <label>__MSG_url_label__</label><div class="-copy inline-button inline-text-button" data-target="_url_txt"></div>
+                <div class="url -horizontal-scroll" tabindex="-1">
+                    <span id="_url_txt"><a href="https://www.youtube.com/watch?v=8BIeGdBjJiU"> https://www.youtube.com/watch?v=8BIeGdBjJiU</a></span>
+                </div>
+            </div>
+            <div id="session-display-pane" data-static="0">
+                <div id="session-top-pane">
+                    <div id="access-controls">
+                        <div id="save-for-later" title="__MSG_save_for_later__"></div>
+                        <div id="restore-now" title="__MSG_restore_now__"></div>
+                    </div>
+                    <!-- <input id="_search" class="search" type="text" placeholder="Search Tabs" /> -->
+                    <span id="_access_settings" class="settings-button inline-button inline-icon-button -opacity-indication -force-filter-svg-to-match-theme"></span>
+                </div>
+                <div id="where-to-put-the-tab-list" data-keyboard-first>
+                    <!-- ... -->
+                </div>
+            </div>
+            <div id="session-pane"></div>
+        </div>
+        <script type="text/javascript" src="ui.js"></script>
+        <script type="text/javascript" src="popup.js"></script>
+    </body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "click_tab_to_open": {
+    "message": "点击标签以打开。",
+    "description": "Instruction to click a tab"
+  },
+  "hover_tab_to_preview": {
+    "message": "悬停在标签上以预览。",
+    "description": "Instruction to hover over a tab"
+  },
+  "title_label": {
+    "message": "标题",
+    "description": "Label for the title field"
+  },
+  "url_label": {
+    "message": "网址",
+    "description": "Label for the URL field"
+  },
+  "save_for_later": {
+    "message": "保存网站以供稍后使用",
+    "description": "Tooltip for saving websites for later"
+  },
+  "restore_now": {
+    "message": "恢复已保存的网站",
+    "description": "Tooltip for restoring saved websites"
+  }
+}
