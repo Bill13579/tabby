@@ -21,16 +21,21 @@ export class TSession {
         this._tabs = {};
         this._rel = new TRelativeOrder();
         this._tab_updated_hook = (tabId, changeInfo) => {
-            this._tabs[tabId].mergeChanges(changeInfo);
+            if (this._tabs[tabId]) {
+                this._tabs[tabId].mergeChanges(changeInfo);
+            }
         };
         this._tab_activated_hook = (activeInfo) => {
             // console.log(this._rel);
             console.log(activeInfo.windowId, " => ", activeInfo.tabId);
-            if (this._tabs[this._rel.getActiveTab(activeInfo.windowId)]) { //TODO: When does this happen? Only saw this in Edge (and I assume Chrome will have the problem too). My guess is when the tab is a special tab like a popup?
-                this._tabs[this._rel.getActiveTab(activeInfo.windowId)].mergeChanges({active: false});
+            let previousActiveTabId = this._rel.getActiveTab(activeInfo.windowId);
+            if (this._tabs[previousActiveTabId]) { //TODO: When does this happen? Only saw this in Edge (and I assume Chrome will have the problem too). My guess is when the tab is a special tab like a popup?
+                this._tabs[previousActiveTabId].mergeChanges({active: false});
             }
             this._rel.setActiveTab(activeInfo.windowId, activeInfo.tabId);
-            this._tabs[activeInfo.tabId].mergeChanges({active: true});
+            if (this._tabs[activeInfo.tabId]) {
+                this._tabs[activeInfo.tabId].mergeChanges({active: true});
+            }
         };
         this._tab_moved_hook = (tabId, moveInfo) => {
             this._rel.moveTabWithinWindow(moveInfo.windowId, tabId, moveInfo.toIndex);
@@ -44,8 +49,13 @@ export class TSession {
         };
         this._tab_removed_hook = (tabId, removeInfo) => {
             this._rel.removeTabFromWindow(removeInfo.windowId, tabId);
-            this._tabs[tabId].onClosed();
-            setTimeout(() => delete this._tabs[tabId], 1000); //TODO: Find out why a setTimeout is necessary in order to not break onUpdated
+            if (this._rel.getActiveTab(removeInfo.windowId) === tabId) {
+                this._rel.setActiveTab(removeInfo.windowId, -1);
+            }
+            if (this._tabs[tabId]) {
+                this._tabs[tabId].onClosed();
+                setTimeout(() => delete this._tabs[tabId], 1000); //TODO: Find out why a setTimeout is necessary in order to not break onUpdated
+            }
         };
         this._tab_created_hook = (t) => {
             if (!this._rel.hasWindow(t.windowId)) this._rel.registerWindow(t.windowId);
