@@ -263,6 +263,27 @@ class TUIList {
         this.draggedElements = [];
         this.listOptions = listOptions;
         this.kbMap = {};
+        this.clearKeyState = () => {
+            this.kbMap = {};
+            this.disableMultiselect();
+            if (this.endMultiselect) {
+                this.endMultiselect();
+            }
+            if (this.root.parentElement) {
+                this.root.parentElement.style.overflowY = "";
+            }
+        };
+        this.syncModifierState = (evt) => {
+            if (!evt.ctrlKey) delete this.kbMap["Control"];
+            if (!evt.metaKey) delete this.kbMap["Meta"];
+            if (!evt.shiftKey) delete this.kbMap["Shift"];
+            if (!this.kbMap["Meta"] && !this.kbMap["Control"]) {
+                this.disableMultiselect();
+                if (this.root.parentElement) {
+                    this.root.parentElement.style.overflowY = "";
+                }
+            }
+        };
         this.documentHook_keyDown = (evt) => {
             this.kbMap[evt.key] = true;
             if (!evt.repeat && (this.kbMap["Meta"] || this.kbMap["Control"])) {
@@ -284,10 +305,20 @@ class TUIList {
                 this.root.parentElement.style.overflowY = "";
             }
         };
+        this.documentHook_visibilityChange = () => {
+            if (document.hidden) {
+                this.clearKeyState();
+            }
+        };
+        this.windowHook_blur = this.clearKeyState;
+        this.windowHook_focus = this.clearKeyState;
         if (listOptions.allowMultiselect) {
             document.addEventListener("keydown", this.documentHook_keyDown);
         }
         document.addEventListener("keyup", this.documentHook_keyUp);
+        document.addEventListener("visibilitychange", this.documentHook_visibilityChange);
+        window.addEventListener("blur", this.windowHook_blur);
+        window.addEventListener("focus", this.windowHook_focus);
         this.documentHook_keyDownKBOnly = (evt) => {
             //ArrowUp,ArrowDown
             if (!evt.repeat) {
@@ -546,11 +577,13 @@ class TUIList {
             }
         };
         e.addEventListener("click", (evt) => {
+            this.syncModifierState(evt);
             if (!this.multiselect) {
                 processSelect(e, evt);
             }
         });
         e.addEventListener("auxclick", (evt) => {
+            this.syncModifierState(evt);
             if (!this.multiselect && evt.button === 1) {
                 evt.preventDefault();
                 processSelect(e, evt);
@@ -650,6 +683,7 @@ class TUIList {
         };
 
         e.addEventListener("mousedown", (evt) => {
+            this.syncModifierState(evt);
             // Select all nodes from -tui-list-last-selected to the clicked element if "Shift" is pressed
             if (this.kbMap["Shift"] && this.listOptions.allowMultiselect) {
                 if (this.lastSelected) {
@@ -1011,6 +1045,9 @@ class TUISessionView extends TUIListView {
         this.sess.removeListener(this.sessionListener);
         document.removeEventListener("keydown", this.documentHook_keyDown);
         document.removeEventListener("keyup", this.documentHook_keyUp);
+        document.removeEventListener("visibilitychange", this.documentHook_visibilityChange);
+        window.removeEventListener("blur", this.windowHook_blur);
+        window.removeEventListener("focus", this.windowHook_focus);
         document.removeEventListener("keydown", this.documentHook_keyDownKBOnly);
         document.removeEventListener("keyup", this.documentHook_keyUpKBOnly);
         if (this.endMultiselect) {
